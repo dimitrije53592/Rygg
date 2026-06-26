@@ -108,7 +108,7 @@ fun HomeScreen(params: HomeScreenParams) {
                             onClick = { params.onItemClick(item.id.toString()) },
                             onDelete = { params.onDeleteItem(item.id) }
                         )
-                        HorizontalDivider(color = RyggTheme.getColor(RyggColor.Divider))
+                        HorizontalDivider(color = RyggTheme.getColor(RyggColor.SurfaceGray))
                     }
                 }
             }

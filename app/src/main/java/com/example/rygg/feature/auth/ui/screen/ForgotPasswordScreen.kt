@@ -59,7 +59,7 @@ fun ForgotPasswordScreen(params: ForgotPasswordScreenParams) {
             text = stringResource(R.string.forgot_button),
             onClick = params.onSendClick,
             modifier = Modifier.fillMaxWidth(),
-            loading = params.uiState.isLoading
+            isLoading = params.uiState.isLoading
         )
 
         TextButton(onClick = params.onBackClick) {

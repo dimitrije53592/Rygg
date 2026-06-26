@@ -67,7 +67,7 @@ fun RegisterScreen(params: RegisterScreenParams) {
             text = stringResource(R.string.register_button),
             onClick = params.onRegisterClick,
             modifier = Modifier.fillMaxWidth(),
-            loading = params.uiState.isLoading
+            isLoading = params.uiState.isLoading
         )
 
         TextButton(onClick = params.onBackClick) {

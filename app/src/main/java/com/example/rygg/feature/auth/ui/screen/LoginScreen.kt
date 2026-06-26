@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggPrimaryButton
+import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
@@ -33,12 +34,12 @@ fun LoginScreen(params: LoginScreenParams) {
     ) {
         Text(text = stringResource(R.string.login_title), style = RyggTheme.typography.headlineLarge)
 
-        OutlinedTextField(
+        RyggTextField(
             value = params.uiState.email,
             onValueChange = params.onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            label = { Text(stringResource(R.string.auth_email)) }
+            labelText = stringResource(R.string.auth_email)
         )
         OutlinedTextField(
             value = params.uiState.password,
@@ -61,7 +62,7 @@ fun LoginScreen(params: LoginScreenParams) {
             text = stringResource(R.string.login_button),
             onClick = params.onLoginClick,
             modifier = Modifier.fillMaxWidth(),
-            loading = params.uiState.isLoading
+            isLoading = params.uiState.isLoading
         )
 
         OutlinedButton(
