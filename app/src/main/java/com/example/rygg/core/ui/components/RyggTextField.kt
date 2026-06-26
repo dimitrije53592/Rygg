@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
@@ -30,11 +30,12 @@ fun RyggTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
+    isPassword: Boolean = false,
     singleLine: Boolean = true,
     labelText: String? = null,
     labelTextColor: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     placeholderText: String? = null,
-    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.OnBrandLightGray),
+    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.LightGray),
     leadingIcon: Painter? = null,
     leadingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     trailingIcon: Painter? = null,
@@ -63,6 +64,11 @@ fun RyggTextField(
                 onValueChange(it)
             },
             enabled = isEnabled,
+            visualTransformation = if (isPassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
             singleLine = singleLine,
             placeholder = placeholderText?.let {
                 {
@@ -94,9 +100,9 @@ fun RyggTextField(
                 focusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
                 unfocusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
                 focusedContainerColor = RyggTheme.getColor(RyggColor.BackgroundWhite),
-                unfocusedContainerColor = RyggTheme.getColor(RyggColor.SurfaceGray),
-                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.OnBrandLightGray),
-                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.OnBrandLightGray),
+                unfocusedContainerColor = RyggTheme.getColor(RyggColor.Gray),
+                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.LightGray),
+                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.LightGray),
                 focusedBorderColor = RyggTheme.getColor(RyggColor.BrandGreen),
                 unfocusedBorderColor = Color.Transparent
             ),

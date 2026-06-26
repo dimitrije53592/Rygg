@@ -1,17 +1,19 @@
 package com.example.rygg.core.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -31,7 +33,9 @@ fun RyggPrimaryButton(
     textColor: Color = RyggTheme.getColor(RyggColor.BackgroundWhite),
     leadingIcon: Painter? = null,
     leadingIconTint: Color = RyggTheme.getColor(RyggColor.BackgroundWhite),
-    buttonHeight: Dp = RyggTheme.dimens.buttonHeight50
+    buttonHeight: Dp = RyggTheme.dimens.buttonHeight50,
+    borderWidth: Dp = RyggTheme.dimens.border0,
+    borderColor: Color = RyggTheme.getColor(RyggColor.Gray)
 ) {
     Button(
         onClick = onClick,
@@ -39,7 +43,8 @@ fun RyggPrimaryButton(
         modifier = modifier.height(buttonHeight),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor
-        )
+        ),
+        border = BorderStroke(borderWidth, borderColor)
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -49,18 +54,22 @@ fun RyggPrimaryButton(
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 leadingIcon?.let {
                     Icon(
                         painter = leadingIcon,
                         tint = leadingIconTint,
-                        contentDescription = ""
+                        contentDescription = "",
+                        modifier = Modifier.size(RyggTheme.dimens.iconSize24)
                     )
                 }
+                Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
                 Text(
                     text = text,
-                    color = textColor
+                    color = textColor,
+                    style = RyggTheme.typography.titleMedium
                 )
             }
         }

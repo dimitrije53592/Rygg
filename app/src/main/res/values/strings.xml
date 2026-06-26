@@ -24,12 +24,14 @@
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
     <string name="auth_name">Name</string>
-    <string name="login_title">Sign in</string>
+    <string name="login_skip">Skip</string>
+    <string name="login_title">Welcome back</string>
     <string name="login_button">Sign in</string>
     <string name="login_google">Continue with Google</string>
+    <string name="login_or">or</string>
     <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_to_register">Create an account</string>
-    <string name="register_title">Create account</string>
+    <string name="login_new_to_rygg">New to Rygg?</string>
+    <string name="register_title">Create your account</string>
     <string name="register_button">Create account</string>
     <string name="register_to_login">Back to sign in</string>
     <string name="forgot_title">Reset password</string>
