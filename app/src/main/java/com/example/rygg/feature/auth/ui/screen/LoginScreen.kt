@@ -25,7 +25,10 @@ import com.example.rygg.feature.auth.ui.viewmodel.LoginUiState
 
 @Composable
 fun LoginScreen(params: LoginScreenParams) {
-    AuthScaffold(showSkip = true) {
+    AuthScaffold(
+        showSkip = true,
+        onSkipClick = params.onSkipClick
+    ) {
         Text(
             text = stringResource(R.string.login_title),
             style = RyggTheme.typography.headlineLarge,
@@ -108,6 +111,7 @@ fun LoginScreen(params: LoginScreenParams) {
 
 data class LoginScreenParams(
     val uiState: LoginUiState,
+    val onSkipClick: () -> Unit,
     val onEmailChange: (String) -> Unit,
     val onPasswordChange: (String) -> Unit,
     val onLoginClick: () -> Unit,

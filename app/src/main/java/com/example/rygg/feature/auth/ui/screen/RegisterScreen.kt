@@ -23,7 +23,10 @@ import com.example.rygg.feature.auth.ui.viewmodel.RegisterUiState
 
 @Composable
 fun RegisterScreen(params: RegisterScreenParams) {
-    AuthScaffold(showSkip = true) {
+    AuthScaffold(
+        showSkip = true,
+        onSkipClick = params.onSkipClick
+    ) {
         Text(
             text = stringResource(R.string.register_title),
             style = RyggTheme.typography.headlineLarge,
@@ -114,6 +117,7 @@ fun RegisterScreen(params: RegisterScreenParams) {
 
 data class RegisterScreenParams(
     val uiState: RegisterUiState,
+    val onSkipClick: () -> Unit,
     val onNameChange: (String) -> Unit,
     val onSurnameChange: (String) -> Unit,
     val onEmailChange: (String) -> Unit,

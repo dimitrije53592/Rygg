@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginWrapper(
+    onAuthSkipped: () -> Unit,
     onLoggedIn: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
@@ -39,6 +40,7 @@ fun LoginWrapper(
     LoginScreen(
         params = LoginScreenParams(
             uiState = uiState,
+            onSkipClick = onAuthSkipped,
             onEmailChange = viewModel::onEmailChange,
             onPasswordChange = viewModel::onPasswordChange,
             onLoginClick = viewModel::login,
