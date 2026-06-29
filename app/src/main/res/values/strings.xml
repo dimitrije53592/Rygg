@@ -24,6 +24,8 @@
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
     <string name="auth_name">Name</string>
+    <string name="auth_surname">Surname</string>
+    <string name="auth_confirm_password">Confirm password</string>
     <string name="login_skip">Skip</string>
     <string name="login_title">Welcome back</string>
     <string name="login_button">Sign in</string>
@@ -34,6 +36,7 @@
     <string name="register_title">Create your account</string>
     <string name="register_button">Create account</string>
     <string name="register_to_login">Back to sign in</string>
+    <string name="register_have_account">Already have an account?</string>
     <string name="forgot_title">Reset password</string>
     <string name="forgot_button">Send reset email</string>
     <string name="forgot_sent">Reset email sent. Check your inbox.</string>

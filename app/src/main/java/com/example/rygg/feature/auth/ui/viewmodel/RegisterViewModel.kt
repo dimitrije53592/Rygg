@@ -22,9 +22,13 @@ class RegisterViewModel @Inject constructor(
 
     fun onNameChange(value: String) = _uiState.update { it.copy(name = value) }
 
+    fun onSurnameChange(value: String) = _uiState.update { it.copy(surname = value) }
+
     fun onEmailChange(value: String) = _uiState.update { it.copy(email = value) }
 
     fun onPasswordChange(value: String) = _uiState.update { it.copy(password = value) }
+
+    fun onConfirmPasswordChange(value: String) = _uiState.update { it.copy(confirmPassword = value) }
 
     fun register() {
         val current = _uiState.value

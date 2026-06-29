@@ -25,8 +25,10 @@ fun RegisterWrapper(
         params = RegisterScreenParams(
             uiState = uiState,
             onNameChange = viewModel::onNameChange,
+            onSurnameChange = viewModel::onSurnameChange,
             onEmailChange = viewModel::onEmailChange,
             onPasswordChange = viewModel::onPasswordChange,
+            onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
             onRegisterClick = viewModel::register,
             onBackClick = onNavigateBack
         )
