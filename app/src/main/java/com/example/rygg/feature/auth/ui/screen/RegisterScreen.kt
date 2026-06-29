@@ -19,6 +19,7 @@ import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.auth.ui.components.AuthScaffold
+import com.example.rygg.feature.auth.ui.viewmodel.RegisterUiState
 
 @Composable
 fun RegisterScreen(params: RegisterScreenParams) {
@@ -110,17 +111,6 @@ fun RegisterScreen(params: RegisterScreenParams) {
         }
     }
 }
-
-data class RegisterUiState(
-    val name: String = "",
-    val surname: String = "",
-    val email: String = "",
-    val password: String = "",
-    val confirmPassword: String = "",
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val registerSuccess: Boolean = false
-)
 
 data class RegisterScreenParams(
     val uiState: RegisterUiState,

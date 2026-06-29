@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.feature.auth.data.AuthRepository
-import com.example.rygg.feature.auth.ui.screen.RegisterUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,3 +42,14 @@ class RegisterViewModel @Inject constructor(
         }
     }
 }
+
+data class RegisterUiState(
+    val name: String = "",
+    val surname: String = "",
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val registerSuccess: Boolean = false
+)

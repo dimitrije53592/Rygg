@@ -27,6 +27,7 @@ import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.auth.ui.components.AuthScaffold
+import com.example.rygg.feature.auth.ui.viewmodel.ForgotPasswordUiState
 
 @Composable
 fun ForgotPasswordScreen(params: ForgotPasswordScreenParams) {
@@ -142,13 +143,6 @@ private fun SentConfirmation(params: ForgotPasswordScreenParams) {
         )
     }
 }
-
-data class ForgotPasswordUiState(
-    val email: String = "",
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val emailSent: Boolean = false
-)
 
 data class ForgotPasswordScreenParams(
     val uiState: ForgotPasswordUiState,

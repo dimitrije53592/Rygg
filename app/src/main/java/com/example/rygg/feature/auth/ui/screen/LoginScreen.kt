@@ -21,6 +21,7 @@ import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.auth.ui.components.AuthScaffold
 import com.example.rygg.feature.auth.ui.components.TextDivider
+import com.example.rygg.feature.auth.ui.viewmodel.LoginUiState
 
 @Composable
 fun LoginScreen(params: LoginScreenParams) {
@@ -104,14 +105,6 @@ fun LoginScreen(params: LoginScreenParams) {
         }
     }
 }
-
-data class LoginUiState(
-    val email: String = "",
-    val password: String = "",
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val loginSuccess: Boolean = false
-)
 
 data class LoginScreenParams(
     val uiState: LoginUiState,
