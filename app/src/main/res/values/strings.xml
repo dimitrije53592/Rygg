@@ -38,8 +38,13 @@
     <string name="register_to_login">Back to sign in</string>
     <string name="register_have_account">Already have an account?</string>
     <string name="forgot_title">Reset password</string>
+    <string name="forgot_lead">Enter your account email and we\'ll send you a link to set a new password.</string>
     <string name="forgot_button">Send reset email</string>
-    <string name="forgot_sent">Reset email sent. Check your inbox.</string>
+    <string name="forgot_remembered">Remembered it?</string>
+    <string name="forgot_sent_title">Check your inbox</string>
+    <string name="forgot_sent_body">We sent a reset link to %1$s. Open it to set a new password.</string>
+    <string name="forgot_didnt_get">Didn\'t get it?</string>
+    <string name="forgot_resend">Resend</string>
     <string name="forgot_to_login">Back to sign in</string>
 
     <!-- Profile -->
