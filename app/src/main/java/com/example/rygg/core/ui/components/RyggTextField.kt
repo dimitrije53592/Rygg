@@ -1,10 +1,12 @@
 package com.example.rygg.core.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -17,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
@@ -37,11 +41,10 @@ fun RyggTextField(
     placeholderText: String? = null,
     placeholderTextColor: Color = RyggTheme.getColor(RyggColor.MutedGray),
     leadingIcon: Painter? = null,
-    leadingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary),
-    trailingIcon: Painter? = null,
-    trailingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary)
+    leadingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary)
 ) {
     val isFocused = remember { mutableStateOf(false) }
+    val isPasswordVisible = remember { mutableStateOf(false) }
 
     Column {
         labelText?.let {
@@ -64,37 +67,49 @@ fun RyggTextField(
                 onValueChange(it)
             },
             enabled = isEnabled,
-            visualTransformation = if (isPassword) {
+            visualTransformation = if (isPassword && !isPasswordVisible.value) {
                 PasswordVisualTransformation()
             } else {
                 VisualTransformation.None
             },
             singleLine = singleLine,
-            placeholder = placeholderText?.let {
+            placeholder = placeholderText?.let { text ->
                 {
                     Text(
-                        text = placeholderText,
+                        text = text,
                         color = placeholderTextColor
                     )
                 }
             },
-            leadingIcon = leadingIcon?.let {
+            leadingIcon = leadingIcon?.let { painter ->
                 {
                     Icon(
-                        painter = it,
+                        painter = painter,
                         tint = leadingIconTint,
-                        contentDescription = ""
+                        contentDescription = null,
+                        modifier = Modifier.size(RyggTheme.dimens.iconSize24)
                     )
                 }
             },
-            trailingIcon = trailingIcon?.let {
+            trailingIcon = if (isPassword) {
                 {
                     Icon(
-                        painter = trailingIcon,
-                        tint = trailingIconTint,
-                        contentDescription = ""
+                        painter = if (isPasswordVisible.value) {
+                            painterResource(R.drawable.ic_eye)
+                        } else {
+                            painterResource(R.drawable.ic_eye_shut)
+                        },
+                        tint = RyggTheme.getColor(RyggColor.TextSecondary),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(RyggTheme.dimens.iconSize24)
+                            .clickable {
+                                isPasswordVisible.value = !isPasswordVisible.value
+                            }
                     )
                 }
+            } else {
+                null
             },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),

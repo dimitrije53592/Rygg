@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
@@ -43,7 +44,8 @@ fun RegisterScreen(params: RegisterScreenParams) {
                     onValueChange = params.onNameChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    labelText = stringResource(R.string.auth_name)
+                    labelText = stringResource(R.string.auth_name),
+                    leadingIcon = painterResource(R.drawable.ic_name)
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -52,7 +54,8 @@ fun RegisterScreen(params: RegisterScreenParams) {
                     onValueChange = params.onSurnameChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    labelText = stringResource(R.string.auth_surname)
+                    labelText = stringResource(R.string.auth_surname),
+                    leadingIcon = painterResource(R.drawable.ic_name)
                 )
             }
         }
@@ -61,7 +64,8 @@ fun RegisterScreen(params: RegisterScreenParams) {
             onValueChange = params.onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            labelText = stringResource(R.string.auth_email)
+            labelText = stringResource(R.string.auth_email),
+            leadingIcon = painterResource(R.drawable.ic_email)
         )
         RyggTextField(
             value = params.uiState.password,
@@ -69,7 +73,8 @@ fun RegisterScreen(params: RegisterScreenParams) {
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             isPassword = true,
-            labelText = stringResource(R.string.auth_password)
+            labelText = stringResource(R.string.auth_password),
+            leadingIcon = painterResource(R.drawable.ic_password)
         )
         RyggTextField(
             value = params.uiState.confirmPassword,
@@ -77,7 +82,8 @@ fun RegisterScreen(params: RegisterScreenParams) {
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             isPassword = true,
-            labelText = stringResource(R.string.auth_confirm_password)
+            labelText = stringResource(R.string.auth_confirm_password),
+            leadingIcon = painterResource(R.drawable.ic_password)
         )
 
         params.uiState.errorMessage?.let { message ->

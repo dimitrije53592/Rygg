@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,7 +60,8 @@ private fun ResetForm(params: ForgotPasswordScreenParams) {
         onValueChange = params.onEmailChange,
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        labelText = stringResource(R.string.auth_email)
+        labelText = stringResource(R.string.auth_email),
+        leadingIcon = painterResource(R.drawable.ic_email)
     )
 
     params.uiState.errorMessage?.let { message ->

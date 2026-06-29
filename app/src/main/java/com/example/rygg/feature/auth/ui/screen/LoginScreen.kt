@@ -40,7 +40,8 @@ fun LoginScreen(params: LoginScreenParams) {
             onValueChange = params.onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            labelText = stringResource(R.string.auth_email)
+            labelText = stringResource(R.string.auth_email),
+            leadingIcon = painterResource(R.drawable.ic_email)
         )
         RyggTextField(
             value = params.uiState.password,
@@ -48,7 +49,8 @@ fun LoginScreen(params: LoginScreenParams) {
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             isPassword = true,
-            labelText = stringResource(R.string.auth_password)
+            labelText = stringResource(R.string.auth_password),
+            leadingIcon = painterResource(R.drawable.ic_password)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
