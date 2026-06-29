@@ -49,7 +49,7 @@ fun LoginScreen(params: LoginScreenParams) {
             ) {
                 Text(
                     text = stringResource(R.string.login_skip),
-                    color = RyggTheme.getColor(RyggColor.BackgroundWhite),
+                    color = RyggTheme.getColor(RyggColor.OnBrand),
                     style = RyggTheme.typography.headlineSmall,
                     modifier = Modifier.clickable {}
                 )
@@ -71,7 +71,7 @@ fun LoginScreen(params: LoginScreenParams) {
             Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
             Text(
                 text = stringResource(R.string.app_name),
-                color = RyggTheme.getColor(RyggColor.BackgroundWhite),
+                color = RyggTheme.getColor(RyggColor.OnBrand),
                 style = RyggTheme.typography.headlineLarge
             )
         }
@@ -80,7 +80,7 @@ fun LoginScreen(params: LoginScreenParams) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
-                .background(RyggTheme.getColor(RyggColor.BackgroundWhite))
+                .background(RyggTheme.getColor(RyggColor.Background))
                 .padding(RyggTheme.dimens.commonContentPadding24),
             verticalArrangement = Arrangement.spacedBy(
                 RyggTheme.dimens.commonSpacing16,
@@ -143,7 +143,7 @@ fun LoginScreen(params: LoginScreenParams) {
                 modifier = Modifier.fillMaxWidth(),
                 isEnabled = !params.uiState.isLoading,
                 textColor = RyggTheme.getColor(RyggColor.TextPrimary),
-                backgroundColor = RyggTheme.getColor(RyggColor.BackgroundWhite),
+                backgroundColor = RyggTheme.getColor(RyggColor.Background),
                 leadingIcon = painterResource(R.drawable.ic_google_sign_in),
                 leadingIconTint = Color.Unspecified,
                 borderWidth = RyggTheme.dimens.border2

@@ -35,7 +35,7 @@ fun RyggTextField(
     labelText: String? = null,
     labelTextColor: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     placeholderText: String? = null,
-    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.LightGray),
+    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.MutedGray),
     leadingIcon: Painter? = null,
     leadingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     trailingIcon: Painter? = null,
@@ -99,10 +99,10 @@ fun RyggTextField(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
                 unfocusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
-                focusedContainerColor = RyggTheme.getColor(RyggColor.BackgroundWhite),
-                unfocusedContainerColor = RyggTheme.getColor(RyggColor.Gray),
-                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.LightGray),
-                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.LightGray),
+                focusedContainerColor = RyggTheme.getColor(RyggColor.Background),
+                unfocusedContainerColor = RyggTheme.getColor(RyggColor.Surface),
+                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
+                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
                 focusedBorderColor = RyggTheme.getColor(RyggColor.BrandGreen),
                 unfocusedBorderColor = Color.Transparent
             ),

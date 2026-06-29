@@ -29,13 +29,13 @@ fun RyggPrimaryButton(
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     backgroundColor: Color = RyggTheme.getColor(RyggColor.BrandGreen),
-    progressIndicatorColor: Color = RyggTheme.getColor(RyggColor.BackgroundWhite),
-    textColor: Color = RyggTheme.getColor(RyggColor.BackgroundWhite),
+    progressIndicatorColor: Color = RyggTheme.getColor(RyggColor.OnBrand),
+    textColor: Color = RyggTheme.getColor(RyggColor.OnBrand),
     leadingIcon: Painter? = null,
-    leadingIconTint: Color = RyggTheme.getColor(RyggColor.BackgroundWhite),
+    leadingIconTint: Color = RyggTheme.getColor(RyggColor.OnBrand),
     buttonHeight: Dp = RyggTheme.dimens.buttonHeight50,
     borderWidth: Dp = RyggTheme.dimens.border0,
-    borderColor: Color = RyggTheme.getColor(RyggColor.Gray)
+    borderColor: Color = RyggTheme.getColor(RyggColor.Surface)
 ) {
     Button(
         onClick = onClick,

@@ -5,27 +5,28 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 enum class RyggColor(val lightColor: Color, val darkColor: Color) {
-    BrandGreen(lightColor = Color(0xFF0D7A52), darkColor = Color(0xFF6B9BFF)),
-    BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF6B9BFF)),
-    BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFFA47CFF)),
-    LightGray(lightColor = Color(0xFFA8ADA9), darkColor = Color(0xFF000000)),
-    Gray(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF2B2B2B)),
-    BackgroundWhite(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF1C1B1F)),
-    TextPrimary(lightColor = Color(0xFF1A1F26), darkColor = Color(0xFFE6E1E5)),
-    TextSecondary(lightColor = Color(0xFF6D737A), darkColor = Color(0xFFCAC4D0)),
-    Outline(lightColor = Color(0xFFE6F2ED), darkColor = Color(0xFF6B6B6B)),
+    BrandGreen(lightColor = Color(0xFF0D7A52), darkColor = Color(0xFF0E8257)),
+    BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF1B3A31)),
+    BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0E1216)),
+    MutedGray(lightColor = Color(0xFFA8ADA9), darkColor = Color(0xFF8A938E)),
+    Surface(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF20262B)),
+    Background(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF121417)),
+    OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF5F7F6)),
+    TextPrimary(lightColor = Color(0xFF1A1F26), darkColor = Color(0xFFEAEEEC)),
+    TextSecondary(lightColor = Color(0xFF6D737A), darkColor = Color(0xFF9BA5A0)),
+    Outline(lightColor = Color(0xFFE6F2ED), darkColor = Color(0xFF2E3A36)),
     Success(lightColor = Color(0xFF2E7D32), darkColor = Color(0xFF81C784)),
     Error(lightColor = Color(0xFFD32F2F), darkColor = Color(0xFFEF5350))
 }
 
 val LightColorScheme = lightColorScheme(
     primary = RyggColor.BrandGreen.lightColor,
-    onPrimary = RyggColor.LightGray.lightColor,
+    onPrimary = RyggColor.MutedGray.lightColor,
     secondary = RyggColor.BrandGraphite.lightColor,
-    onSecondary = RyggColor.LightGray.lightColor,
-    background = RyggColor.BackgroundWhite.lightColor,
+    onSecondary = RyggColor.MutedGray.lightColor,
+    background = RyggColor.Background.lightColor,
     onBackground = RyggColor.TextPrimary.lightColor,
-    surface = RyggColor.Gray.lightColor,
+    surface = RyggColor.Surface.lightColor,
     onSurface = RyggColor.TextPrimary.lightColor,
     outline = RyggColor.Outline.lightColor,
     error = RyggColor.Error.lightColor
@@ -33,12 +34,12 @@ val LightColorScheme = lightColorScheme(
 
 val DarkColorScheme = darkColorScheme(
     primary = RyggColor.BrandGreen.darkColor,
-    onPrimary = RyggColor.LightGray.darkColor,
+    onPrimary = RyggColor.MutedGray.darkColor,
     secondary = RyggColor.BrandGraphite.darkColor,
-    onSecondary = RyggColor.LightGray.darkColor,
-    background = RyggColor.BackgroundWhite.darkColor,
+    onSecondary = RyggColor.MutedGray.darkColor,
+    background = RyggColor.Background.darkColor,
     onBackground = RyggColor.TextPrimary.darkColor,
-    surface = RyggColor.Gray.darkColor,
+    surface = RyggColor.Surface.darkColor,
     onSurface = RyggColor.TextPrimary.darkColor,
     outline = RyggColor.Outline.darkColor,
     error = RyggColor.Error.darkColor
