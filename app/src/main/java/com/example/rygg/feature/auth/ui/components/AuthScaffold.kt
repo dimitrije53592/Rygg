@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,10 +32,6 @@ import com.example.rygg.core.ui.theme.RyggTheme
 
 /**
  * Shared shell for the auth screens (login / register / forgot password).
- *
- * Renders the graphite backdrop, the brand hero (logo + wordmark) and a rounded
- * card that hosts the form passed via [content]. The card fills the remaining
- * height to the bottom edge and keeps its form contents vertically centered.
  */
 @Composable
 fun AuthScaffold(
@@ -45,7 +43,9 @@ fun AuthScaffold(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(RyggTheme.getColor(RyggColor.BrandGraphite)),
+            .verticalScroll(rememberScrollState())
+            .background(RyggTheme.getColor(RyggColor.BrandGraphite))
+            .padding(horizontal = RyggTheme.dimens.commonContentPadding16),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -97,16 +97,13 @@ fun AuthScaffold(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
-                .background(RyggTheme.getColor(RyggColor.Background))
+                .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
                 .padding(RyggTheme.dimens.commonContentPadding24),
-            verticalArrangement = Arrangement.spacedBy(
-                RyggTheme.dimens.commonSpacing16,
-                Alignment.CenterVertically
-            ),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16),
             horizontalAlignment = Alignment.CenterHorizontally,
             content = content
         )
+        Spacer(Modifier.size(RyggTheme.dimens.commonSpacing32))
     }
 }

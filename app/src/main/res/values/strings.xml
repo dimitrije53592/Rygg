@@ -26,6 +26,7 @@
     <string name="auth_name">Name</string>
     <string name="auth_surname">Surname</string>
     <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_password_mismatch">Passwords don\'t match</string>
     <string name="login_skip">Skip</string>
     <string name="login_title">Welcome back</string>
     <string name="login_button">Sign in</string>

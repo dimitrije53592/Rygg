@@ -86,6 +86,14 @@ fun RegisterScreen(params: RegisterScreenParams) {
             leadingIcon = painterResource(R.drawable.ic_password)
         )
 
+        if (params.uiState.passwordMismatch) {
+            Text(
+                text = stringResource(R.string.auth_password_mismatch),
+                style = RyggTheme.typography.bodyMedium,
+                color = RyggTheme.getColor(RyggColor.Error)
+            )
+        }
+
         params.uiState.errorMessage?.let { message ->
             Text(
                 text = message,

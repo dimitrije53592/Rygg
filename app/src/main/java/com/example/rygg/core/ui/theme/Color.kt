@@ -10,6 +10,7 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0E1216)),
     MutedGray(lightColor = Color(0xFFA8ADA9), darkColor = Color(0xFF8A938E)),
     Surface(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF20262B)),
+    SurfaceElevated(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF2A3138)),
     Background(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF121417)),
     OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF5F7F6)),
     TextPrimary(lightColor = Color(0xFF1A1F26), darkColor = Color(0xFFEAEEEC)),
