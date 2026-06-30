@@ -26,16 +26,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.rygg.R
 import com.example.rygg.feature.auth.ui.viewmodel.AuthViewModel
 import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
 import com.example.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.example.rygg.feature.auth.ui.wrapper.RegisterWrapper
-import com.example.rygg.feature.details.ui.screen.DetailsScreen
-import com.example.rygg.feature.details.ui.screen.DetailsScreenParams
-import com.example.rygg.feature.details.ui.screen.DetailsUiState
-import com.example.rygg.feature.home.ui.wrapper.HomeWrapper
+import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.profile.ui.screen.ProfileScreen
 import com.example.rygg.feature.profile.ui.screen.ProfileScreenParams
 import com.example.rygg.feature.profile.ui.screen.ProfileUiState
@@ -50,7 +46,7 @@ fun AppNavigation() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
 
-    val startDestination: Any = remember { if (authViewModel.isLoggedIn()) Home else Login }
+    val startDestination: Any = remember { if (authViewModel.isLoggedIn()) Library else Login }
 
     val currentTopLevel = TopLevelDestination.entries.firstOrNull { currentDestination.isOn(it) }
     val isTopLevel = currentTopLevel != null
@@ -60,7 +56,7 @@ fun AppNavigation() {
         topBar = {
             if (!isAuthScreen) {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(currentTitleRes(currentTopLevel, currentDestination))) },
+                    title = { Text(stringResource(currentTitleRes(currentTopLevel))) },
                     navigationIcon = {
                         if (!isTopLevel) {
                             IconButton(onClick = { navController.navigateUp() }) {
@@ -97,12 +93,12 @@ fun AppNavigation() {
             composable<Login> {
                 LoginWrapper(
                     onAuthSkipped = {
-                        navController.navigate(Home) {
+                        navController.navigate(Library) {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     },
                     onLoggedIn = {
-                        navController.navigate(Home) {
+                        navController.navigate(Library) {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     },
@@ -113,12 +109,12 @@ fun AppNavigation() {
             composable<Register> {
                 RegisterWrapper(
                     onAuthSkip = {
-                        navController.navigate(Home) {
+                        navController.navigate(Library) {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     },
                     onRegistered = {
-                        navController.navigate(Home) {
+                        navController.navigate(Library) {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     },
@@ -128,8 +124,8 @@ fun AppNavigation() {
             composable<ForgotPassword> {
                 ForgotPasswordWrapper(onNavigateBack = { navController.navigateUp() })
             }
-            composable<Home> {
-                HomeWrapper(onItemClick = { id -> navController.navigate(Details(id = id)) })
+            composable<Library> {
+                LibraryWrapper()
             }
             composable<Profile> {
                 val user by authViewModel.currentUser.collectAsStateWithLifecycle()
@@ -151,9 +147,6 @@ fun AppNavigation() {
             composable<Settings> {
                 SettingsWrapper()
             }
-            composable<Details> { entry ->
-                DetailsScreen(params = DetailsScreenParams(uiState = DetailsUiState(id = entry.toRoute<Details>().id)))
-            }
         }
     }
 }
@@ -166,10 +159,8 @@ private fun NavDestination?.isAnyOf(vararg routes: KClass<*>): Boolean =
 
 @StringRes
 private fun currentTitleRes(
-    topLevel: TopLevelDestination?,
-    destination: NavDestination?
+    topLevel: TopLevelDestination?
 ): Int = when {
     topLevel != null -> topLevel.labelRes
-    destination?.hasRoute(Details::class) == true -> R.string.title_details
     else -> R.string.app_name
 }

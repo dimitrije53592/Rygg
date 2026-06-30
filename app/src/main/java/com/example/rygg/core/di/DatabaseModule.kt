@@ -3,7 +3,7 @@ package com.example.rygg.core.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rygg.core.database.RyggDatabase
-import com.example.rygg.feature.home.data.local.ItemDao
+import com.example.rygg.feature.library.data.local.GpxFileEntryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,5 +22,5 @@ object DatabaseModule {
             .build()
 
     @Provides
-    fun provideItemDao(database: RyggDatabase): ItemDao = database.itemDao()
+    fun provideGpxFileEntryDao(database: RyggDatabase): GpxFileEntryDao = database.gpxFileEntryDao()
 }
