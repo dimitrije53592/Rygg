@@ -96,6 +96,11 @@ fun AppNavigation() {
         ) {
             composable<Login> {
                 LoginWrapper(
+                    onAuthSkipped = {
+                        navController.navigate(Home) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
                     onLoggedIn = {
                         navController.navigate(Home) {
                             popUpTo(navController.graph.id) { inclusive = true }
@@ -107,6 +112,11 @@ fun AppNavigation() {
             }
             composable<Register> {
                 RegisterWrapper(
+                    onAuthSkip = {
+                        navController.navigate(Home) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
                     onRegistered = {
                         navController.navigate(Home) {
                             popUpTo(navController.graph.id) { inclusive = true }

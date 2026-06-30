@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.feature.auth.data.AuthRepository
-import com.example.rygg.feature.auth.ui.screen.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,3 +52,11 @@ class LoginViewModel @Inject constructor(
         it.copy(isLoading = false, errorMessage = message)
     }
 }
+
+data class LoginUiState(
+    val email: String = "",
+    val password: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val loginSuccess: Boolean = false
+)

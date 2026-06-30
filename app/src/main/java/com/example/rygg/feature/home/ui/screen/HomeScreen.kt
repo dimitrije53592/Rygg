@@ -29,6 +29,7 @@ import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.home.domain.Item
 import com.example.rygg.feature.home.ui.components.ItemRow
+import com.example.rygg.feature.home.ui.viewmodel.HomeUiState
 
 @Composable
 fun HomeScreen(params: HomeScreenParams) {
@@ -108,7 +109,7 @@ fun HomeScreen(params: HomeScreenParams) {
                             onClick = { params.onItemClick(item.id.toString()) },
                             onDelete = { params.onDeleteItem(item.id) }
                         )
-                        HorizontalDivider(color = RyggTheme.getColor(RyggColor.Divider))
+                        HorizontalDivider(color = RyggTheme.getColor(RyggColor.Surface))
                     }
                 }
             }
@@ -137,12 +138,6 @@ private fun HomeScreenPreview() {
         )
     }
 }
-
-data class HomeUiState(
-    val items: List<Item> = emptyList(),
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null
-)
 
 data class HomeScreenParams(
     val uiState: HomeUiState,

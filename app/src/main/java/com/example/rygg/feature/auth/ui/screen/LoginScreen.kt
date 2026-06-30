@@ -1,54 +1,70 @@
 package com.example.rygg.feature.auth.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggPrimaryButton
+import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
+import com.example.rygg.feature.auth.ui.components.AuthScaffold
+import com.example.rygg.feature.auth.ui.components.TextDivider
+import com.example.rygg.feature.auth.ui.viewmodel.LoginUiState
 
 @Composable
 fun LoginScreen(params: LoginScreenParams) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(RyggTheme.dimens.commonContentPadding24),
-        verticalArrangement = Arrangement.spacedBy(
-            RyggTheme.dimens.commonSpacing16,
-            Alignment.CenterVertically
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally
+    AuthScaffold(
+        showSkip = true,
+        onSkipClick = params.onSkipClick
     ) {
-        Text(text = stringResource(R.string.login_title), style = RyggTheme.typography.headlineLarge)
-
-        OutlinedTextField(
+        Text(
+            text = stringResource(R.string.login_title),
+            style = RyggTheme.typography.headlineLarge,
+            color = RyggTheme.getColor(RyggColor.TextPrimary),
+            modifier = Modifier.padding(bottom = RyggTheme.dimens.commonContentPadding8)
+        )
+        RyggTextField(
             value = params.uiState.email,
             onValueChange = params.onEmailChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            label = { Text(stringResource(R.string.auth_email)) }
+            labelText = stringResource(R.string.auth_email),
+            leadingIcon = painterResource(R.drawable.ic_email)
         )
-        OutlinedTextField(
+        RyggTextField(
             value = params.uiState.password,
             onValueChange = params.onPasswordChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            label = { Text(stringResource(R.string.auth_password)) }
+            isPassword = true,
+            labelText = stringResource(R.string.auth_password),
+            leadingIcon = painterResource(R.drawable.ic_password)
         )
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = stringResource(R.string.login_forgot_password),
+                color = RyggTheme.getColor(RyggColor.BrandGreen),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    params.onForgotPasswordClick()
+                }
+            )
+        }
         params.uiState.errorMessage?.let { message ->
             Text(
                 text = message,
@@ -56,41 +72,48 @@ fun LoginScreen(params: LoginScreenParams) {
                 color = RyggTheme.getColor(RyggColor.Error)
             )
         }
-
         RyggPrimaryButton(
             text = stringResource(R.string.login_button),
             onClick = params.onLoginClick,
             modifier = Modifier.fillMaxWidth(),
-            loading = params.uiState.isLoading
+            isLoading = params.uiState.isLoading
         )
-
-        OutlinedButton(
+        TextDivider(text = stringResource(R.string.login_or))
+        RyggPrimaryButton(
+            text = stringResource(R.string.login_google),
             onClick = params.onGoogleSignInClick,
-            enabled = !params.uiState.isLoading,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isEnabled = !params.uiState.isLoading,
+            textColor = RyggTheme.getColor(RyggColor.TextPrimary),
+            backgroundColor = RyggTheme.getColor(RyggColor.Background),
+            leadingIcon = painterResource(R.drawable.ic_google_sign_in),
+            leadingIconTint = Color.Unspecified,
+            borderWidth = RyggTheme.dimens.border2
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(stringResource(R.string.login_google))
-        }
-
-        TextButton(onClick = params.onForgotPasswordClick) {
-            Text(stringResource(R.string.login_forgot_password))
-        }
-        TextButton(onClick = params.onRegisterClick) {
-            Text(stringResource(R.string.login_to_register))
+            Text(
+                text = stringResource(R.string.login_new_to_rygg),
+                color = RyggTheme.getColor(RyggColor.TextSecondary)
+            )
+            Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
+            Text(
+                text = stringResource(R.string.register_title),
+                color = RyggTheme.getColor(RyggColor.BrandGreen),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    params.onRegisterClick()
+                }
+            )
         }
     }
 }
 
-data class LoginUiState(
-    val email: String = "",
-    val password: String = "",
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val loginSuccess: Boolean = false
-)
-
 data class LoginScreenParams(
     val uiState: LoginUiState,
+    val onSkipClick: () -> Unit,
     val onEmailChange: (String) -> Unit,
     val onPasswordChange: (String) -> Unit,
     val onLoginClick: () -> Unit,

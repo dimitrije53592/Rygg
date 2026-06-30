@@ -8,7 +8,7 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
 import com.example.rygg.core.notification.NotificationHelper
 import com.example.rygg.feature.home.data.ItemRepository
-import com.example.rygg.feature.home.ui.screen.HomeUiState
+import com.example.rygg.feature.home.domain.Item
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,3 +53,9 @@ class HomeViewModel @Inject constructor(
         notificationHelper.notify(title = title, message = message)
     }
 }
+
+data class HomeUiState(
+    val items: List<Item> = emptyList(),
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null
+)

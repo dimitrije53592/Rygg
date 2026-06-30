@@ -24,17 +24,28 @@
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
     <string name="auth_name">Name</string>
-    <string name="login_title">Sign in</string>
+    <string name="auth_surname">Surname</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_password_mismatch">Passwords don\'t match</string>
+    <string name="login_skip">Skip</string>
+    <string name="login_title">Welcome back</string>
     <string name="login_button">Sign in</string>
     <string name="login_google">Continue with Google</string>
+    <string name="login_or">or</string>
     <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_to_register">Create an account</string>
-    <string name="register_title">Create account</string>
+    <string name="login_new_to_rygg">New to Rygg?</string>
+    <string name="register_title">Create your account</string>
     <string name="register_button">Create account</string>
     <string name="register_to_login">Back to sign in</string>
+    <string name="register_have_account">Already have an account?</string>
     <string name="forgot_title">Reset password</string>
+    <string name="forgot_lead">Enter your account email and we\'ll send you a link to set a new password.</string>
     <string name="forgot_button">Send reset email</string>
-    <string name="forgot_sent">Reset email sent. Check your inbox.</string>
+    <string name="forgot_remembered">Remembered it?</string>
+    <string name="forgot_sent_title">Check your inbox</string>
+    <string name="forgot_sent_body">We sent a reset link to %1$s. Open it to set a new password.</string>
+    <string name="forgot_didnt_get">Didn\'t get it?</string>
+    <string name="forgot_resend">Resend</string>
     <string name="forgot_to_login">Back to sign in</string>
 
     <!-- Profile -->

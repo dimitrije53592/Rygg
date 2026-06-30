@@ -11,6 +11,7 @@ import com.example.rygg.feature.auth.ui.viewmodel.RegisterViewModel
 
 @Composable
 fun RegisterWrapper(
+    onAuthSkip: () -> Unit,
     onRegistered: () -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: RegisterViewModel = hiltViewModel()
@@ -24,9 +25,12 @@ fun RegisterWrapper(
     RegisterScreen(
         params = RegisterScreenParams(
             uiState = uiState,
+            onSkipClick = onAuthSkip,
             onNameChange = viewModel::onNameChange,
+            onSurnameChange = viewModel::onSurnameChange,
             onEmailChange = viewModel::onEmailChange,
             onPasswordChange = viewModel::onPasswordChange,
+            onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
             onRegisterClick = viewModel::register,
             onBackClick = onNavigateBack
         )
