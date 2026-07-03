@@ -129,6 +129,7 @@ fun AppNavigation() {
             }
             composable<Profile> {
                 val user by authViewModel.currentUser.collectAsStateWithLifecycle()
+
                 ProfileScreen(
                     params = ProfileScreenParams(
                         uiState = ProfileUiState(

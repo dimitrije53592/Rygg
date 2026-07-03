@@ -21,14 +21,7 @@ fun LibraryWrapper(
         params = LibraryScreenParams(
             uiState = uiState,
             onFilePicked = { uri ->
-                context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val xml = inputStream.bufferedReader().use { it.readText() }
-                    xml.chunked(3500).forEachIndexed { i, chunk ->
-                        Log.d("Sofija", "part $i:\n$chunk")
-                    }
-
-//                    GpxParser.parse(inputStream)
-                }
+                viewModel.importGpxFile(uri)
             }
         )
     )

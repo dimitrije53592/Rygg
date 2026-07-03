@@ -11,7 +11,7 @@ interface GpxFileEntryDao {
     fun observeAll(): Flow<List<GpxFileEntryEntity>>
 
     @Insert
-    suspend fun insert(item: GpxFileEntryEntity)
+    suspend fun insert(entry: GpxFileEntryEntity): Long
 
     @Query("DELETE FROM library WHERE id = :id")
     suspend fun deleteById(id: Long)
