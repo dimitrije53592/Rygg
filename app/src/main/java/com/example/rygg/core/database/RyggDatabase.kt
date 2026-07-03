@@ -2,7 +2,6 @@ package com.example.rygg.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.rygg.core.database.converters.Converters
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao

@@ -16,14 +16,14 @@ class GpxStorage @Inject constructor(
         get() = File(context.filesDir, "trips").apply { mkdirs() }
 
     suspend fun saveFromUri(uri: Uri): File = withContext(Dispatchers.IO) {
-            val target = File(filesDir, "${Uuid.random()}.gpx")
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                target.outputStream().use { output ->
-                    input.copyTo(output)
-                }
+        val target = File(filesDir, "${Uuid.random()}.gpx")
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            target.outputStream().use { output ->
+                input.copyTo(output)
             }
-            target
         }
+        target
+    }
 
     fun resolve(fileName: String) = File(filesDir, fileName)
 }

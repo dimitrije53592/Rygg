@@ -16,19 +16,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 
 @Composable
 fun LibraryScreen(params: LibraryScreenParams) {
-
     val filePicker = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri ?: return@rememberLauncherForActivityResult
         params.onFilePicked(uri)
     }
-
 
     Column(
         modifier = Modifier

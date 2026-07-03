@@ -1,6 +1,5 @@
 package com.example.rygg.feature.library.data
 
-import androidx.room.TypeConverter
 import com.example.rygg.feature.library.data.local.GpxFileEntryEntity
 import com.example.rygg.feature.library.domain.GpxFileEntry
 

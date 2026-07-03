@@ -17,7 +17,7 @@ data class Extras(
 data class GpxDocument(
     val version: String? = null,
     val creator: String? = null,
-    val namespaces:  Map<String, String> = emptyMap(),
+    val namespaces: Map<String, String> = emptyMap(),
     val metadata: GpxMetadata? = null,
     val waypoints: List<GpxPoint> = emptyList(),
     val routes: List<Route> = emptyList(),
@@ -42,7 +42,15 @@ data class GpxMetadata(
     val name: String? = null,
     val desc: String? = null,
     val time: Instant? = null,
+    val bounds: GpxBounds? = null,
     val extras: Extras = Extras()
+)
+
+data class GpxBounds(
+    val minLat: Double,
+    val minLon: Double,
+    val maxLat: Double,
+    val maxLon: Double
 )
 
 data class TrackSegment(

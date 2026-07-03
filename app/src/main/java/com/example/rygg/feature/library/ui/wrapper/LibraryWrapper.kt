@@ -1,6 +1,5 @@
 package com.example.rygg.feature.library.ui.wrapper
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext

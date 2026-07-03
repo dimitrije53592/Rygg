@@ -6,7 +6,6 @@ import com.example.rygg.core.common.outcomeCatching
 import com.example.rygg.core.gpx.GpxAnalyzer
 import com.example.rygg.core.gpx.GpxParser
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao
-import com.example.rygg.feature.library.data.local.GpxFileEntryEntity
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,7 +22,7 @@ class GpxFileEntryRepository @Inject constructor(
 
     suspend fun importGpxFile(uri: Uri): Outcome<Long> = outcomeCatching {
         val file = gpxStorage.saveFromUri(uri)
-        val parsed = file.inputStream().use { gpxParser.parse(it)}
+        val parsed = file.inputStream().use { gpxParser.parse(it) }
         val entry = gpxAnalyzer.analyze(parsed.gpxDocument)
         gpxFileEntryDao.insert(entry.toEntity())
     }
