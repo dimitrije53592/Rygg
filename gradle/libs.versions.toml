@@ -1,31 +1,32 @@
 [versions]
 agp = "9.2.1"
-kotlin = "2.2.10"
+kotlin = "2.4.0"
 ksp = "2.2.10-2.0.2" # must match the kotlin version
 desugarJdkLibs = "2.1.5"
 coreKtx = "1.19.0"
-lifecycleRuntimeKtx = "2.10.0"
+lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.02.01"
-navigationCompose = "2.9.5"
+composeBom = "2026.06.00"
+navigationCompose = "2.9.8"
 materialIconsExtended = "1.7.8"
-datastore = "1.1.7"
-kotlinxSerialization = "1.9.0"
-hilt = "2.59.2" # 2.59+ required for AGP 9
+datastore = "1.2.1"
+kotlinxSerialization = "1.11.0"
+hilt = "2.60" # 2.59+ required for AGP 9
 hiltExt = "1.3.0"
-room = "2.8.2"
-googleServices = "4.4.3"
-firebaseBom = "34.3.0"
-credentials = "1.3.0"
-googleid = "1.1.1"
+room = "2.8.4"
+googleServices = "4.5.0"
+firebaseBom = "34.15.0"
+credentials = "1.6.0"
+googleid = "1.2.0"
 coroutinesPlayServices = "1.10.2"
-retrofit = "2.11.0"
-okhttp = "4.12.0"
-gson = "2.11.0"
+retrofit = "3.0.0"
+okhttp = "5.4.0"
+gson = "2.14.0"
 ktlint = "14.2.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
+kxml2 = "2.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +68,7 @@ desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", ver
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+kxml2 = { group = "net.sf.kxml", name = "kxml2", version.ref = "kxml2" }
 
 [plugins]
 # No kotlin-android plugin: AGP 9 provides built-in Kotlin.

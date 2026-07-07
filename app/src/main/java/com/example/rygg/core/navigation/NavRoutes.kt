@@ -12,13 +12,10 @@ data object Register
 data object ForgotPassword
 
 @Serializable
-data object Home
+data object Library
 
 @Serializable
 data object Profile
 
 @Serializable
 data object Settings
-
-@Serializable
-data class Details(val id: String)

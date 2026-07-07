@@ -2,7 +2,7 @@
     <string name="app_name">Plantilla</string>
 
     <!-- Navigation -->
-    <string name="nav_home">Inicio</string>
+    <string name="nav_library">Inicio</string>
     <string name="nav_profile">Perfil</string>
     <string name="nav_settings">Ajustes</string>
     <string name="nav_back">Atrás</string>
