@@ -13,7 +13,6 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryViewModel
 fun LibraryWrapper(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LibraryScreen(
