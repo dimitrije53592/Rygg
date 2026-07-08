@@ -1,6 +1,7 @@
 package com.example.rygg.feature.library.ui.screen
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggTopAppBar
+import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.rememberFilePicker
 import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
@@ -26,13 +28,15 @@ fun LibraryScreen(params: LibraryScreenParams) {
     Scaffold(
         topBar = {
             RyggTopAppBar(
-                title = "Library"
-            ) {}
+                title = "Library",
+                actions = {}
+            )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(RyggTheme.getColor(RyggColor.SurfaceDim))
                 .padding(innerPadding)
                 .padding(RyggTheme.dimens.commonContentPadding16),
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
