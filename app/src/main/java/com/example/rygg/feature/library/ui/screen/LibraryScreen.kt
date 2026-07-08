@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.rememberFilePicker
 import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
@@ -21,17 +23,26 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 fun LibraryScreen(params: LibraryScreenParams) {
     val launchFilePicker = rememberFilePicker(onFilePicked = params.onFilePicked)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(RyggTheme.dimens.commonContentPadding16),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
-    ) {
-        OutlinedButton(
-            onClick = { launchFilePicker() },
-            modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        topBar = {
+            RyggTopAppBar(
+                title = "Library"
+            ) {}
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(RyggTheme.dimens.commonContentPadding16),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
-            Text(stringResource(R.string.home_send_notification))
+            OutlinedButton(
+                onClick = { launchFilePicker() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.home_send_notification))
+            }
         }
     }
 }
