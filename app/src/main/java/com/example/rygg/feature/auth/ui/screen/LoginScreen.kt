@@ -85,7 +85,7 @@ fun LoginScreen(params: LoginScreenParams) {
             modifier = Modifier.fillMaxWidth(),
             isEnabled = !params.uiState.isLoading,
             textColor = RyggTheme.getColor(RyggColor.TextPrimary),
-            backgroundColor = RyggTheme.getColor(RyggColor.Background),
+            backgroundColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
             leadingIcon = painterResource(R.drawable.ic_google_sign_in),
             leadingIconTint = Color.Unspecified,
             borderWidth = RyggTheme.dimens.border2

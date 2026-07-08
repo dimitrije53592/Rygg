@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.screenContourLines
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
@@ -46,8 +47,9 @@ fun AuthScaffold(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .background(RyggTheme.getColor(RyggColor.BrandGraphite))
+            .screenContourLines(RyggTheme.getColor(RyggColor.OnBrand))
+            .verticalScroll(rememberScrollState())
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = RyggTheme.dimens.commonContentPadding16),
         horizontalAlignment = Alignment.CenterHorizontally
