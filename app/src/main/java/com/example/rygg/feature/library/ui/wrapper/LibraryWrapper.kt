@@ -2,7 +2,6 @@ package com.example.rygg.feature.library.ui.wrapper
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.rygg.feature.library.ui.screen.LibraryScreen
@@ -13,7 +12,6 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryViewModel
 fun LibraryWrapper(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LibraryScreen(

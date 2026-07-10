@@ -2,6 +2,7 @@ package com.example.rygg.feature.library.data
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,7 +14,14 @@ class GpxStorage @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val filesDir: File
-        get() = File(context.filesDir, "trips").apply { mkdirs() }
+        get() = File(context.filesDir, gpxFilesFolderName).apply { mkdirs() }
+
+    suspend fun listedStoredFiles(): List<StoredFile> = withContext(Dispatchers.IO) {
+        filesDir.listFiles()
+            ?.filter { it.isFile }
+            ?.map { StoredFile(fileName = it.name, uri = it.toUri()) }
+            .orEmpty()
+    }
 
     suspend fun saveFromUri(uri: Uri): File = withContext(Dispatchers.IO) {
         val target = File(filesDir, "${Uuid.random()}.gpx")
@@ -24,6 +32,11 @@ class GpxStorage @Inject constructor(
         }
         target
     }
-
-    fun resolve(fileName: String) = File(filesDir, fileName)
 }
+
+data class StoredFile(
+    val fileName: String,
+    val uri: Uri
+)
+
+private const val gpxFilesFolderName = "trips"

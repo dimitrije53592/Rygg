@@ -1,6 +1,5 @@
 package com.example.rygg.core.gpx
 
-import android.util.Log
 import android.util.Xml
 import com.example.rygg.core.gpx.model.Extras
 import com.example.rygg.core.gpx.model.GpxBounds

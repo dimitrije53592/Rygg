@@ -15,6 +15,9 @@ data object ForgotPassword
 data object Library
 
 @Serializable
+data object Map
+
+@Serializable
 data object Profile
 
 @Serializable

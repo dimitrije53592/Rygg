@@ -114,7 +114,7 @@ fun RyggTextField(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
                 unfocusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
-                focusedContainerColor = RyggTheme.getColor(RyggColor.Background),
+                focusedContainerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
                 unfocusedContainerColor = RyggTheme.getColor(RyggColor.Surface),
                 focusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
                 unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
