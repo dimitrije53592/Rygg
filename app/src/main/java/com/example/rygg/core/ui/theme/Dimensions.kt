@@ -54,9 +54,10 @@ object Dimensions {
     val elevation2: Dp = 2.dp
     val elevation4: Dp = 4.dp
 
-    val buttonHeight50: Dp = 50.dp
+    val buttonSize32: Dp = 32.dp
+    val buttonSize50: Dp = 50.dp
+
     val progressIndicator20: Dp = 20.dp
-    val progressIndicator24: Dp = 24.dp
 }
 
 val LocalRyggDimensions = staticCompositionLocalOf { Dimensions }

@@ -2,6 +2,7 @@ package com.example.rygg.core.locale
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.core.content.edit
 import java.util.Locale
 
 object AppLocaleStore {
@@ -12,7 +13,7 @@ object AppLocaleStore {
         prefs(context).getString(KEY_LANGUAGE_TAG, null)
 
     fun setLanguageTag(context: Context, tag: String) {
-        prefs(context).edit().putString(KEY_LANGUAGE_TAG, tag).apply()
+        prefs(context).edit { putString(KEY_LANGUAGE_TAG, tag) }
     }
 
     // Wraps a base context with the saved locale; call from Activity.attachBaseContext.

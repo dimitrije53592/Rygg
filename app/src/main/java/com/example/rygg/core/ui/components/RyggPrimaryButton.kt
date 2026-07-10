@@ -33,7 +33,7 @@ fun RyggPrimaryButton(
     textColor: Color = RyggTheme.getColor(RyggColor.OnBrand),
     leadingIcon: Painter? = null,
     leadingIconTint: Color = RyggTheme.getColor(RyggColor.OnBrand),
-    buttonHeight: Dp = RyggTheme.dimens.buttonHeight50,
+    buttonHeight: Dp = RyggTheme.dimens.buttonSize50,
     borderWidth: Dp = RyggTheme.dimens.border0,
     borderColor: Color = RyggTheme.getColor(RyggColor.Surface)
 ) {
