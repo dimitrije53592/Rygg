@@ -22,8 +22,40 @@ class GpxFileEntryRepository @Inject constructor(
 
     suspend fun importGpxFile(uri: Uri): Outcome<Long> = outcomeCatching {
         val file = gpxStorage.saveFromUri(uri)
+        val hash = gpxStorage.sha256(file)
+        val originalName = gpxStorage.originalDisplayName(uri)
         val parsed = file.inputStream().use { gpxParser.parse(it) }
-        val entry = gpxAnalyzer.analyze(parsed.gpxDocument)
+        val analysis = gpxAnalyzer.analyze(parsed.gpxDocument)
+        val now = System.currentTimeMillis()
+        val entry = GpxFileEntry(
+            id = 0L,
+            fileName = file.name,
+            contentHash = hash,
+            name = analysis.name.ifBlank { originalName?.substringBeforeLast(".") ?: file.name },
+            description = analysis.description,
+            color = null,
+            distanceMeters = analysis.distanceMeters,
+            ascentMeters = analysis.ascentMeters,
+            descentMeters = analysis.descentMeters,
+            elevationMeters = analysis.elevationMeters,
+            pointCount = analysis.pointCount,
+            routeCount = analysis.routeCount,
+            waypointCount = analysis.waypointCount,
+            hasTime = analysis.hasTime,
+            startTimeMillis = analysis.startTimeMillis,
+            movingTimeMillis = analysis.movingTimeMillis,
+            totalTimeMillis = analysis.totalTimeMillis,
+            minLat = analysis.minLat,
+            minLon = analysis.minLon,
+            maxLat = analysis.maxLat,
+            maxLon = analysis.maxLon,
+            folder = null,
+            tags = emptyList(),
+            importedAt = now,
+            updatedAt = now,
+            creator = analysis.creator,
+            originalFileName = originalName
+        )
         gpxFileEntryDao.insert(entry.toEntity())
     }
 
