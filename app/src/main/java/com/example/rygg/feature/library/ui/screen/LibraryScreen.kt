@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggTopAppBar
+import com.example.rygg.core.ui.components.SwipeToDeleteBox
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
@@ -105,7 +106,8 @@ fun LibraryScreen(params: LibraryScreenParams) {
                             EntryList(
                                 entries = entries,
                                 onEntryClick = params.onEntryClick,
-                                onFavoriteClick = params.onFavoriteClick
+                                onFavoriteClick = params.onFavoriteClick,
+                                onDeleteEntry = params.onDeleteEntry
                             )
                         }
                     }
@@ -191,7 +193,8 @@ private fun DisciplineFabOption(
 private fun EntryList(
     entries: List<GpxFileEntry>,
     onEntryClick: (GpxFileEntry) -> Unit,
-    onFavoriteClick: (GpxFileEntry) -> Unit
+    onFavoriteClick: (GpxFileEntry) -> Unit,
+    onDeleteEntry: (GpxFileEntry) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -214,11 +217,13 @@ private fun EntryList(
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
             items(entries, key = { it.id }) { entry ->
-                GpxFileEntryCard(
-                    entry = entry,
-                    onClick = onEntryClick,
-                    onFavoriteClick = onFavoriteClick
-                )
+                SwipeToDeleteBox(onDelete = { onDeleteEntry(entry) }) {
+                    GpxFileEntryCard(
+                        entry = entry,
+                        onClick = onEntryClick,
+                        onFavoriteClick = onFavoriteClick
+                    )
+                }
             }
         }
     }
@@ -349,7 +354,8 @@ private fun LibraryScreenPreview() {
                 ),
                 onImport = { _, _ -> },
                 onEntryClick = {},
-                onFavoriteClick = {}
+                onFavoriteClick = {},
+                onDeleteEntry = {}
             )
         )
     }
@@ -359,5 +365,6 @@ data class LibraryScreenParams(
     val uiState: LibraryUiState,
     val onImport: (Uri, Discipline) -> Unit,
     val onEntryClick: (GpxFileEntry) -> Unit,
-    val onFavoriteClick: (GpxFileEntry) -> Unit
+    val onFavoriteClick: (GpxFileEntry) -> Unit,
+    val onDeleteEntry: (GpxFileEntry) -> Unit
 )

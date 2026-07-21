@@ -40,6 +40,12 @@ class LibraryViewModel @Inject constructor(
             gpxFileEntryRepository.importGpxFile(uri, discipline)
         }
     }
+
+    fun deleteGpxFile(entry: GpxFileEntry) {
+        viewModelScope.launch {
+            gpxFileEntryRepository.deleteGpxFile(entry)
+        }
+    }
 }
 
 sealed interface GpxFilesLoadingState {

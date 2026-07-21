@@ -52,6 +52,10 @@ class GpxStorage @Inject constructor(
         context.contentResolver
             .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
             ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+
+    suspend fun deleteFile(fileName: String): Boolean = withContext(Dispatchers.IO) {
+        File(filesDir, fileName).delete()
+    }
 }
 
 data class StoredFile(

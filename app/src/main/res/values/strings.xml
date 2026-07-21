@@ -69,6 +69,7 @@
     <string name="library_imported">Imported</string>
     <string name="library_empty_title">No activities yet</string>
     <string name="library_empty_subtitle">Import a GPX file to get started</string>
+    <string name="library_delete">Delete</string>
     <plurals name="library_activities">
         <item quantity="one">%d activity</item>
         <item quantity="other">%d activities</item>

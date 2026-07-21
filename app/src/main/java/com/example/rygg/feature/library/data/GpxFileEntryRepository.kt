@@ -62,5 +62,8 @@ class GpxFileEntryRepository @Inject constructor(
         gpxFileEntryDao.insert(entry.toEntity())
     }
 
-    suspend fun deleteItem(id: Long) = gpxFileEntryDao.deleteById(id)
+    suspend fun deleteGpxFile(entry: GpxFileEntry): Outcome<Unit> = outcomeCatching {
+        gpxFileEntryDao.deleteById(entry.id)
+        gpxStorage.deleteFile(entry.fileName)
+    }
 }
