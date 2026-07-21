@@ -12,6 +12,8 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     Surface(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF20262B)),
     SurfaceElevated(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF2A3138)),
     SurfaceDim(lightColor = Color(0xFFF2F2F2), darkColor = Color(0xFF121417)),
+    MossSurface(lightColor = Color(0xFFE6F4EE), darkColor = Color(0xFF17352E)),
+    MossSurfaceDim(lightColor = Color(0xFFD2EBDF), darkColor = Color(0xFF102420)),
     OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF5F7F6)),
     TextPrimary(lightColor = Color(0xFF1A1F26), darkColor = Color(0xFFEAEEEC)),
     TextSecondary(lightColor = Color(0xFF6D737A), darkColor = Color(0xFF9BA5A0)),

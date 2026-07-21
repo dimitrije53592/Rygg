@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
+import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,26 +24,32 @@ class LibraryViewModel @Inject constructor(
         .asResult()
         .map { outcome ->
             when (outcome) {
-                Outcome.Loading -> LibraryUiState(isLoading = true)
-                is Outcome.Success -> LibraryUiState(gpxFileEntries = outcome.data, isLoading = false)
-                is Outcome.Error -> LibraryUiState(isLoading = false, errorMessage = outcome.cause.message)
+                Outcome.Loading -> LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Loading)
+                is Outcome.Success -> LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.GpxFilesLoaded(outcome.data))
+                is Outcome.Error -> LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Error(outcome.cause.message))
             }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = LibraryUiState()
+            initialValue = LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Loading)
         )
 
-    fun importGpxFile(uri: Uri) {
+    fun importGpxFile(uri: Uri, discipline: Discipline) {
         viewModelScope.launch {
-            gpxFileEntryRepository.importGpxFile(uri)
+            gpxFileEntryRepository.importGpxFile(uri, discipline)
         }
     }
 }
 
+sealed interface GpxFilesLoadingState {
+    object Loading : GpxFilesLoadingState
+
+    data class GpxFilesLoaded(val gpxFilesEntries: List<GpxFileEntry>) : GpxFilesLoadingState
+
+    data class Error(val errorMessage: String?) : GpxFilesLoadingState
+}
+
 data class LibraryUiState(
-    val gpxFileEntries: List<GpxFileEntry> = emptyList(),
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val gpxFilesLoadingState: GpxFilesLoadingState
 )

@@ -13,6 +13,7 @@ data class GpxFileEntryEntity(
     val name: String,
     val description: String,
     val color: String?,
+    val discipline: String,
     // Computed stats
     val distanceMeters: Double,
     val ascentMeters: Double,
@@ -31,6 +32,8 @@ data class GpxFileEntryEntity(
     val minLon: Double?,
     val maxLat: Double?,
     val maxLon: Double?,
+    // Thumbnail geometry, encoded as "lat,lon;lat,lon;..."
+    val thumbnailPath: String,
     // Organisation
     val folder: String?,
     val tags: List<String>,

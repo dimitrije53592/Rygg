@@ -65,4 +65,12 @@
     <!-- Library -->
     <string name="library_title">Library</string>
     <string name="library_filter_all">All</string>
+    <string name="library_import">Import GPX file</string>
+    <string name="library_imported">Imported</string>
+    <string name="library_empty_title">No activities yet</string>
+    <string name="library_empty_subtitle">Import a GPX file to get started</string>
+    <plurals name="library_activities">
+        <item quantity="one">%d activity</item>
+        <item quantity="other">%d activities</item>
+    </plurals>
 </resources>

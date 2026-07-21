@@ -17,9 +17,11 @@ fun LibraryWrapper(
     LibraryScreen(
         params = LibraryScreenParams(
             uiState = uiState,
-            onFilePicked = { uri ->
-                viewModel.importGpxFile(uri)
-            }
+            onImport = { uri, discipline ->
+                viewModel.importGpxFile(uri, discipline)
+            },
+            onEntryClick = {},
+            onFavoriteClick = {}
         )
     )
 }
