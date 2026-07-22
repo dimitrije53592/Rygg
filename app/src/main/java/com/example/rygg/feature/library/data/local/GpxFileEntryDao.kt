@@ -15,4 +15,7 @@ interface GpxFileEntryDao {
 
     @Query("DELETE FROM library WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("UPDATE library SET isFavorite = :favorite WHERE id = :id")
+    suspend fun setFavorite(id: Long, favorite: Boolean)
 }

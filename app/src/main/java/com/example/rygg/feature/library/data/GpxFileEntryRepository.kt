@@ -36,6 +36,7 @@ class GpxFileEntryRepository @Inject constructor(
             description = analysis.description,
             color = null,
             discipline = discipline,
+            isFavorite = false,
             distanceMeters = analysis.distanceMeters,
             ascentMeters = analysis.ascentMeters,
             descentMeters = analysis.descentMeters,
@@ -66,4 +67,7 @@ class GpxFileEntryRepository @Inject constructor(
         gpxFileEntryDao.deleteById(entry.id)
         gpxStorage.deleteFile(entry.fileName)
     }
+
+    suspend fun setFavorite(id: Long, favorite: Boolean) =
+        gpxFileEntryDao.setFavorite(id, favorite)
 }

@@ -19,8 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,7 +97,7 @@ fun GpxFileEntryCard(
                 }
             }
         }
-        FavoriteStar(onClick = { onFavoriteClick(entry) })
+        FavoriteStar(favorite = entry.isFavorite, onClick = { onFavoriteClick(entry) })
     }
 }
 
@@ -125,8 +123,10 @@ private fun DisciplineBadge(
 }
 
 @Composable
-private fun FavoriteStar(onClick: () -> Unit) {
-    var favorite by rememberSaveable { mutableStateOf(false) }
+private fun FavoriteStar(
+    favorite: Boolean,
+    onClick: () -> Unit
+) {
     Icon(
         imageVector = if (favorite) Icons.Default.Star else Icons.Default.StarBorder,
         contentDescription = null,
@@ -137,10 +137,7 @@ private fun FavoriteStar(onClick: () -> Unit) {
         },
         modifier = Modifier
             .size(RyggTheme.dimens.iconSize24)
-            .clickable {
-                favorite = !favorite
-                onClick()
-            }
+            .clickable { onClick() }
     )
 }
 
@@ -180,6 +177,7 @@ private fun previewEntry(recorded: Boolean): GpxFileEntry = GpxFileEntry(
     description = "",
     color = null,
     discipline = if (recorded) Discipline.HIKE else Discipline.RIDE,
+    isFavorite = recorded,
     distanceMeters = if (recorded) 12_400.0 else 15_200.0,
     ascentMeters = if (recorded) 1_180.0 else 920.0,
     descentMeters = if (recorded) 1_100.0 else 40.0,

@@ -21,10 +21,17 @@ fun LibraryWrapper(
                 viewModel.importGpxFile(uri, discipline)
             },
             onEntryClick = {},
-            onFavoriteClick = {},
+            onFavoriteClick = { entry ->
+                viewModel.toggleFavorite(entry)
+            },
             onDeleteEntry = { entry ->
                 viewModel.deleteGpxFile(entry)
-            }
+            },
+            onDisciplineSelected = { discipline ->
+                viewModel.onDisciplineSelected(discipline)
+            },
+            onToggleSort = { viewModel.onToggleSort() },
+            onToggleFavoritesFilter = { viewModel.onToggleFavoritesFilter() }
         )
     )
 }

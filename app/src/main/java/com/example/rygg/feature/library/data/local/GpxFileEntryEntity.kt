@@ -14,6 +14,7 @@ data class GpxFileEntryEntity(
     val description: String,
     val color: String?,
     val discipline: String,
+    val isFavorite: Boolean = false,
     // Computed stats
     val distanceMeters: Double,
     val ascentMeters: Double,
