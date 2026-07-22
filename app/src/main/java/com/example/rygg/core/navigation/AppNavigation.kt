@@ -22,9 +22,11 @@ import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
 import com.example.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.example.rygg.feature.auth.ui.wrapper.RegisterWrapper
 import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
+import com.example.rygg.feature.map.ui.wrapper.MapWrapper
 import com.example.rygg.feature.profile.ui.screen.ProfileScreen
 import com.example.rygg.feature.profile.ui.screen.ProfileScreenParams
 import com.example.rygg.feature.profile.ui.screen.ProfileUiState
+import com.example.rygg.feature.record.ui.wrapper.RecordWrapper
 import com.example.rygg.feature.settings.ui.wrapper.SettingsWrapper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,6 +91,12 @@ fun AppNavigation() {
             }
             composable<Library> {
                 LibraryWrapper()
+            }
+            composable<Record> {
+                RecordWrapper()
+            }
+            composable<Map> {
+                MapWrapper()
             }
             composable<Profile> {
                 val user by authViewModel.currentUser.collectAsStateWithLifecycle()
