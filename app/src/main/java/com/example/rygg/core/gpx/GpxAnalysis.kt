@@ -1,5 +1,7 @@
 package com.example.rygg.core.gpx
 
+import com.example.rygg.core.gpx.model.GeoPoint
+
 data class GpxAnalysis(
     val name: String,
     val description: String,
@@ -18,5 +20,6 @@ data class GpxAnalysis(
     val minLon: Double?,
     val maxLat: Double?,
     val maxLon: Double?,
-    val creator: String?
+    val creator: String?,
+    val simplifiedPath: List<GeoPoint> = emptyList()
 )

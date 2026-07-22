@@ -5,6 +5,7 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.outcomeCatching
 import com.example.rygg.core.gpx.GpxAnalyzer
 import com.example.rygg.core.gpx.GpxParser
+import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,7 @@ class GpxFileEntryRepository @Inject constructor(
     fun observeGpxFileEntries(): Flow<List<GpxFileEntry>> =
         gpxFileEntryDao.observeAll().map { entities -> entities.map { it.toDomain() } }
 
-    suspend fun importGpxFile(uri: Uri): Outcome<Long> = outcomeCatching {
+    suspend fun importGpxFile(uri: Uri, discipline: Discipline): Outcome<Long> = outcomeCatching {
         val file = gpxStorage.saveFromUri(uri)
         val hash = gpxStorage.sha256(file)
         val originalName = gpxStorage.originalDisplayName(uri)
@@ -34,6 +35,8 @@ class GpxFileEntryRepository @Inject constructor(
             name = analysis.name.ifBlank { originalName?.substringBeforeLast(".") ?: file.name },
             description = analysis.description,
             color = null,
+            discipline = discipline,
+            isFavorite = false,
             distanceMeters = analysis.distanceMeters,
             ascentMeters = analysis.ascentMeters,
             descentMeters = analysis.descentMeters,
@@ -49,6 +52,7 @@ class GpxFileEntryRepository @Inject constructor(
             minLon = analysis.minLon,
             maxLat = analysis.maxLat,
             maxLon = analysis.maxLon,
+            pathPoints = analysis.simplifiedPath,
             folder = null,
             tags = emptyList(),
             importedAt = now,
@@ -59,5 +63,11 @@ class GpxFileEntryRepository @Inject constructor(
         gpxFileEntryDao.insert(entry.toEntity())
     }
 
-    suspend fun deleteItem(id: Long) = gpxFileEntryDao.deleteById(id)
+    suspend fun deleteGpxFile(entry: GpxFileEntry): Outcome<Unit> = outcomeCatching {
+        gpxFileEntryDao.deleteById(entry.id)
+        gpxStorage.deleteFile(entry.fileName)
+    }
+
+    suspend fun setFavorite(id: Long, favorite: Boolean) =
+        gpxFileEntryDao.setFavorite(id, favorite)
 }

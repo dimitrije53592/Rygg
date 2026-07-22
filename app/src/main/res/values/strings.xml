@@ -65,4 +65,19 @@
     <!-- Library -->
     <string name="library_title">Library</string>
     <string name="library_filter_all">All</string>
+    <string name="library_import">Import GPX file</string>
+    <string name="library_imported">Imported</string>
+    <string name="library_empty_title">No activities yet</string>
+    <string name="library_empty_subtitle">Import a GPX file to get started</string>
+    <string name="library_delete">Delete</string>
+    <string name="library_sort_name">Name</string>
+    <string name="library_sort_date">Date</string>
+    <string name="library_sort">Change sorting</string>
+    <string name="library_favorites_filter">Show starred only</string>
+    <string name="library_undated_section">No date</string>
+    <string name="library_no_matches">No activities match this filter</string>
+    <plurals name="library_activities">
+        <item quantity="one">%d activity</item>
+        <item quantity="other">%d activities</item>
+    </plurals>
 </resources>

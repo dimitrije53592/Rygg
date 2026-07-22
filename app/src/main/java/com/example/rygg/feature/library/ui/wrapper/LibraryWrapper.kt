@@ -17,9 +17,21 @@ fun LibraryWrapper(
     LibraryScreen(
         params = LibraryScreenParams(
             uiState = uiState,
-            onFilePicked = { uri ->
-                viewModel.importGpxFile(uri)
-            }
+            onImport = { uri, discipline ->
+                viewModel.importGpxFile(uri, discipline)
+            },
+            onEntryClick = {},
+            onFavoriteClick = { entry ->
+                viewModel.toggleFavorite(entry)
+            },
+            onDeleteEntry = { entry ->
+                viewModel.deleteGpxFile(entry)
+            },
+            onDisciplineSelected = { discipline ->
+                viewModel.onDisciplineSelected(discipline)
+            },
+            onToggleSort = { viewModel.onToggleSort() },
+            onToggleFavoritesFilter = { viewModel.onToggleFavoritesFilter() }
         )
     )
 }

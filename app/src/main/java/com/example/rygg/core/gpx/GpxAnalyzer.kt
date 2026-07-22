@@ -1,11 +1,13 @@
 package com.example.rygg.core.gpx
 
+import com.example.rygg.core.gpx.model.GeoPoint
 import com.example.rygg.core.gpx.model.GpxDocument
 import com.example.rygg.core.gpx.model.GpxPoint
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -36,8 +38,28 @@ class GpxAnalyzer @Inject constructor() {
             minLon = gpxDocument.metadata?.bounds?.minLon ?: boundsPoints.minOfOrNull { it.lon },
             maxLat = gpxDocument.metadata?.bounds?.maxLat ?: boundsPoints.maxOfOrNull { it.lat },
             maxLon = gpxDocument.metadata?.bounds?.maxLon ?: boundsPoints.maxOfOrNull { it.lon },
-            creator = gpxDocument.creator
+            creator = gpxDocument.creator,
+            simplifiedPath = simplifiedPath(paths, gpxDocument.waypoints)
         )
+    }
+
+    private fun simplifiedPath(paths: List<List<GpxPoint>>, waypoints: List<GpxPoint>): List<GeoPoint> {
+        val source = paths.maxByOrNull { it.size }?.takeIf { it.isNotEmpty() } ?: waypoints
+        if (source.isEmpty()) return emptyList()
+        if (source.size <= MAX_THUMBNAIL_POINTS) return source.map { GeoPoint(it.lat, it.lon) }
+
+        val step = ceil(source.size.toDouble() / MAX_THUMBNAIL_POINTS).toInt()
+        val result = mutableListOf<GeoPoint>()
+        var index = 0
+        while (index < source.size) {
+            result += GeoPoint(source[index].lat, source[index].lon)
+            index += step
+        }
+        val last = source.last()
+        if (result.last().lat != last.lat || result.last().lon != last.lon) {
+            result += GeoPoint(last.lat, last.lon)
+        }
+        return result
     }
 
     private fun buildPaths(gpxDocument: GpxDocument): List<List<GpxPoint>> =
@@ -108,5 +130,6 @@ class GpxAnalyzer @Inject constructor() {
         const val MIN_MOVING_SPEED_MPS = 0.8
         const val MAX_PAUSE_GAP_SECONDS = 60.0
         const val MILLIS_PER_SECOND = 1000.0
+        const val MAX_THUMBNAIL_POINTS = 48
     }
 }

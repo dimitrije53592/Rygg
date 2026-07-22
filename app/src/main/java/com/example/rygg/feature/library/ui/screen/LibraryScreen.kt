@@ -1,44 +1,46 @@
 package com.example.rygg.feature.library.ui.screen
 
 import android.net.Uri
-import android.util.Log
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.core.ui.utils.rememberFilePicker
 import com.example.rygg.feature.auth.domain.Discipline
+import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.ui.components.GpxFileEntryList
+import com.example.rygg.feature.library.ui.components.ImportFab
+import com.example.rygg.feature.library.ui.components.LibraryDisciplineBar
+import com.example.rygg.feature.library.ui.components.LibraryEmptyState
+import com.example.rygg.feature.library.ui.components.LibraryErrorState
+import com.example.rygg.feature.library.ui.components.LibraryListHeader
+import com.example.rygg.feature.library.ui.components.LibraryLoadingState
+import com.example.rygg.feature.library.ui.components.LibraryNoMatchesState
+import com.example.rygg.feature.library.ui.viewmodel.GpxFilesLoadingState
 import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 
 @Composable
 fun LibraryScreen(params: LibraryScreenParams) {
-    val launchFilePicker = rememberFilePicker(onFilePicked = params.onFilePicked)
+    var fabExpanded by remember { mutableStateOf(false) }
+    var pendingDiscipline by remember { mutableStateOf(Discipline.HIKE) }
+    val launchFilePicker = rememberFilePicker(
+        onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
+    )
 
     Scaffold(
         topBar = {
@@ -46,83 +48,80 @@ fun LibraryScreen(params: LibraryScreenParams) {
                 title = stringResource(R.string.library_title),
                 actions = {}
             )
+        },
+        floatingActionButton = {
+            ImportFab(
+                expanded = fabExpanded,
+                onToggle = { fabExpanded = !fabExpanded },
+                onDisciplinePicked = { discipline ->
+                    pendingDiscipline = discipline
+                    fabExpanded = false
+                    launchFilePicker()
+                }
+            )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(RyggTheme.getColor(RyggColor.SurfaceDim))
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+                .padding(innerPadding)
         ) {
-            Log.d("Sofija", params.uiState.gpxFileEntries.toString())
-            LibraryToolbar(Discipline.entries)
-            OutlinedButton(
-                onClick = { launchFilePicker() },
-                modifier = Modifier.fillMaxWidth()
+            LibraryDisciplineBar(
+                disciplines = Discipline.entries,
+                selectedDiscipline = params.uiState.selectedDiscipline,
+                onDisciplineSelected = params.onDisciplineSelected
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ) {
-                Text(stringResource(R.string.home_send_notification))
+                when (val state = params.uiState.gpxFilesLoadingState) {
+                    is GpxFilesLoadingState.Loading -> LibraryLoadingState()
+                    is GpxFilesLoadingState.Error -> LibraryErrorState(state.errorMessage)
+                    is GpxFilesLoadingState.GpxFilesLoaded ->
+                        LoadedContent(
+                            entries = state.gpxFilesEntries,
+                            uiState = params.uiState,
+                            params = params
+                        )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LibraryToolbar(
-    disciplines: List<Discipline>
+private fun LoadedContent(
+    entries: List<GpxFileEntry>,
+    uiState: LibraryUiState,
+    params: LibraryScreenParams
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(RyggTheme.getColor(RyggColor.BrandGraphite))
-            .padding(vertical = RyggTheme.dimens.commonContentPadding12)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = RyggTheme.dimens.commonSpacing4,
-            alignment = Alignment.Start
-        )
-    ) {
-        DisciplineFilter(
-            title = stringResource(R.string.library_filter_all),
-            onClick = {}
-        )
-        disciplines.forEach {
-            DisciplineFilter(
-                title = it.name,
-                iconRes = it.iconRes,
-                onClick = {}
-            )
-        }
+    if (uiState.isLibraryEmpty) {
+        LibraryEmptyState()
+        return
     }
-}
-
-@Composable
-private fun DisciplineFilter(
-    title: String,
-    @DrawableRes iconRes: Int? = null,
-    onClick: () -> Unit
-) {
-    Button(
-        colors = ButtonDefaults.buttonColors(
-            containerColor = RyggTheme.getColor(RyggColor.TextSecondary).copy(alpha = 0.7f)
-        ),
-        modifier = Modifier.height(RyggTheme.dimens.buttonSize32),
-        onClick = onClick
-    ) {
-        iconRes?.let {
-            Icon(
-                painter = painterResource(iconRes),
-                tint = RyggTheme.getColor(RyggColor.SurfaceElevated),
-                contentDescription = "",
-                modifier = Modifier.size(RyggTheme.dimens.iconSize16)
-            )
-            Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
-        }
-        Text(
-            text = title.capitalize(),
-            color = RyggTheme.getColor(RyggColor.SurfaceElevated),
-            style = RyggTheme.typography.labelSmall
+    Column(modifier = Modifier.fillMaxSize()) {
+        LibraryListHeader(
+            activityCount = entries.size,
+            sortMode = uiState.sortMode,
+            favoritesOnly = uiState.favoritesOnly,
+            onToggleSort = params.onToggleSort,
+            onToggleFavoritesFilter = params.onToggleFavoritesFilter
         )
+        if (entries.isEmpty()) {
+            LibraryNoMatchesState()
+        } else {
+            GpxFileEntryList(
+                entries = entries,
+                sortMode = uiState.sortMode,
+                onEntryClick = params.onEntryClick,
+                onFavoriteClick = params.onFavoriteClick,
+                onDeleteEntry = params.onDeleteEntry
+            )
+        }
     }
 }
 
@@ -133,10 +132,16 @@ private fun LibraryScreenPreview() {
         LibraryScreen(
             params = LibraryScreenParams(
                 uiState = LibraryUiState(
-                    gpxFileEntries = emptyList(),
-                    isLoading = false
+                    gpxFilesLoadingState = GpxFilesLoadingState.GpxFilesLoaded(emptyList()),
+                    isLibraryEmpty = true
                 ),
-                onFilePicked = {}
+                onImport = { _, _ -> },
+                onEntryClick = {},
+                onFavoriteClick = {},
+                onDeleteEntry = {},
+                onDisciplineSelected = {},
+                onToggleSort = {},
+                onToggleFavoritesFilter = {}
             )
         )
     }
@@ -144,5 +149,11 @@ private fun LibraryScreenPreview() {
 
 data class LibraryScreenParams(
     val uiState: LibraryUiState,
-    val onFilePicked: (Uri) -> Unit
+    val onImport: (Uri, Discipline) -> Unit,
+    val onEntryClick: (GpxFileEntry) -> Unit,
+    val onFavoriteClick: (GpxFileEntry) -> Unit,
+    val onDeleteEntry: (GpxFileEntry) -> Unit,
+    val onDisciplineSelected: (Discipline?) -> Unit,
+    val onToggleSort: () -> Unit,
+    val onToggleFavoritesFilter: () -> Unit
 )

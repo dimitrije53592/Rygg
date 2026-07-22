@@ -74,3 +74,8 @@ data class Route(
     val points: List<GpxPoint> = emptyList(),
     val extras: Extras = Extras()
 )
+
+data class GeoPoint(
+    val lat: Double,
+    val lon: Double
+)

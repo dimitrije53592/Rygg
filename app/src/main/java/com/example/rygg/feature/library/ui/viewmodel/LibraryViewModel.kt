@@ -5,13 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
+import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.domain.SortMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,30 +23,99 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository
 ) : ViewModel() {
-    val uiState: StateFlow<LibraryUiState> = gpxFileEntryRepository.observeGpxFileEntries()
-        .asResult()
-        .map { outcome ->
-            when (outcome) {
-                Outcome.Loading -> LibraryUiState(isLoading = true)
-                is Outcome.Success -> LibraryUiState(gpxFileEntries = outcome.data, isLoading = false)
-                is Outcome.Error -> LibraryUiState(isLoading = false, errorMessage = outcome.cause.message)
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = LibraryUiState()
-        )
+    private val filter = MutableStateFlow(LibraryFilter())
 
-    fun importGpxFile(uri: Uri) {
-        viewModelScope.launch {
-            gpxFileEntryRepository.importGpxFile(uri)
+    val uiState: StateFlow<LibraryUiState> = combine(
+        gpxFileEntryRepository.observeGpxFileEntries().asResult(),
+        filter
+    ) { outcome, filter ->
+        when (outcome) {
+            Outcome.Loading -> LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Loading)
+            is Outcome.Error ->
+                LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Error(outcome.cause.message))
+
+            is Outcome.Success -> LibraryUiState(
+                gpxFilesLoadingState = GpxFilesLoadingState.GpxFilesLoaded(
+                    gpxFilesEntries = outcome.data.applyFilter(filter).applySort(filter.sortMode)
+                ),
+                selectedDiscipline = filter.selectedDiscipline,
+                sortMode = filter.sortMode,
+                favoritesOnly = filter.favoritesOnly,
+                isLibraryEmpty = outcome.data.isEmpty()
+            )
         }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Loading)
+    )
+
+    fun importGpxFile(uri: Uri, discipline: Discipline) {
+        viewModelScope.launch {
+            gpxFileEntryRepository.importGpxFile(uri, discipline)
+        }
+    }
+
+    fun deleteGpxFile(entry: GpxFileEntry) {
+        viewModelScope.launch {
+            gpxFileEntryRepository.deleteGpxFile(entry)
+        }
+    }
+
+    fun toggleFavorite(entry: GpxFileEntry) {
+        viewModelScope.launch {
+            gpxFileEntryRepository.setFavorite(entry.id, !entry.isFavorite)
+        }
+    }
+
+    fun onDisciplineSelected(discipline: Discipline?) {
+        filter.update { it.copy(selectedDiscipline = discipline) }
+    }
+
+    fun onToggleSort() {
+        filter.update {
+            it.copy(sortMode = if (it.sortMode == SortMode.TIME) SortMode.NAME else SortMode.TIME)
+        }
+    }
+
+    fun onToggleFavoritesFilter() {
+        filter.update { it.copy(favoritesOnly = !it.favoritesOnly) }
     }
 }
 
+private data class LibraryFilter(
+    val selectedDiscipline: Discipline? = null,
+    val sortMode: SortMode = SortMode.TIME,
+    val favoritesOnly: Boolean = false
+)
+
+private fun List<GpxFileEntry>.applyFilter(filter: LibraryFilter): List<GpxFileEntry> =
+    filter {
+        (filter.selectedDiscipline == null || it.discipline == filter.selectedDiscipline) &&
+            (!filter.favoritesOnly || it.isFavorite)
+    }
+
+private fun List<GpxFileEntry>.applySort(sortMode: SortMode): List<GpxFileEntry> =
+    when (sortMode) {
+        SortMode.NAME -> sortedBy { it.name.lowercase() }
+        SortMode.TIME -> sortedWith(
+            compareByDescending<GpxFileEntry> { it.startTimeMillis != null }
+                .thenByDescending { it.startTimeMillis ?: it.importedAt }
+        )
+    }
+
+sealed interface GpxFilesLoadingState {
+    object Loading : GpxFilesLoadingState
+
+    data class GpxFilesLoaded(val gpxFilesEntries: List<GpxFileEntry>) : GpxFilesLoadingState
+
+    data class Error(val errorMessage: String?) : GpxFilesLoadingState
+}
+
 data class LibraryUiState(
-    val gpxFileEntries: List<GpxFileEntry> = emptyList(),
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val gpxFilesLoadingState: GpxFilesLoadingState,
+    val selectedDiscipline: Discipline? = null,
+    val sortMode: SortMode = SortMode.TIME,
+    val favoritesOnly: Boolean = false,
+    val isLibraryEmpty: Boolean = false
 )

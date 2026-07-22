@@ -1,5 +1,8 @@
 package com.example.rygg.feature.library.domain
 
+import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.feature.auth.domain.Discipline
+
 data class GpxFileEntry(
     // Identity and storage
     val id: Long,
@@ -9,6 +12,8 @@ data class GpxFileEntry(
     val name: String,
     val description: String,
     val color: String?,
+    val discipline: Discipline,
+    val isFavorite: Boolean,
     // Computed stats
     val distanceMeters: Double,
     val ascentMeters: Double,
@@ -27,6 +32,8 @@ data class GpxFileEntry(
     val minLon: Double?,
     val maxLat: Double?,
     val maxLon: Double?,
+    // Thumbnail geometry (downsampled trail contour)
+    val pathPoints: List<GeoPoint>,
     // Organisation
     val folder: String?,
     val tags: List<String>,
