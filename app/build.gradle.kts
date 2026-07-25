@@ -40,6 +40,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "EXAMPLE_API_KEY", "\"${localProperties.getProperty("EXAMPLE_API_KEY", "")}\"")
+        buildConfigField("String", "MAPTILER_API_KEY", "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\"")
     }
 
     signingConfigs {
@@ -136,4 +137,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.kxml2)
+
+    implementation(libs.maplibre.compose)
 }
