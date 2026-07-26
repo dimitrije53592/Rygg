@@ -4,6 +4,7 @@
     <!-- Navigation -->
     <string name="nav_library">Library</string>
     <string name="nav_record">Record</string>
+    <string name="map_recenter">Center on my location</string>
     <string name="nav_map">Map</string>
     <string name="record_placeholder">Record screen</string>
     <string name="nav_profile">Profile</string>

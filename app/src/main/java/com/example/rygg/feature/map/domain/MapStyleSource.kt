@@ -1,5 +1,5 @@
 package com.example.rygg.feature.map.domain
 
 interface MapStyleSource {
-    fun outdoorStyleUrl(): String
+    fun baseStyleUrl(): String
 }

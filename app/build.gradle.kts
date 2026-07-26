@@ -139,4 +139,5 @@ dependencies {
     implementation(libs.kxml2)
 
     implementation(libs.maplibre.compose)
+    implementation(libs.play.services.location)
 }

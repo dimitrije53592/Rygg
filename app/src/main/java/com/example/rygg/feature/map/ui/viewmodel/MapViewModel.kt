@@ -9,7 +9,7 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     mapStyleSource: MapStyleSource
 ) : ViewModel() {
-    val uiState = MapUiState(styleUrl = mapStyleSource.outdoorStyleUrl())
+    val uiState = MapUiState(styleUrl = mapStyleSource.baseStyleUrl())
 }
 
 data class MapUiState(
