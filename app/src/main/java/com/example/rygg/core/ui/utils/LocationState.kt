@@ -29,6 +29,7 @@ class LocationState internal constructor(
     private val onRequest: () -> Unit
 ) {
     val location: Location? by location
+
     fun request() = onRequest()
 }
 

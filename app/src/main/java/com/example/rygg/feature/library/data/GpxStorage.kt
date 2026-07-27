@@ -56,6 +56,8 @@ class GpxStorage @Inject constructor(
     suspend fun deleteFile(fileName: String): Boolean = withContext(Dispatchers.IO) {
         File(filesDir, fileName).delete()
     }
+
+    fun resolve(fileName: String): File = File(filesDir, fileName)
 }
 
 data class StoredFile(

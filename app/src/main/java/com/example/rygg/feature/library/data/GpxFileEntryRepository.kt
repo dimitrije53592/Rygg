@@ -5,11 +5,15 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.outcomeCatching
 import com.example.rygg.core.gpx.GpxAnalyzer
 import com.example.rygg.core.gpx.GpxParser
+import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.core.gpx.trackPaths
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GpxFileEntryRepository @Inject constructor(
@@ -70,4 +74,13 @@ class GpxFileEntryRepository @Inject constructor(
 
     suspend fun setFavorite(id: Long, favorite: Boolean) =
         gpxFileEntryDao.setFavorite(id, favorite)
+
+    suspend fun loadPaths(entry: GpxFileEntry): List<List<GeoPoint>> = withContext(Dispatchers.IO) {
+        runCatching {
+            gpxStorage.resolve(entry.fileName)
+                .inputStream()
+                .use { gpxParser.parse(it).gpxDocument }
+                .trackPaths()
+        }.getOrDefault(emptyList())
+    }
 }

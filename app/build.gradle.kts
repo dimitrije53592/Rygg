@@ -138,6 +138,11 @@ dependencies {
 
     implementation(libs.kxml2)
 
-    implementation(libs.maplibre.compose)
+    implementation(libs.maplibre.compose) {
+        // Use the OpenGL renderer instead of the default Vulkan backend, which
+        // SIGSEGVs on surface teardown on many devices.
+        exclude(group = "org.maplibre.gl", module = "android-sdk")
+    }
+    implementation(libs.maplibre.android.opengl)
     implementation(libs.play.services.location)
 }

@@ -14,7 +14,7 @@ import kotlin.math.sqrt
 
 class GpxAnalyzer @Inject constructor() {
     fun analyze(gpxDocument: GpxDocument): GpxAnalysis {
-        val paths = buildPaths(gpxDocument)
+        val paths = gpxDocument.trackSegments()
         val pathPoints = paths.flatten()
         val boundsPoints = pathPoints + gpxDocument.waypoints
         val elevations = boundsPoints.mapNotNull { it.ele }
@@ -61,10 +61,6 @@ class GpxAnalyzer @Inject constructor() {
         }
         return result
     }
-
-    private fun buildPaths(gpxDocument: GpxDocument): List<List<GpxPoint>> =
-        gpxDocument.tracks.flatMap { track -> track.segments.map { it.points } } +
-            gpxDocument.routes.map { it.points }
 
     private fun resolveName(gpxDocument: GpxDocument): String =
         gpxDocument.metadata?.name

@@ -10,6 +10,7 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryViewModel
 
 @Composable
 fun LibraryWrapper(
+    onEntryClick: (Long) -> Unit,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -20,7 +21,7 @@ fun LibraryWrapper(
             onImport = { uri, discipline ->
                 viewModel.importGpxFile(uri, discipline)
             },
-            onEntryClick = {},
+            onEntryClick = { entry -> onEntryClick(entry.id) },
             onFavoriteClick = { entry ->
                 viewModel.toggleFavorite(entry)
             },

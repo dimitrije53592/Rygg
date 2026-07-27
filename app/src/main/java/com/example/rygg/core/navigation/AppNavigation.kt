@@ -90,7 +90,11 @@ fun AppNavigation() {
                 ForgotPasswordWrapper(onNavigateBack = { navController.navigateUp() })
             }
             composable<Library> {
-                LibraryWrapper()
+                LibraryWrapper(
+                    onEntryClick = { entryId ->
+                        navController.navigate(Map(entryId = entryId))
+                    }
+                )
             }
             composable<Record> {
                 RecordWrapper()

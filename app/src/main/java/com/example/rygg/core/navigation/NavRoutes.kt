@@ -18,7 +18,7 @@ data object Library
 data object Record
 
 @Serializable
-data object Map
+data class Map(val entryId: Long? = null)
 
 @Serializable
 data object Profile
