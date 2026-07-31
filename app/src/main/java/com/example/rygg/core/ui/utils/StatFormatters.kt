@@ -21,6 +21,15 @@ fun formatElevationDelta(ascentMeters: Double, descentMeters: Double): String {
 fun formatPointCount(count: Int): String =
     String.format(Locale.getDefault(), "%,d pts", count)
 
+fun formatSpeedKmh(metersPerSecond: Double): String =
+    String.format(Locale.getDefault(), "%.1f km/h", metersPerSecond * 3.6)
+
+fun formatElevationMeters(meters: Double): String =
+    String.format(Locale.getDefault(), "%,d m", meters.roundToInt())
+
+fun formatPercent(fraction: Double): String =
+    String.format(Locale.getDefault(), "%d%%", (fraction * 100).roundToInt())
+
 fun formatDuration(millis: Long): String {
     val totalMinutes = millis / 60_000
     val hours = totalMinutes / 60

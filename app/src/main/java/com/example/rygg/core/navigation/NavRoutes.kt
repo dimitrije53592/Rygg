@@ -21,6 +21,9 @@ data object Record
 data class Map(val entryId: Long? = null)
 
 @Serializable
+data class FollowRoute(val entryId: Long)
+
+@Serializable
 data object Profile
 
 @Serializable

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
+import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -26,9 +29,15 @@ import com.google.android.gms.location.Priority
 @Stable
 class LocationState internal constructor(
     location: State<Location?>,
+    available: State<Boolean>,
+    permissionDenied: State<Boolean>,
     private val onRequest: () -> Unit
 ) {
     val location: Location? by location
+    val available: Boolean by available
+    val permissionDenied: Boolean by permissionDenied
+
+    val isUnavailable: Boolean get() = permissionDenied || !available
 
     fun request() = onRequest()
 }
@@ -38,11 +47,20 @@ fun rememberLocationState(): LocationState {
     val context = LocalContext.current
     val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val location = remember { mutableStateOf<Location?>(null) }
+    val available = remember {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        mutableStateOf(LocationManagerCompat.isLocationEnabled(locationManager))
+    }
+    val permissionDenied = remember { mutableStateOf(false) }
 
     val callback = remember {
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 result.lastLocation?.let { location.value = it }
+            }
+
+            override fun onLocationAvailability(availability: LocationAvailability) {
+                available.value = availability.isLocationAvailable
             }
         }
     }
@@ -64,7 +82,12 @@ fun rememberLocationState(): LocationState {
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { grants ->
-        if (grants.values.any { it }) startUpdates()
+        if (grants.values.any { it }) {
+            permissionDenied.value = false
+            startUpdates()
+        } else {
+            permissionDenied.value = true
+        }
     }
 
     DisposableEffect(Unit) {
@@ -74,8 +97,11 @@ fun rememberLocationState(): LocationState {
     return remember {
         LocationState(
             location = location,
+            available = available,
+            permissionDenied = permissionDenied,
             onRequest = {
                 if (context.hasLocationPermission()) {
+                    permissionDenied.value = false
                     startUpdates()
                 } else {
                     permissionLauncher.launch(
@@ -91,10 +117,13 @@ fun rememberLocationState(): LocationState {
 }
 
 private fun Context.hasLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED
+    hasCoarseLocationPermission() || hasFineLocationPermission()
+
+private fun Context.hasCoarseLocationPermission(): Boolean =
+    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+private fun Context.hasFineLocationPermission(): Boolean =
+    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
 private const val UPDATE_INTERVAL_MS = 1000L
 private const val MIN_DISTANCE_M = 1f

@@ -34,7 +34,8 @@ import org.maplibre.compose.util.ClickResult
 internal fun RouteLayers(
     routes: List<RouteOverlay>,
     focusedRouteId: Long?,
-    onPinClick: (Long) -> Unit
+    showPins: Boolean = true,
+    onPinClick: (Long) -> Unit = {}
 ) {
     val allLines = remember(routes) { GeoJsonData.Features(routeLineFeatures(routes)) }
     val focusedLines = remember(routes, focusedRouteId) {
@@ -55,6 +56,8 @@ internal fun RouteLayers(
         color = const(RyggTheme.getColor(RyggColor.BrandGreen)),
         width = const(5.dp)
     )
+
+    if (!showPins) return
 
     Discipline.entries.forEach { discipline ->
         val starts = remember(routes, discipline) {

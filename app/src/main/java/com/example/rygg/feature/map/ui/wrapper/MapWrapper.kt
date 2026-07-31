@@ -10,6 +10,7 @@ import com.example.rygg.feature.map.ui.viewmodel.MapViewModel
 
 @Composable
 fun MapWrapper(
+    onStartFollow: (Long) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -18,7 +19,8 @@ fun MapWrapper(
         params = MapScreenParams(
             styleUrl = uiState.styleUrl,
             routes = uiState.routes,
-            focusEntryId = uiState.focusEntryId
+            focusEntryId = uiState.focusEntryId,
+            onStartFollow = onStartFollow
         )
     )
 }

@@ -8,5 +8,9 @@ data class RouteOverlay(
     val name: String,
     val discipline: Discipline,
     val paths: List<List<GeoPoint>>,
-    val start: GeoPoint?
+    val start: GeoPoint?,
+    val distanceMeters: Double = 0.0,
+    val ascentMeters: Double = 0.0,
+    val descentMeters: Double = 0.0,
+    val pointCount: Int = 0
 )

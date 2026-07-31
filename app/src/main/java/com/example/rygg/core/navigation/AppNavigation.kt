@@ -23,6 +23,7 @@ import com.example.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.example.rygg.feature.auth.ui.wrapper.RegisterWrapper
 import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.map.ui.wrapper.MapWrapper
+import com.example.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
 import com.example.rygg.feature.profile.ui.screen.ProfileScreen
 import com.example.rygg.feature.profile.ui.screen.ProfileScreenParams
 import com.example.rygg.feature.profile.ui.screen.ProfileUiState
@@ -100,7 +101,14 @@ fun AppNavigation() {
                 RecordWrapper()
             }
             composable<Map> {
-                MapWrapper()
+                MapWrapper(
+                    onStartFollow = { entryId ->
+                        navController.navigate(FollowRoute(entryId = entryId))
+                    }
+                )
+            }
+            composable<FollowRoute> {
+                RouteFollowingWrapper(onExit = { navController.navigateUp() })
             }
             composable<Profile> {
                 val user by authViewModel.currentUser.collectAsStateWithLifecycle()

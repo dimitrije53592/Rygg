@@ -53,7 +53,11 @@ class MapViewModel @Inject constructor(
             name = name,
             discipline = discipline,
             paths = paths,
-            start = paths.firstOrNull { it.isNotEmpty() }?.first()
+            start = paths.firstOrNull { it.isNotEmpty() }?.first(),
+            distanceMeters = distanceMeters,
+            ascentMeters = ascentMeters,
+            descentMeters = descentMeters,
+            pointCount = pointCount
         )
     }
 }
