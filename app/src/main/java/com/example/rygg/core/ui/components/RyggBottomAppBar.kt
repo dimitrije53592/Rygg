@@ -37,7 +37,11 @@ fun RyggBottomAppBar(
 
                 NavigationBarItem(
                     selected = isSelected,
-                    onClick = { navController.navigateToTab(destination.route) },
+                    onClick = {
+                        if (!isSelected) {
+                            navController.navigateToTab(destination.route)
+                        }
+                    },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = Color.Transparent
                     ),

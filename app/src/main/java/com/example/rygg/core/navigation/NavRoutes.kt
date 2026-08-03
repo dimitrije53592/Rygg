@@ -15,7 +15,13 @@ data object ForgotPassword
 data object Library
 
 @Serializable
-data object Map
+data object Record
+
+@Serializable
+data class Map(val entryId: Long? = null)
+
+@Serializable
+data class FollowRoute(val entryId: Long)
 
 @Serializable
 data object Profile

@@ -6,15 +6,11 @@ import com.example.rygg.core.gpx.model.GpxPoint
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.math.abs
-import kotlin.math.atan2
 import kotlin.math.ceil
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 class GpxAnalyzer @Inject constructor() {
     fun analyze(gpxDocument: GpxDocument): GpxAnalysis {
-        val paths = buildPaths(gpxDocument)
+        val paths = gpxDocument.trackSegments()
         val pathPoints = paths.flatten()
         val boundsPoints = pathPoints + gpxDocument.waypoints
         val elevations = boundsPoints.mapNotNull { it.ele }
@@ -62,10 +58,6 @@ class GpxAnalyzer @Inject constructor() {
         return result
     }
 
-    private fun buildPaths(gpxDocument: GpxDocument): List<List<GpxPoint>> =
-        gpxDocument.tracks.flatMap { track -> track.segments.map { it.points } } +
-            gpxDocument.routes.map { it.points }
-
     private fun resolveName(gpxDocument: GpxDocument): String =
         gpxDocument.metadata?.name
             ?: gpxDocument.tracks.firstNotNullOfOrNull { it.name }
@@ -73,7 +65,7 @@ class GpxAnalyzer @Inject constructor() {
             ?: ""
 
     private fun pathDistance(points: List<GpxPoint>): Double =
-        points.zipWithNext().sumOf { (a, b) -> haversine(a.lat, a.lon, b.lat, b.lon) }
+        points.zipWithNext().sumOf { (a, b) -> haversineMeters(a.lat, a.lon, b.lat, b.lon) }
 
     private fun pathAscent(points: List<GpxPoint>): Double =
         elevationDeltas(points).filter { it > ELEVATION_NOISE_METERS }.sum()
@@ -104,7 +96,7 @@ class GpxAnalyzer @Inject constructor() {
                     hasTimedPair = true
                     val dt = (to.toEpochMilli() - from.toEpochMilli()) / MILLIS_PER_SECOND
                     if (dt > 0 && dt <= MAX_PAUSE_GAP_SECONDS) {
-                        val speed = haversine(a.lat, a.lon, b.lat, b.lon) / dt
+                        val speed = haversineMeters(a.lat, a.lon, b.lat, b.lon) / dt
                         if (speed >= MIN_MOVING_SPEED_MPS) {
                             movingSeconds += dt
                         }
@@ -115,17 +107,7 @@ class GpxAnalyzer @Inject constructor() {
         return if (hasTimedPair) (movingSeconds * MILLIS_PER_SECOND).toLong() else null
     }
 
-    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = sin(dLat / 2) * sin(dLat / 2) +
-            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
-            sin(dLon / 2) * sin(dLon / 2)
-        return EARTH_RADIUS_METERS * 2 * atan2(sqrt(a), sqrt(1 - a))
-    }
-
     private companion object {
-        const val EARTH_RADIUS_METERS = 6_371_000.0
         const val ELEVATION_NOISE_METERS = 1.0
         const val MIN_MOVING_SPEED_MPS = 0.8
         const val MAX_PAUSE_GAP_SECONDS = 60.0

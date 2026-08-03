@@ -20,6 +20,8 @@ object Dimensions {
     val commonContentPadding64: Dp = 64.dp
     val commonContentPadding80: Dp = 80.dp
 
+    val followRouteToolbarPadding: Dp = 240.dp
+
     val commonSpacing4: Dp = 4.dp
     val commonSpacing8: Dp = 8.dp
     val commonSpacing12: Dp = 12.dp

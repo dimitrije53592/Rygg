@@ -85,7 +85,7 @@ class LibraryViewModel @Inject constructor(
 
 private data class LibraryFilter(
     val selectedDiscipline: Discipline? = null,
-    val sortMode: SortMode = SortMode.TIME,
+    val sortMode: SortMode = SortMode.NAME,
     val favoritesOnly: Boolean = false
 )
 

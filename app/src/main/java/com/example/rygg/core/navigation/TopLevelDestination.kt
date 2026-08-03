@@ -10,5 +10,6 @@ enum class TopLevelDestination(
     @StringRes val labelRes: Int
 ) {
     LIBRARY(route = Library, icon = R.drawable.ic_library, labelRes = R.string.nav_library),
-    MAP(route = Map, icon = R.drawable.ic_map, labelRes = R.string.nav_map)
+    RECORD(route = Record, icon = R.drawable.ic_record, labelRes = R.string.nav_record),
+    MAP(route = Map(), icon = R.drawable.ic_map, labelRes = R.string.nav_map)
 }
