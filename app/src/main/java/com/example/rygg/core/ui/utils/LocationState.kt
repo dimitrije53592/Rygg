@@ -2,7 +2,10 @@ package com.example.rygg.core.ui.utils
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -19,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -58,10 +60,6 @@ fun rememberLocationState(): LocationState {
             override fun onLocationResult(result: LocationResult) {
                 result.lastLocation?.let { location.value = it }
             }
-
-            override fun onLocationAvailability(availability: LocationAvailability) {
-                available.value = availability.isLocationAvailable
-            }
         }
     }
 
@@ -91,7 +89,19 @@ fun rememberLocationState(): LocationState {
     }
 
     DisposableEffect(Unit) {
-        onDispose { fusedClient.removeLocationUpdates(callback) }
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                available.value = LocationManagerCompat.isLocationEnabled(locationManager)
+            }
+        }
+
+        context.registerReceiver(receiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+            fusedClient.removeLocationUpdates(callback)
+        }
     }
 
     return remember {
