@@ -18,7 +18,13 @@ data object Library
 data object Record
 
 @Serializable
+data object RecordingPreview
+
+@Serializable
 data class Details(val entryId: Long)
+
+@Serializable
+data class ImportPreview(val uri: String, val discipline: String)
 
 @Serializable
 data class Map(val entryId: Long? = null)

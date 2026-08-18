@@ -98,4 +98,7 @@ sealed interface DetailsLoadingState {
     ) : DetailsLoadingState
 
     data class Error(val message: String?) : DetailsLoadingState
+
+    // A finished recording that captured too little movement to build a route (< 2 points).
+    data object Empty : DetailsLoadingState
 }

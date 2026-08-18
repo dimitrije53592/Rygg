@@ -13,6 +13,7 @@ data class GpxFileEntry(
     val description: String,
     val color: String?,
     val discipline: Discipline,
+    val source: EntrySource,
     val isFavorite: Boolean,
     // Computed stats
     val distanceMeters: Double,

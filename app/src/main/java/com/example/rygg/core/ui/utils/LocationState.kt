@@ -1,32 +1,30 @@
 package com.example.rygg.core.ui.utils
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.example.rygg.core.location.RyggLocationManager
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 @Stable
 class LocationState internal constructor(
@@ -44,37 +42,36 @@ class LocationState internal constructor(
     fun request() = onRequest()
 }
 
+// Bridges the (non-injectable) Composable to the shared, Hilt-provided RyggLocationManager.
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+private interface LocationManagerEntryPoint {
+    fun ryggLocationManager(): RyggLocationManager
+}
+
 @Composable
 fun rememberLocationState(): LocationState {
     val context = LocalContext.current
-    val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val locationManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            LocationManagerEntryPoint::class.java
+        ).ryggLocationManager()
+    }
+
     val location = remember { mutableStateOf<Location?>(null) }
     val available = remember {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        mutableStateOf(LocationManagerCompat.isLocationEnabled(locationManager))
+        val systemLocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        mutableStateOf(LocationManagerCompat.isLocationEnabled(systemLocationManager))
     }
     val permissionDenied = remember { mutableStateOf(false) }
+    var active by remember { mutableStateOf(false) }
 
-    val callback = remember {
-        object : LocationCallback() {
-            override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let { location.value = it }
-            }
+    // Stream fixes from the shared manager only once active (permission granted + requested).
+    LaunchedEffect(active) {
+        if (active) {
+            locationManager.locationUpdates().collect { location.value = it }
         }
-    }
-
-    val request = remember {
-        LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, UPDATE_INTERVAL_MS)
-            .setMinUpdateDistanceMeters(MIN_DISTANCE_M)
-            .build()
-    }
-
-    @SuppressLint("MissingPermission")
-    fun startUpdates() {
-        if (!context.hasLocationPermission()) return
-        fusedClient.lastLocation.addOnSuccessListener { fix -> fix?.let { location.value = it } }
-        fusedClient.removeLocationUpdates(callback)
-        fusedClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -82,17 +79,17 @@ fun rememberLocationState(): LocationState {
     ) { grants ->
         if (grants.values.any { it }) {
             permissionDenied.value = false
-            startUpdates()
+            active = true
         } else {
             permissionDenied.value = true
         }
     }
 
     DisposableEffect(Unit) {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val systemLocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                available.value = LocationManagerCompat.isLocationEnabled(locationManager)
+                available.value = LocationManagerCompat.isLocationEnabled(systemLocationManager)
             }
         }
 
@@ -100,7 +97,6 @@ fun rememberLocationState(): LocationState {
 
         onDispose {
             context.unregisterReceiver(receiver)
-            fusedClient.removeLocationUpdates(callback)
         }
     }
 
@@ -110,9 +106,9 @@ fun rememberLocationState(): LocationState {
             available = available,
             permissionDenied = permissionDenied,
             onRequest = {
-                if (context.hasLocationPermission()) {
+                if (locationManager.hasLocationPermission()) {
                     permissionDenied.value = false
-                    startUpdates()
+                    active = true
                 } else {
                     permissionLauncher.launch(
                         arrayOf(
@@ -125,15 +121,3 @@ fun rememberLocationState(): LocationState {
         )
     }
 }
-
-private fun Context.hasLocationPermission(): Boolean =
-    hasCoarseLocationPermission() || hasFineLocationPermission()
-
-private fun Context.hasCoarseLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
-private fun Context.hasFineLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
-private const val UPDATE_INTERVAL_MS = 1000L
-private const val MIN_DISTANCE_M = 1f

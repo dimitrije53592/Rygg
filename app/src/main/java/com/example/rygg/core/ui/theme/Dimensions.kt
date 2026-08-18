@@ -40,10 +40,13 @@ object Dimensions {
     val iconSize24: Dp = 24.dp
     val iconSize32: Dp = 32.dp
     val iconSize40: Dp = 40.dp
+    val iconSize48: Dp = 48.dp
     val iconSize64: Dp = 64.dp
     val iconSize80: Dp = 80.dp
     val iconSize92: Dp = 92.dp
     val iconSize100: Dp = 100.dp
+
+    val recordButtonSize: Dp = 132.dp
 
     val thumbnailSize66: Dp = 66.dp
     val badgeSize24: Dp = 24.dp

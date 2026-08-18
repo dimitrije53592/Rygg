@@ -1,5 +1,6 @@
 package com.example.rygg.core.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,8 @@ import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
 import com.example.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.example.rygg.feature.auth.ui.wrapper.RegisterWrapper
 import com.example.rygg.feature.details.ui.wrapper.DetailsWrapper
+import com.example.rygg.feature.details.ui.wrapper.ImportPreviewWrapper
+import com.example.rygg.feature.details.ui.wrapper.RecordingPreviewWrapper
 import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.map.ui.wrapper.MapWrapper
 import com.example.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
@@ -95,6 +98,12 @@ fun AppNavigation() {
                 LibraryWrapper(
                     onEntryClick = { entryId ->
                         navController.navigate(Details(entryId = entryId))
+                    },
+                    onImport = { uri, discipline ->
+                        navController.navigate(
+                            // Encode the SAF content:// URI so its /, %, # don't mangle the route.
+                            ImportPreview(uri = Uri.encode(uri.toString()), discipline = discipline.name)
+                        )
                     }
                 )
             }
@@ -106,8 +115,16 @@ fun AppNavigation() {
                     }
                 )
             }
+            composable<ImportPreview> {
+                ImportPreviewWrapper(onDone = { navController.popBackStack() })
+            }
             composable<Record> {
-                RecordWrapper()
+                RecordWrapper(
+                    onRecordingStopped = { navController.navigate(RecordingPreview) }
+                )
+            }
+            composable<RecordingPreview> {
+                RecordingPreviewWrapper(onDone = { navController.popBackStack() })
             }
             composable<Map> {
                 MapWrapper(

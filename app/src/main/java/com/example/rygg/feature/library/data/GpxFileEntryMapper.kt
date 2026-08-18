@@ -3,6 +3,7 @@ package com.example.rygg.feature.library.data
 import com.example.rygg.core.gpx.model.GeoPoint
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryEntity
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 
 fun GpxFileEntryEntity.toDomain(): GpxFileEntry = GpxFileEntry(
@@ -13,6 +14,7 @@ fun GpxFileEntryEntity.toDomain(): GpxFileEntry = GpxFileEntry(
     description = description,
     color = color,
     discipline = runCatching { Discipline.valueOf(discipline) }.getOrDefault(Discipline.HIKE),
+    source = runCatching { EntrySource.valueOf(source) }.getOrDefault(EntrySource.IMPORTED),
     isFavorite = isFavorite,
     distanceMeters = distanceMeters,
     ascentMeters = ascentMeters,
@@ -46,6 +48,7 @@ fun GpxFileEntry.toEntity(): GpxFileEntryEntity = GpxFileEntryEntity(
     description = description,
     color = color,
     discipline = discipline.name,
+    source = source.name,
     isFavorite = isFavorite,
     distanceMeters = distanceMeters,
     ascentMeters = ascentMeters,
