@@ -22,6 +22,9 @@ object Dimensions {
 
     val followRouteToolbarPadding: Dp = 240.dp
 
+    val detailsHeroHeight: Dp = 260.dp
+    val elevationProfileHeight: Dp = 120.dp
+
     val commonSpacing4: Dp = 4.dp
     val commonSpacing8: Dp = 8.dp
     val commonSpacing12: Dp = 12.dp
@@ -60,6 +63,7 @@ object Dimensions {
     val elevation4: Dp = 4.dp
 
     val buttonSize32: Dp = 32.dp
+    val buttonSize40: Dp = 40.dp
     val buttonSize50: Dp = 50.dp
 
     val progressIndicator20: Dp = 20.dp

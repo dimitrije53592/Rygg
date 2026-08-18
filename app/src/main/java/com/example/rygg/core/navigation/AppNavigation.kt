@@ -21,6 +21,7 @@ import com.example.rygg.feature.auth.ui.viewmodel.AuthViewModel
 import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
 import com.example.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.example.rygg.feature.auth.ui.wrapper.RegisterWrapper
+import com.example.rygg.feature.details.ui.wrapper.DetailsWrapper
 import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.map.ui.wrapper.MapWrapper
 import com.example.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
@@ -93,6 +94,14 @@ fun AppNavigation() {
             composable<Library> {
                 LibraryWrapper(
                     onEntryClick = { entryId ->
+                        navController.navigate(Details(entryId = entryId))
+                    }
+                )
+            }
+            composable<Details> {
+                DetailsWrapper(
+                    onNavigateBack = { navController.navigateUp() },
+                    onViewOnMap = { entryId ->
                         navController.navigate(Map(entryId = entryId))
                     }
                 )

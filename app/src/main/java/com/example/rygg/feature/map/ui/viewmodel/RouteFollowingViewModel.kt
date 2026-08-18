@@ -57,7 +57,8 @@ class RouteFollowingViewModel @Inject constructor(
                 .firstOrNull { it.id == entryId }
 
             val route = entry?.let {
-                val paths = gpxFileEntryRepository.loadPaths(it)
+                val content = gpxFileEntryRepository.loadRouteContent(it)
+                val paths = content.paths
                 RouteOverlay(
                     id = it.id,
                     name = it.name,
@@ -67,7 +68,8 @@ class RouteFollowingViewModel @Inject constructor(
                     distanceMeters = it.distanceMeters,
                     ascentMeters = it.ascentMeters,
                     descentMeters = it.descentMeters,
-                    pointCount = it.pointCount
+                    pointCount = it.pointCount,
+                    waypoints = content.waypoints
                 )
             }
 

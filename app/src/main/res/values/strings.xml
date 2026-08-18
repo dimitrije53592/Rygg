@@ -99,4 +99,26 @@
         <item quantity="one">%d activity</item>
         <item quantity="other">%d activities</item>
     </plurals>
+
+    <!-- Details -->
+    <string name="details_more_actions">More actions</string>
+    <string name="details_favorite">Add to starred</string>
+    <string name="details_unfavorite">Remove from starred</string>
+    <string name="details_delete">Delete</string>
+    <string name="details_not_found">This route is no longer available</string>
+    <string name="details_view_on_map">View on map</string>
+    <string name="details_stat_distance">Distance</string>
+    <string name="details_stat_ascent">Ascent</string>
+    <string name="details_stat_descent">Descent</string>
+    <string name="details_stat_moving_time">Moving time</string>
+    <string name="details_stat_high_point">High point</string>
+    <string name="details_stat_points">Points</string>
+    <string name="details_elevation_profile">Elevation profile</string>
+    <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
+    <string name="details_contents">Contents</string>
+    <string name="details_main_track">Main track</string>
+    <string name="details_track_summary">%1$s · %2$s</string>
+    <string name="details_waypoints">Waypoints</string>
+    <string name="details_waypoint_count">%d marked</string>
+    <string name="details_details">Details</string>
 </resources>

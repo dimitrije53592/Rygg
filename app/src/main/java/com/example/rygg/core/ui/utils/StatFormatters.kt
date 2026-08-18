@@ -27,14 +27,21 @@ fun formatSpeedKmh(metersPerSecond: Double): String =
 fun formatElevationMeters(meters: Double): String =
     String.format(Locale.getDefault(), "%,d m", meters.roundToInt())
 
+fun formatAscent(ascentMeters: Double): String =
+    String.format(Locale.getDefault(), "↑ %,d m", ascentMeters.roundToInt())
+
 fun formatPercent(fraction: Double): String =
     String.format(Locale.getDefault(), "%d%%", (fraction * 100).roundToInt())
 
-fun formatDuration(millis: Long): String {
+fun formatDurationHoursMinutes(millis: Long): String {
     val totalMinutes = millis / 60_000
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
-    return String.format(Locale.getDefault(), "%d:%02d", hours, minutes)
+    return if (hours > 0) {
+        String.format(Locale.getDefault(), "%dh %02dm", hours, minutes)
+    } else {
+        String.format(Locale.getDefault(), "%dm", minutes)
+    }
 }
 
 fun formatDate(millis: Long): String =

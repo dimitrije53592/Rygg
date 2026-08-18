@@ -14,6 +14,7 @@ import com.example.rygg.feature.map.ui.util.PROP_ID
 import com.example.rygg.feature.map.ui.util.PROP_NAME
 import com.example.rygg.feature.map.ui.util.routeLineFeatures
 import com.example.rygg.feature.map.ui.util.routeStartFeatures
+import com.example.rygg.feature.map.ui.util.routeWaypointFeatures
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import org.maplibre.compose.expressions.dsl.asString
@@ -55,6 +56,26 @@ internal fun RouteLayers(
         source = focusedLinesSource,
         color = const(RyggTheme.getColor(RyggColor.BrandGreen)),
         width = const(5.dp)
+    )
+
+    // Waypoints of the focused route — shown on the map and while following (not gated by showPins).
+    val focusedWaypoints = remember(routes, focusedRouteId) {
+        GeoJsonData.Features(routeWaypointFeatures(routes.filter { it.id == focusedRouteId }))
+    }
+    val focusedWaypointsSource = rememberGeoJsonSource(focusedWaypoints)
+    SymbolLayer(
+        id = "waypoints-focused",
+        source = focusedWaypointsSource,
+        iconImage = image(painterResource(R.drawable.ic_map_pin_waypoint)),
+        iconSize = const(0.6f),
+        iconAnchor = const(SymbolAnchor.Bottom),
+        iconAllowOverlap = const(true),
+        textField = format(span(feature.get(PROP_NAME).asString())),
+        textColor = const(RyggTheme.getColor(RyggColor.TextPrimary)),
+        textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
+        textHaloWidth = const(2.dp),
+        textAnchor = const(SymbolAnchor.Top),
+        textOffset = offset(0f.em, 0.5f.em)
     )
 
     if (!showPins) return
