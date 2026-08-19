@@ -3,6 +3,7 @@ package com.example.rygg.feature.library.data
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +94,11 @@ class GpxStorage @Inject constructor(
     }
 
     fun resolve(fileName: String): File = File(filesDir, fileName)
+
+    // Content Uri for a stored .gpx, usable in an ACTION_SEND share. Backed by the
+    // FileProvider declared in the manifest (authority "<packageName>.fileprovider").
+    fun shareUri(fileName: String): Uri =
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", resolve(fileName))
 }
 
 data class StoredFile(

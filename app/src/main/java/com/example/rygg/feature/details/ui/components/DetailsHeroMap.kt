@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.DropdownMenu
@@ -51,7 +52,9 @@ fun DetailsHeroMap(
     modifier: Modifier = Modifier,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null
+    onDelete: (() -> Unit)? = null,
+    onShareLink: (() -> Unit)? = null,
+    onShareFile: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -96,12 +99,20 @@ fun DetailsHeroMap(
                     )
                 }
             )
-            if (onToggleFavorite != null && onDelete != null) {
-                HeroOverflowMenu(
-                    isFavorite = entry.isFavorite,
-                    onToggleFavorite = onToggleFavorite,
-                    onDelete = onDelete
-                )
+            Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
+                if (onShareLink != null && onShareFile != null) {
+                    HeroShareButton(
+                        onShareLink = onShareLink,
+                        onShareFile = onShareFile
+                    )
+                }
+                if (onToggleFavorite != null && onDelete != null) {
+                    HeroOverflowMenu(
+                        isFavorite = entry.isFavorite,
+                        onToggleFavorite = onToggleFavorite,
+                        onDelete = onDelete
+                    )
+                }
             }
         }
 
@@ -124,6 +135,39 @@ fun DetailsHeroMap(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+@Composable
+private fun HeroShareButton(
+    onShareLink: () -> Unit,
+    onShareFile: () -> Unit
+) {
+    var showSheet by remember { mutableStateOf(false) }
+
+    GlassIconButton(
+        onClick = { showSheet = true },
+        content = {
+            Icon(
+                imageVector = Icons.Default.Share,
+                contentDescription = stringResource(R.string.details_share),
+                tint = Color.White,
+                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+            )
+        }
+    )
+    if (showSheet) {
+        DetailsShareSheet(
+            onShareLink = {
+                showSheet = false
+                onShareLink()
+            },
+            onShareFile = {
+                showSheet = false
+                onShareFile()
+            },
+            onDismiss = { showSheet = false }
+        )
     }
 }
 
