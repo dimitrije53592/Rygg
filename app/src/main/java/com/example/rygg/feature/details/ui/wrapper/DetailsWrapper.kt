@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.rygg.feature.details.ui.screen.DetailsMode
 import com.example.rygg.feature.details.ui.screen.DetailsScreen
 import com.example.rygg.feature.details.ui.screen.DetailsScreenParams
 import com.example.rygg.feature.details.ui.viewmodel.DetailsViewModel
@@ -20,12 +21,14 @@ fun DetailsWrapper(
         params = DetailsScreenParams(
             uiState = uiState,
             onNavigateBack = onNavigateBack,
-            onViewOnMap = onViewOnMap,
-            onToggleFavorite = { viewModel.onToggleFavorite() },
-            onDelete = {
-                viewModel.onDelete()
-                onNavigateBack()
-            }
+            mode = DetailsMode.View(
+                onViewOnMap = onViewOnMap,
+                onToggleFavorite = { viewModel.onToggleFavorite() },
+                onDelete = {
+                    viewModel.onDelete()
+                    onNavigateBack()
+                }
+            )
         )
     )
 }

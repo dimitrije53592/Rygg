@@ -48,9 +48,10 @@ import com.example.rygg.feature.library.ui.components.TrailThumbnail
 fun DetailsHeroMap(
     entry: GpxFileEntry,
     onNavigateBack: () -> Unit,
-    onToggleFavorite: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sourceLabel: String? = null,
+    onToggleFavorite: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -95,11 +96,13 @@ fun DetailsHeroMap(
                     )
                 }
             )
-            HeroOverflowMenu(
-                isFavorite = entry.isFavorite,
-                onToggleFavorite = onToggleFavorite,
-                onDelete = onDelete
-            )
+            if (onToggleFavorite != null && onDelete != null) {
+                HeroOverflowMenu(
+                    isFavorite = entry.isFavorite,
+                    onToggleFavorite = onToggleFavorite,
+                    onDelete = onDelete
+                )
+            }
         }
 
         Column(
@@ -108,7 +111,10 @@ fun DetailsHeroMap(
                 .padding(RyggTheme.dimens.commonContentPadding16),
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
         ) {
-            DisciplineChip(entry.discipline)
+            Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
+                DisciplineChip(entry.discipline)
+                sourceLabel?.let { SourceChip(label = it) }
+            }
             Text(
                 text = entry.name,
                 style = RyggTheme.typography.headlineSmall,
@@ -195,6 +201,23 @@ private fun GlassIconButton(
     ) {
         content()
     }
+}
+
+@Composable
+private fun SourceChip(label: String) {
+    Text(
+        text = label,
+        style = RyggTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = Color.White,
+        modifier = Modifier
+            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+            .background(Color.Black.copy(alpha = 0.32f))
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding8,
+                vertical = RyggTheme.dimens.commonContentPadding4
+            )
+    )
 }
 
 @Composable

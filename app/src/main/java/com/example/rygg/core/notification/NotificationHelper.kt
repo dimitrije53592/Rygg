@@ -1,12 +1,12 @@
 package com.example.rygg.core.notification
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -15,27 +15,31 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 /**
- * Inject anywhere (ViewModel, repository, worker, …) to post a notification immediately.
- * On API 33+ the caller must hold POST_NOTIFICATIONS; the call is a safe no-op without it.
+ * The single funnel for notifications: owns the shared channel, the small-icon seed and the
+ * POST_NOTIFICATIONS gate, and renders any [NotificationBuilder] strategy. Inject anywhere
+ * (ViewModel, repository, service, …). On API 33+ posting is a safe no-op without the
+ * permission.
  */
 class NotificationHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    fun notify(title: String, message: String, notificationId: Int = DEFAULT_NOTIFICATION_ID) {
+    // Render a strategy to a finished Notification (e.g. for Service.startForeground).
+    fun build(builder: NotificationBuilder): Notification {
         ensureChannel()
-        if (!hasPostPermission()) return
-
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
-
-        NotificationManagerCompat.from(context).notify(notificationId, notification)
+        return builder.build(context, seededBase())
     }
+
+    fun notify(builder: NotificationBuilder, notificationId: Int = DEFAULT_NOTIFICATION_ID) {
+        if (!hasPostPermission()) return
+        @Suppress("MissingPermission")
+        NotificationManagerCompat.from(context).notify(notificationId, build(builder))
+    }
+
+    fun notify(title: String, message: String, notificationId: Int = DEFAULT_NOTIFICATION_ID) =
+        notify(SimpleNotificationBuilder(title, message), notificationId)
+
+    private fun seededBase(): NotificationCompat.Builder =
+        NotificationCompat.Builder(context, CHANNEL_ID).setSmallIcon(R.drawable.ic_logo)
 
     private fun ensureChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -57,5 +61,5 @@ class NotificationHelper @Inject constructor(
     }
 }
 
-private const val CHANNEL_ID = "general"
-private const val DEFAULT_NOTIFICATION_ID = 1001
+const val CHANNEL_ID = "general"
+const val DEFAULT_NOTIFICATION_ID = 1001

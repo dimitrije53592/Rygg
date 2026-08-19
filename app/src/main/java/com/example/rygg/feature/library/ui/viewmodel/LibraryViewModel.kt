@@ -1,12 +1,12 @@
 package com.example.rygg.feature.library.ui.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.domain.SortMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +25,11 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel() {
     private val filter = MutableStateFlow(LibraryFilter())
 
+    init {
+        // One-shot cleanup of staged files orphaned by a killed preview in a prior session.
+        viewModelScope.launch { gpxFileEntryRepository.reconcileOrphanedFiles() }
+    }
+
     val uiState: StateFlow<LibraryUiState> = combine(
         gpxFileEntryRepository.observeGpxFileEntries().asResult(),
         filter
@@ -39,6 +44,7 @@ class LibraryViewModel @Inject constructor(
                     gpxFilesEntries = outcome.data.applyFilter(filter).applySort(filter.sortMode)
                 ),
                 selectedDiscipline = filter.selectedDiscipline,
+                selectedSource = filter.selectedSource,
                 sortMode = filter.sortMode,
                 favoritesOnly = filter.favoritesOnly,
                 isLibraryEmpty = outcome.data.isEmpty()
@@ -49,12 +55,6 @@ class LibraryViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = LibraryUiState(gpxFilesLoadingState = GpxFilesLoadingState.Loading)
     )
-
-    fun importGpxFile(uri: Uri, discipline: Discipline) {
-        viewModelScope.launch {
-            gpxFileEntryRepository.importGpxFile(uri, discipline)
-        }
-    }
 
     fun deleteGpxFile(entry: GpxFileEntry) {
         viewModelScope.launch {
@@ -72,6 +72,19 @@ class LibraryViewModel @Inject constructor(
         filter.update { it.copy(selectedDiscipline = discipline) }
     }
 
+    // Cycle the source filter: All → Imported → Recorded → All.
+    fun onCycleSource() {
+        filter.update {
+            it.copy(
+                selectedSource = when (it.selectedSource) {
+                    null -> EntrySource.IMPORTED
+                    EntrySource.IMPORTED -> EntrySource.RECORDED
+                    EntrySource.RECORDED -> null
+                }
+            )
+        }
+    }
+
     fun onToggleSort() {
         filter.update {
             it.copy(sortMode = if (it.sortMode == SortMode.TIME) SortMode.NAME else SortMode.TIME)
@@ -85,6 +98,7 @@ class LibraryViewModel @Inject constructor(
 
 private data class LibraryFilter(
     val selectedDiscipline: Discipline? = null,
+    val selectedSource: EntrySource? = null,
     val sortMode: SortMode = SortMode.NAME,
     val favoritesOnly: Boolean = false
 )
@@ -92,6 +106,7 @@ private data class LibraryFilter(
 private fun List<GpxFileEntry>.applyFilter(filter: LibraryFilter): List<GpxFileEntry> =
     filter {
         (filter.selectedDiscipline == null || it.discipline == filter.selectedDiscipline) &&
+            (filter.selectedSource == null || it.source == filter.selectedSource) &&
             (!filter.favoritesOnly || it.isFavorite)
     }
 
@@ -115,6 +130,7 @@ sealed interface GpxFilesLoadingState {
 data class LibraryUiState(
     val gpxFilesLoadingState: GpxFilesLoadingState,
     val selectedDiscipline: Discipline? = null,
+    val selectedSource: EntrySource? = null,
     val sortMode: SortMode = SortMode.TIME,
     val favoritesOnly: Boolean = false,
     val isLibraryEmpty: Boolean = false

@@ -13,16 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +38,7 @@ import com.example.rygg.core.ui.utils.formatDate
 import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.auth.domain.Discipline
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
 
@@ -81,11 +83,22 @@ fun GpxFileEntryCard(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
-            Text(
-                text = subtitle(entry),
-                style = RyggTheme.typography.bodySmall,
-                color = RyggTheme.getColor(RyggColor.TextSecondary)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
+            ) {
+                Icon(
+                    imageVector = sourceIcon(entry.source),
+                    contentDescription = null,
+                    tint = RyggTheme.getColor(RyggColor.TextSecondary),
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize16)
+                )
+                Text(
+                    text = subtitle(entry),
+                    style = RyggTheme.typography.bodySmall,
+                    color = RyggTheme.getColor(RyggColor.TextSecondary)
+                )
+            }
             Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)) {
                 statsOf(entry).forEach { stat ->
@@ -147,7 +160,18 @@ private fun subtitle(entry: GpxFileEntry): String =
     if (entry.hasTime && entry.startTimeMillis != null) {
         formatDate(entry.startTimeMillis)
     } else {
-        stringResource(R.string.library_imported)
+        stringResource(
+            when (entry.source) {
+                EntrySource.IMPORTED -> R.string.details_source_imported
+                EntrySource.RECORDED -> R.string.details_source_recorded
+            }
+        )
+    }
+
+private fun sourceIcon(source: EntrySource): ImageVector =
+    when (source) {
+        EntrySource.IMPORTED -> Icons.Default.FileDownload
+        EntrySource.RECORDED -> Icons.Default.FiberManualRecord
     }
 
 private fun statsOf(entry: GpxFileEntry): List<String> = buildList {

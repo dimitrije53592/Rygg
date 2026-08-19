@@ -2,6 +2,7 @@ package com.example.rygg.feature.details.ui.paramproviders
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.example.rygg.core.gpx.model.ElevationSample
+import com.example.rygg.feature.details.ui.screen.DetailsMode
 import com.example.rygg.feature.details.ui.screen.DetailsScreenParams
 import com.example.rygg.feature.details.ui.viewmodel.DetailsLoadingState
 import com.example.rygg.feature.details.ui.viewmodel.DetailsUiState
@@ -25,9 +26,11 @@ private fun detailsParams(loadingState: DetailsLoadingState): DetailsScreenParam
     DetailsScreenParams(
         uiState = DetailsUiState(loadingState = loadingState),
         onNavigateBack = {},
-        onViewOnMap = {},
-        onToggleFavorite = {},
-        onDelete = {}
+        mode = DetailsMode.View(
+            onViewOnMap = {},
+            onToggleFavorite = {},
+            onDelete = {}
+        )
     )
 
 private fun previewProfile(): List<ElevationSample> = listOf(

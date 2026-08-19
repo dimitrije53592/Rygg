@@ -110,8 +110,10 @@ private fun LoadedContent(
             activityCount = entries.size,
             sortMode = uiState.sortMode,
             favoritesOnly = uiState.favoritesOnly,
+            selectedSource = uiState.selectedSource,
             onToggleSort = params.onToggleSort,
-            onToggleFavoritesFilter = params.onToggleFavoritesFilter
+            onToggleFavoritesFilter = params.onToggleFavoritesFilter,
+            onCycleSourceFilter = params.onCycleSourceFilter
         )
         if (entries.isEmpty()) {
             LibraryNoMatchesState()
@@ -145,5 +147,6 @@ data class LibraryScreenParams(
     val onDeleteEntry: (GpxFileEntry) -> Unit,
     val onDisciplineSelected: (Discipline?) -> Unit,
     val onToggleSort: () -> Unit,
-    val onToggleFavoritesFilter: () -> Unit
+    val onToggleFavoritesFilter: () -> Unit,
+    val onCycleSourceFilter: () -> Unit
 )

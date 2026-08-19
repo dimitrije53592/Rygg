@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Star
@@ -18,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.SortMode
 
 @Composable
@@ -30,8 +35,10 @@ internal fun LibraryListHeader(
     activityCount: Int,
     sortMode: SortMode,
     favoritesOnly: Boolean,
+    selectedSource: EntrySource?,
     onToggleSort: () -> Unit,
-    onToggleFavoritesFilter: () -> Unit
+    onToggleFavoritesFilter: () -> Unit,
+    onCycleSourceFilter: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -53,9 +60,36 @@ internal fun LibraryListHeader(
             horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
             SortToggle(sortMode = sortMode, onClick = onToggleSort)
+            SourceFilterToggle(selectedSource = selectedSource, onClick = onCycleSourceFilter)
             FavoritesFilterToggle(active = favoritesOnly, onClick = onToggleFavoritesFilter)
         }
     }
+}
+
+@Composable
+private fun SourceFilterToggle(
+    selectedSource: EntrySource?,
+    onClick: () -> Unit
+) {
+    val icon: ImageVector = when (selectedSource) {
+        null -> Icons.Default.FilterList
+        EntrySource.IMPORTED -> Icons.Default.FileDownload
+        EntrySource.RECORDED -> Icons.Default.FiberManualRecord
+    }
+    Icon(
+        imageVector = icon,
+        contentDescription = stringResource(R.string.library_source_filter),
+        tint = if (selectedSource != null) {
+            RyggTheme.getColor(RyggColor.BrandGreen)
+        } else {
+            RyggTheme.getColor(RyggColor.TextSecondary)
+        },
+        modifier = Modifier
+            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+            .clickable { onClick() }
+            .padding(RyggTheme.dimens.commonContentPadding4)
+            .size(RyggTheme.dimens.iconSize24)
+    )
 }
 
 @Composable

@@ -2,6 +2,7 @@ package com.example.rygg.feature.library.ui.paramproviders
 
 import com.example.rygg.core.gpx.model.GeoPoint
 import com.example.rygg.feature.auth.domain.Discipline
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 
 // Single source of truth for GpxFileEntry samples shared across preview param providers.
@@ -10,6 +11,7 @@ internal fun previewGpxFileEntry(
     name: String = "Triglav via Kredarica",
     description: String = "Classic approach to Triglav via the Kredarica hut. Cabled sections near the summit.",
     discipline: Discipline = Discipline.HIKE,
+    source: EntrySource = EntrySource.RECORDED,
     isFavorite: Boolean = true,
     hasTime: Boolean = true,
     tags: List<String> = listOf("Mountaineering", "Two-day", "Summit")
@@ -21,6 +23,7 @@ internal fun previewGpxFileEntry(
     description = description,
     color = null,
     discipline = discipline,
+    source = source,
     isFavorite = isFavorite,
     distanceMeters = 12_400.0,
     ascentMeters = 1_180.0,

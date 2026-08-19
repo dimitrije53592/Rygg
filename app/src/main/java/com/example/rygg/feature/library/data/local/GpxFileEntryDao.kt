@@ -13,6 +13,9 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE id = :id")
     fun observeById(id: Long): Flow<GpxFileEntryEntity?>
 
+    @Query("SELECT fileName FROM library")
+    suspend fun getAllFileNames(): List<String>
+
     @Insert
     suspend fun insert(entry: GpxFileEntryEntity): Long
 

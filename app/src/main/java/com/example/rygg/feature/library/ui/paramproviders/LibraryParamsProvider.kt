@@ -2,6 +2,7 @@ package com.example.rygg.feature.library.ui.paramproviders
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.example.rygg.feature.auth.domain.Discipline
+import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.ui.screen.LibraryScreenParams
 import com.example.rygg.feature.library.ui.viewmodel.GpxFilesLoadingState
 import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
@@ -22,6 +23,7 @@ class LibraryParamsProvider : PreviewParameterProvider<LibraryScreenParams> {
                         id = 2L,
                         name = "Seven Lakes valley",
                         discipline = Discipline.RIDE,
+                        source = EntrySource.IMPORTED,
                         isFavorite = false,
                         hasTime = false,
                         tags = emptyList()
@@ -47,5 +49,6 @@ private fun libraryParams(
         onDeleteEntry = {},
         onDisciplineSelected = {},
         onToggleSort = {},
-        onToggleFavoritesFilter = {}
+        onToggleFavoritesFilter = {},
+        onCycleSourceFilter = {}
     )

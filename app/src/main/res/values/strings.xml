@@ -93,6 +93,7 @@
     <string name="library_sort_date">Date</string>
     <string name="library_sort">Change sorting</string>
     <string name="library_favorites_filter">Show starred only</string>
+    <string name="library_source_filter">Filter by source</string>
     <string name="library_undated_section">No date</string>
     <string name="library_no_matches">No activities match this filter</string>
     <plurals name="library_activities">
@@ -121,4 +122,43 @@
     <string name="details_waypoints">Waypoints</string>
     <string name="details_waypoint_count">%d marked</string>
     <string name="details_details">Details</string>
+    <string name="details_save_to_library">Save to library</string>
+    <string name="details_discard">Discard</string>
+    <string name="details_save_error">Couldn\'t save. Please try again.</string>
+    <string name="details_import_preview">Import preview</string>
+    <string name="details_source_imported">Imported</string>
+    <string name="details_source_recorded">Recorded</string>
+    <string name="details_recording_preview">Recording preview</string>
+    <string name="details_file_name">File name</string>
+
+    <!-- Record -->
+    <string name="record_choose_activity">Choose your activity</string>
+    <string name="record_start">Start recording</string>
+    <string name="record_gps_hint">GPS starts when you tap record</string>
+    <string name="record_recording">Recording</string>
+    <string name="record_paused">Paused</string>
+    <string name="record_add_waypoint">Add waypoint</string>
+    <string name="record_pause">Pause</string>
+    <string name="record_resume">Resume</string>
+    <string name="record_stop">Stop</string>
+    <string name="record_metric_distance">Distance</string>
+    <string name="record_metric_speed">Speed</string>
+    <string name="record_metric_ascent">Ascent</string>
+    <string name="record_metric_elevation">Elevation</string>
+    <string name="record_metric_points">Points</string>
+    <string name="record_metric_waypoints">Waypoints</string>
+    <string name="record_waypoint_title">New waypoint</string>
+    <string name="record_waypoint_hint">Name this spot</string>
+    <string name="record_waypoint_default">Waypoint %d</string>
+    <string name="record_waypoint_save">Add</string>
+    <string name="record_waypoint_cancel">Cancel</string>
+    <string name="record_notification_channel">Recording</string>
+    <string name="record_notification_title">Recording activity</string>
+    <string name="record_notification_text">Distance: %1$s · Time: %2$s</string>
+    <string name="record_empty_title">No route recorded</string>
+    <string name="record_empty_message">This recording didn\'t capture enough movement to save a route.</string>
+    <string name="record_empty_confirm_title">Discard recording?</string>
+    <string name="record_empty_confirm_message">There\'s nothing to save, so this recording will be discarded.</string>
+    <string name="record_empty_confirm_discard">Discard</string>
+    <string name="record_empty_confirm_cancel">Cancel</string>
 </resources>
