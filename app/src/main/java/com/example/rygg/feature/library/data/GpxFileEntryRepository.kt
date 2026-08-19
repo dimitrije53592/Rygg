@@ -5,8 +5,12 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.outcomeCatching
 import com.example.rygg.core.gpx.GpxAnalyzer
 import com.example.rygg.core.gpx.GpxParser
-import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.core.gpx.haversineMeters
+import com.example.rygg.core.gpx.model.ElevationSample
+import com.example.rygg.core.gpx.model.RouteFileContent
+import com.example.rygg.core.gpx.model.Waypoint
 import com.example.rygg.core.gpx.trackPaths
+import com.example.rygg.core.gpx.trackSegments
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao
 import com.example.rygg.feature.library.domain.GpxFileEntry
@@ -24,6 +28,9 @@ class GpxFileEntryRepository @Inject constructor(
 ) {
     fun observeGpxFileEntries(): Flow<List<GpxFileEntry>> =
         gpxFileEntryDao.observeAll().map { entities -> entities.map { it.toDomain() } }
+
+    fun observeGpxFileEntry(id: Long): Flow<GpxFileEntry?> =
+        gpxFileEntryDao.observeById(id).map { entity -> entity?.toDomain() }
 
     suspend fun importGpxFile(uri: Uri, discipline: Discipline): Outcome<Long> = outcomeCatching {
         val file = gpxStorage.saveFromUri(uri)
@@ -75,12 +82,41 @@ class GpxFileEntryRepository @Inject constructor(
     suspend fun setFavorite(id: Long, favorite: Boolean) =
         gpxFileEntryDao.setFavorite(id, favorite)
 
-    suspend fun loadPaths(entry: GpxFileEntry): List<List<GeoPoint>> = withContext(Dispatchers.IO) {
+    // Track paths and waypoints from a single parse of the GPX file.
+    suspend fun loadRouteContent(entry: GpxFileEntry): RouteFileContent = withContext(Dispatchers.IO) {
         runCatching {
-            gpxStorage.resolve(entry.fileName)
+            val document = gpxStorage.resolve(entry.fileName)
                 .inputStream()
                 .use { gpxParser.parse(it).gpxDocument }
-                .trackPaths()
+            RouteFileContent(
+                paths = document.trackPaths(),
+                waypoints = document.waypoints.map { Waypoint(it.lat, it.lon, it.name.orEmpty()) }
+            )
+        }.getOrDefault(RouteFileContent(emptyList(), emptyList()))
+    }
+
+    // Elevation-over-distance series for the details profile chart; empty when the file has no `ele` data.
+    suspend fun loadElevationProfile(entry: GpxFileEntry): List<ElevationSample> = withContext(Dispatchers.IO) {
+        runCatching {
+            val segments = gpxStorage.resolve(entry.fileName)
+                .inputStream()
+                .use { gpxParser.parse(it).gpxDocument }
+                .trackSegments()
+
+            val samples = mutableListOf<ElevationSample>()
+            var cumulativeMeters = 0.0
+            segments.forEach { points ->
+                points.zipWithNext().forEach { (previous, current) ->
+                    cumulativeMeters += haversineMeters(previous.lat, previous.lon, current.lat, current.lon)
+                    val elevation = current.ele ?: return@forEach
+                    if (samples.isEmpty()) {
+                        val firstElevation = previous.ele ?: elevation
+                        samples += ElevationSample(distanceMeters = 0.0, elevationMeters = firstElevation)
+                    }
+                    samples += ElevationSample(distanceMeters = cumulativeMeters, elevationMeters = elevation)
+                }
+            }
+            if (samples.size < 2) emptyList() else samples
         }.getOrDefault(emptyList())
     }
 }

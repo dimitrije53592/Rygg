@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.core.gpx.model.RouteFileContent
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.map.domain.MapStyleSource
@@ -25,7 +25,7 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
     private val styleUrl = mapStyleSource.baseStyleUrl()
     private val focusEntryId = savedStateHandle.toRoute<MapRoute>().entryId
-    private val pathCache = mutableMapOf<Long, CachedPaths>()
+    private val contentCache = mutableMapOf<Long, CachedContent>()
 
     val uiState: StateFlow<MapUiState> = gpxFileEntryRepository.observeGpxFileEntries()
         .map { entries ->
@@ -42,29 +42,30 @@ class MapViewModel @Inject constructor(
         )
 
     private suspend fun GpxFileEntry.toRouteOverlay(): RouteOverlay {
-        val cached = pathCache[id]
-        val paths = if (cached != null && cached.updatedAt == updatedAt) {
-            cached.paths
+        val cached = contentCache[id]
+        val content = if (cached != null && cached.updatedAt == updatedAt) {
+            cached.content
         } else {
-            gpxFileEntryRepository.loadPaths(this).also { pathCache[id] = CachedPaths(updatedAt, it) }
+            gpxFileEntryRepository.loadRouteContent(this).also { contentCache[id] = CachedContent(updatedAt, it) }
         }
         return RouteOverlay(
             id = id,
             name = name,
             discipline = discipline,
-            paths = paths,
-            start = paths.firstOrNull { it.isNotEmpty() }?.first(),
+            paths = content.paths,
+            start = content.paths.firstOrNull { it.isNotEmpty() }?.first(),
             distanceMeters = distanceMeters,
             ascentMeters = ascentMeters,
             descentMeters = descentMeters,
-            pointCount = pointCount
+            pointCount = pointCount,
+            waypoints = content.waypoints
         )
     }
 }
 
-private data class CachedPaths(
+private data class CachedContent(
     val updatedAt: Long,
-    val paths: List<List<GeoPoint>>
+    val content: RouteFileContent
 )
 
 data class MapUiState(

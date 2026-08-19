@@ -28,16 +28,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.rygg.R
-import com.example.rygg.core.gpx.model.GeoPoint
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
+import com.example.rygg.core.ui.utils.formatAscent
 import com.example.rygg.core.ui.utils.formatDate
 import com.example.rygg.core.ui.utils.formatDistanceKm
-import com.example.rygg.core.ui.utils.formatElevationDelta
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
 
 @Composable
 fun GpxFileEntryCard(
@@ -151,59 +152,21 @@ private fun subtitle(entry: GpxFileEntry): String =
 
 private fun statsOf(entry: GpxFileEntry): List<String> = buildList {
     if (entry.distanceMeters > 0.0) add(formatDistanceKm(entry.distanceMeters))
-    if (entry.elevationMeters != null) add(formatElevationDelta(entry.ascentMeters, entry.descentMeters))
+    if (entry.elevationMeters != null) add(formatAscent(entry.ascentMeters))
     add(formatPointCount(entry.pointCount))
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun GpxFileEntryCardPreview() {
+private fun GpxFileEntryCardPreview(
+    @PreviewParameter(GpxFileEntryProvider::class) entry: GpxFileEntry
+) {
     RyggTheme {
-        Column(
-            modifier = Modifier.padding(RyggTheme.dimens.commonContentPadding16),
-            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
-        ) {
-            GpxFileEntryCard(entry = previewEntry(recorded = true), onClick = {}, onFavoriteClick = {})
-            GpxFileEntryCard(entry = previewEntry(recorded = false), onClick = {}, onFavoriteClick = {})
-        }
+        GpxFileEntryCard(
+            entry = entry,
+            onClick = {},
+            onFavoriteClick = {},
+            modifier = Modifier.padding(RyggTheme.dimens.commonContentPadding16)
+        )
     }
 }
-
-private fun previewEntry(recorded: Boolean): GpxFileEntry = GpxFileEntry(
-    id = if (recorded) 1L else 2L,
-    fileName = "sample.gpx",
-    contentHash = "",
-    name = if (recorded) "Mali i Veliki Vukan" else "Seven Lakes valley",
-    description = "",
-    color = null,
-    discipline = if (recorded) Discipline.HIKE else Discipline.RIDE,
-    isFavorite = recorded,
-    distanceMeters = if (recorded) 12_400.0 else 15_200.0,
-    ascentMeters = if (recorded) 1_180.0 else 920.0,
-    descentMeters = if (recorded) 1_100.0 else 40.0,
-    elevationMeters = 837.0,
-    pointCount = if (recorded) 1_240 else 512,
-    routeCount = 1,
-    waypointCount = 8,
-    hasTime = recorded,
-    startTimeMillis = if (recorded) 1_498_500_000_000 else null,
-    movingTimeMillis = if (recorded) 20_400_000 else null,
-    totalTimeMillis = if (recorded) 21_000_000 else null,
-    minLat = 44.28,
-    minLon = 21.50,
-    maxLat = 44.31,
-    maxLon = 21.54,
-    pathPoints = listOf(
-        GeoPoint(44.306, 21.503),
-        GeoPoint(44.300, 21.510),
-        GeoPoint(44.292, 21.520),
-        GeoPoint(44.299, 21.534),
-        GeoPoint(44.288, 21.537)
-    ),
-    folder = null,
-    tags = emptyList(),
-    importedAt = 1_497_500_000_000,
-    updatedAt = 1_497_500_000_000,
-    creator = "MapSource",
-    originalFileName = "sample.gpx"
-)

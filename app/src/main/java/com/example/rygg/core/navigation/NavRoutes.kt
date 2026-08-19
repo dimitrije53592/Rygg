@@ -18,6 +18,9 @@ data object Library
 data object Record
 
 @Serializable
+data class Details(val entryId: Long)
+
+@Serializable
 data class Map(val entryId: Long? = null)
 
 @Serializable

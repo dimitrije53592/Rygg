@@ -10,6 +10,9 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library ORDER BY importedAt DESC")
     fun observeAll(): Flow<List<GpxFileEntryEntity>>
 
+    @Query("SELECT * FROM library WHERE id = :id")
+    fun observeById(id: Long): Flow<GpxFileEntryEntity?>
+
     @Insert
     suspend fun insert(entry: GpxFileEntryEntity): Long
 

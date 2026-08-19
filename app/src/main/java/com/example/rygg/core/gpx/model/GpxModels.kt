@@ -79,3 +79,19 @@ data class GeoPoint(
     val lat: Double,
     val lon: Double
 )
+
+data class ElevationSample(
+    val distanceMeters: Double,
+    val elevationMeters: Double
+)
+
+data class Waypoint(
+    val lat: Double,
+    val lon: Double,
+    val name: String
+)
+
+data class RouteFileContent(
+    val paths: List<List<GeoPoint>>,
+    val waypoints: List<Waypoint>
+)

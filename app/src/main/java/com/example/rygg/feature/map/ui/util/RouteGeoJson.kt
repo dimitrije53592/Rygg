@@ -39,3 +39,23 @@ internal fun routeStartFeatures(routes: List<RouteOverlay>): FeatureCollection<*
     }
     return FeatureCollection(features)
 }
+
+internal fun routeWaypointFeatures(routes: List<RouteOverlay>): FeatureCollection<*, *> {
+    val features = routes.flatMap { route ->
+        route.waypoints.map { waypoint ->
+            Feature(
+                geometry = Point(Position(waypoint.lon, waypoint.lat)),
+                properties = buildJsonObject {
+                    put(PROP_ID, route.id.toString())
+                    put(PROP_NAME, waypoint.name.toShortLabel())
+                }
+            )
+        }
+    }
+    return FeatureCollection(features)
+}
+
+private fun String.toShortLabel(): String =
+    if (length <= MAX_LABEL_CHARS) this else take(MAX_LABEL_CHARS - 1).trimEnd() + "…"
+
+private const val MAX_LABEL_CHARS = 22
