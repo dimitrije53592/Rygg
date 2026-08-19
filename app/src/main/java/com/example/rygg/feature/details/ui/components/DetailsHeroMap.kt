@@ -15,14 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
@@ -52,6 +56,7 @@ fun DetailsHeroMap(
     modifier: Modifier = Modifier,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
+    onRename: ((String) -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
     onShareFile: (() -> Unit)? = null
@@ -106,10 +111,12 @@ fun DetailsHeroMap(
                         onShareFile = onShareFile
                     )
                 }
-                if (onToggleFavorite != null && onDelete != null) {
+                if (onToggleFavorite != null && onRename != null && onDelete != null) {
                     HeroOverflowMenu(
                         isFavorite = entry.isFavorite,
+                        currentName = entry.name,
                         onToggleFavorite = onToggleFavorite,
+                        onRename = onRename,
                         onDelete = onDelete
                     )
                 }
@@ -174,10 +181,13 @@ private fun HeroShareButton(
 @Composable
 private fun HeroOverflowMenu(
     isFavorite: Boolean,
+    currentName: String,
     onToggleFavorite: () -> Unit,
+    onRename: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
 
     Box {
         GlassIconButton(
@@ -213,6 +223,20 @@ private fun HeroOverflowMenu(
                 }
             )
             DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.details_rename)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                    )
+                },
+                onClick = {
+                    expanded = false
+                    showRenameDialog = true
+                }
+            )
+            DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.details_delete)) },
                 leadingIcon = {
                     Icon(
@@ -228,6 +252,57 @@ private fun HeroOverflowMenu(
             )
         }
     }
+
+    if (showRenameDialog) {
+        RenameRouteDialog(
+            currentName = currentName,
+            onConfirm = {
+                showRenameDialog = false
+                onRename(it)
+            },
+            onDismiss = { showRenameDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun RenameRouteDialog(
+    currentName: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.details_rename_title)) },
+        text = {
+            RyggTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholderText = stringResource(R.string.details_rename_hint)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(name) },
+                enabled = name.isNotBlank()
+            ) {
+                Text(
+                    text = stringResource(R.string.details_rename_save),
+                    color = RyggTheme.getColor(RyggColor.BrandGreen)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = stringResource(R.string.details_rename_cancel),
+                    color = RyggTheme.getColor(RyggColor.TextSecondary)
+                )
+            }
+        }
+    )
 }
 
 @Composable

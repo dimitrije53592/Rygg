@@ -110,6 +110,11 @@
     <string name="details_share_link_message">%1$s\n\nView this route in Rygg: %2$s</string>
     <string name="details_favorite">Add to starred</string>
     <string name="details_unfavorite">Remove from starred</string>
+    <string name="details_rename">Rename</string>
+    <string name="details_rename_title">Rename route</string>
+    <string name="details_rename_hint">Route name</string>
+    <string name="details_rename_save">Save</string>
+    <string name="details_rename_cancel">Cancel</string>
     <string name="details_delete">Delete</string>
     <string name="details_not_found">This route is no longer available</string>
     <string name="details_view_on_map">View on map</string>
