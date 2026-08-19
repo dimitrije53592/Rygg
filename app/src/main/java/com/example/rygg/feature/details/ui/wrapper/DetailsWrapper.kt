@@ -31,6 +31,7 @@ fun DetailsWrapper(
             mode = DetailsMode.View(
                 onViewOnMap = onViewOnMap,
                 onToggleFavorite = { viewModel.onToggleFavorite() },
+                onRename = { viewModel.onRename(it) },
                 onDelete = {
                     viewModel.onDelete()
                     onNavigateBack()

@@ -24,4 +24,7 @@ interface GpxFileEntryDao {
 
     @Query("UPDATE library SET isFavorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
+
+    @Query("UPDATE library SET name = :name, fileName = :fileName, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun updateNameAndFile(id: Long, name: String, fileName: String, updatedAt: Long)
 }

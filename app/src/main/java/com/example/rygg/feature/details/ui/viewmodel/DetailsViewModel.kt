@@ -61,6 +61,13 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
+    fun onRename(newName: String) {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            gpxFileEntryRepository.renameGpxFile(entry, newName)
+        }
+    }
+
     fun onDelete() {
         val entry = loadedEntry() ?: return
         viewModelScope.launch {

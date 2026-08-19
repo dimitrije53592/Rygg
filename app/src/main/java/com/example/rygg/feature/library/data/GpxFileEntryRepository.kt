@@ -155,6 +155,18 @@ class GpxFileEntryRepository @Inject constructor(
     suspend fun setFavorite(id: Long, favorite: Boolean) =
         gpxFileEntryDao.setFavorite(id, favorite)
 
+    // Rename an entry: update the display name and rename the on-disk .gpx to match.
+    suspend fun renameGpxFile(entry: GpxFileEntry, newName: String): Outcome<Unit> = outcomeCatching {
+        val finalName = newName.trim().ifBlank { entry.name }
+        val newFileName = gpxStorage.rename(entry.fileName, finalName)
+        gpxFileEntryDao.updateNameAndFile(
+            id = entry.id,
+            name = finalName,
+            fileName = newFileName,
+            updatedAt = System.currentTimeMillis()
+        )
+    }
+
     // Shareable content Uri for an entry's .gpx file (see GpxStorage.shareUri).
     fun gpxShareUri(entry: GpxFileEntry): Uri = gpxStorage.shareUri(entry.fileName)
 

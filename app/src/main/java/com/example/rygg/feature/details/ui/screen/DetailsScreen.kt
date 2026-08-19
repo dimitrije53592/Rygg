@@ -139,6 +139,7 @@ private fun LoadedContent(
                 onNavigateBack = params.onNavigateBack,
                 sourceLabel = sourceLabel,
                 onToggleFavorite = (mode as? DetailsMode.View)?.onToggleFavorite,
+                onRename = (mode as? DetailsMode.View)?.onRename,
                 onDelete = (mode as? DetailsMode.View)?.onDelete,
                 onShareLink = (mode as? DetailsMode.View)?.onShareLink,
                 onShareFile = (mode as? DetailsMode.View)?.onShareFile
@@ -260,6 +261,7 @@ sealed interface DetailsMode {
     data class View(
         val onViewOnMap: (Long) -> Unit,
         val onToggleFavorite: () -> Unit,
+        val onRename: (String) -> Unit,
         val onDelete: () -> Unit,
         val onShareLink: () -> Unit,
         val onShareFile: () -> Unit
