@@ -10,15 +10,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -144,7 +139,9 @@ private fun LoadedContent(
                 onNavigateBack = params.onNavigateBack,
                 sourceLabel = sourceLabel,
                 onToggleFavorite = (mode as? DetailsMode.View)?.onToggleFavorite,
-                onDelete = (mode as? DetailsMode.View)?.onDelete
+                onDelete = (mode as? DetailsMode.View)?.onDelete,
+                onShareLink = (mode as? DetailsMode.View)?.onShareLink,
+                onShareFile = (mode as? DetailsMode.View)?.onShareFile
             )
 
             Column(
@@ -263,7 +260,9 @@ sealed interface DetailsMode {
     data class View(
         val onViewOnMap: (Long) -> Unit,
         val onToggleFavorite: () -> Unit,
-        val onDelete: () -> Unit
+        val onDelete: () -> Unit,
+        val onShareLink: () -> Unit,
+        val onShareFile: () -> Unit
     ) : DetailsMode
 
     // Preview of a not-yet-saved entry (import or recording). When [name] is non-null an

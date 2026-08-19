@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Exposes the stored .gpx trips folder (filesDir/trips) to the FileProvider used for sharing. -->
+    <files-path
+        name="trips"
+        path="trips/" />
+</paths>

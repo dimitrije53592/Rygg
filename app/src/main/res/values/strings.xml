@@ -103,6 +103,11 @@
 
     <!-- Details -->
     <string name="details_more_actions">More actions</string>
+    <string name="details_share">Share</string>
+    <string name="details_share_link">Share link</string>
+    <string name="details_share_file">Share GPX file</string>
+    <string name="details_share_chooser_title">Share route</string>
+    <string name="details_share_link_message">%1$s\n\nView this route in Rygg: %2$s</string>
     <string name="details_favorite">Add to starred</string>
     <string name="details_unfavorite">Remove from starred</string>
     <string name="details_delete">Delete</string>

@@ -1,5 +1,6 @@
 package com.example.rygg.feature.details.ui.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
 import com.example.rygg.core.gpx.model.ElevationSample
 import com.example.rygg.core.navigation.Details
+import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,6 +67,12 @@ class DetailsViewModel @Inject constructor(
             gpxFileEntryRepository.deleteGpxFile(entry)
         }
     }
+
+    // Shareable content Uri for the loaded route's .gpx file.
+    fun shareFileUri(): Uri? = loadedEntry()?.let { gpxFileEntryRepository.gpxShareUri(it) }
+
+    // Deep link that opens the loaded route in the app.
+    fun shareLink(): String? = loadedEntry()?.let { RouteShareLinks.buildUrl(it.id) }
 
     private fun loadedEntry(): GpxFileEntry? =
         (uiState.value.loadingState as? DetailsLoadingState.Loaded)?.entry

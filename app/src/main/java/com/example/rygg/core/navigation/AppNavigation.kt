@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
+import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.core.ui.components.RyggBottomAppBar
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.auth.ui.viewmodel.AuthViewModel
@@ -107,7 +109,12 @@ fun AppNavigation() {
                     }
                 )
             }
-            composable<Details> {
+            // Deep link "https://rygg.app/r/{entryId}" opens the route (see shareRouteLink).
+            // TODO(server): when the entry isn't held locally the DetailsViewModel surfaces its
+            //  not-found state — that branch is where recipient-side "download route" will hook in.
+            composable<Details>(
+                deepLinks = listOf(navDeepLink<Details>(basePath = "${RouteShareLinks.BASE}/r"))
+            ) {
                 DetailsWrapper(
                     onNavigateBack = { navController.navigateUp() },
                     onViewOnMap = { entryId ->

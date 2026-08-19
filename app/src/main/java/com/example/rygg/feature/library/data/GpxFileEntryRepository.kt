@@ -155,6 +155,9 @@ class GpxFileEntryRepository @Inject constructor(
     suspend fun setFavorite(id: Long, favorite: Boolean) =
         gpxFileEntryDao.setFavorite(id, favorite)
 
+    // Shareable content Uri for an entry's .gpx file (see GpxStorage.shareUri).
+    fun gpxShareUri(entry: GpxFileEntry): Uri = gpxStorage.shareUri(entry.fileName)
+
     // Track paths and waypoints from a single parse of the GPX file.
     suspend fun loadRouteContent(entry: GpxFileEntry): RouteFileContent = withContext(Dispatchers.IO) {
         runCatching {
