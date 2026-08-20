@@ -14,8 +14,6 @@ import androidx.compose.ui.semantics.Role
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// A labelled on/off settings row. The whole row toggles; the Switch is decorative
-// (onCheckedChange = null) so the toggleable Row owns the interaction and semantics.
 @Composable
 fun RyggSwitchRow(
     label: String,

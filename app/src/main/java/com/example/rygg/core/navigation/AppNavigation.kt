@@ -122,12 +122,7 @@ fun AppNavigation() {
                     onOpenProfile = { navController.navigate(Profile) }
                 )
             }
-            // Deep link "<RouteShareLinks.BASE>/r/{entryId}" opens the route (see shareRouteLink).
-            // TODO(server): when the entry isn't held locally the DetailsViewModel surfaces its
-            //  not-found state — that branch is where recipient-side "download route" will hook in.
-            composable<Details>(
-                deepLinks = listOf(navDeepLink<Details>(basePath = "${RouteShareLinks.BASE}/r"))
-            ) {
+            composable<Details> {
                 DetailsWrapper(
                     onNavigateBack = { navController.navigateUp() },
                     onViewOnMap = { entryId ->

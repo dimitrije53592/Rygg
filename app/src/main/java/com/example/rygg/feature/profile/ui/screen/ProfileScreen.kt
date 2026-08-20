@@ -153,7 +153,6 @@ private fun GuestContent(params: ProfileScreenParams) {
     }
 }
 
-// Tappable card row that opens Settings.
 @Composable
 private fun SettingsEntryRow(onOpenSettings: () -> Unit) {
     RyggCard(onClick = onOpenSettings) {

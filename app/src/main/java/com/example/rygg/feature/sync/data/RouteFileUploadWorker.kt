@@ -12,8 +12,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.tasks.await
 
-// Uploads a route's .gpx bytes to Cloud Storage, then flips the row to SYNCED. Runs under a
-// Wi-Fi (UNMETERED) constraint so large files don't burn mobile data (the "files smart" policy).
+// Uploads a route's .gpx bytes to Cloud Storage, then flips the row to SYNCED (fileUploaded = true).
 @HiltWorker
 class RouteFileUploadWorker @AssistedInject constructor(
     @Assisted context: Context,
@@ -29,6 +28,13 @@ class RouteFileUploadWorker @AssistedInject constructor(
         val fileName = inputData.getString(KEY_FILE_NAME) ?: return Result.failure()
         if (entryId < 0) return Result.failure()
 
+        // Stale job: the row was deleted, or renamed to a different file (a newer upload job for the
+        // new name replaced this one). Nothing to do.
+        val current = dao.getById(entryId)
+        if (current == null || current.fileName != fileName) return Result.success()
+
+        // File genuinely missing for a live row: leave it PENDING_UPLOAD (honestly "not backed up")
+        // instead of falsely reporting it SYNCED.
         val file = gpxStorage.resolve(fileName)
         if (!file.exists()) return Result.success()
 
@@ -36,7 +42,7 @@ class RouteFileUploadWorker @AssistedInject constructor(
             storage.reference.child("users/$uid/$remoteId.gpx")
                 .putFile(Uri.fromFile(file))
                 .await()
-            dao.setSyncStatus(entryId, "SYNCED")
+            dao.markFileSynced(entryId)
             Result.success()
         } catch (e: Exception) {
             Result.retry()

@@ -41,9 +41,6 @@ android {
 
         buildConfigField("String", "EXAMPLE_API_KEY", "\"${localProperties.getProperty("EXAMPLE_API_KEY", "")}\"")
         buildConfigField("String", "MAPTILER_API_KEY", "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\"")
-        // Opt debug builds into the local Firebase Emulator Suite (set USE_FIREBASE_EMULATOR=true
-        // in local.properties). Ignored in release; see FirebaseModule.
-        buildConfigField("boolean", "USE_FIREBASE_EMULATOR", localProperties.getProperty("USE_FIREBASE_EMULATOR", "false"))
     }
 
     signingConfigs {

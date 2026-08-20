@@ -87,7 +87,6 @@ fun SettingsScreen(params: SettingsScreenParams) {
     }
 }
 
-// A titled group: a subtle section label above a card holding the section's rows.
 @Composable
 private fun SettingsSection(
     title: String,

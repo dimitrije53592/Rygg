@@ -175,9 +175,11 @@ class GpxFileEntryRepository @Inject constructor(
     // Shareable content Uri for an entry's .gpx file (see GpxStorage.shareUri).
     fun gpxShareUri(entry: GpxFileEntry): Uri = gpxStorage.shareUri(entry.fileName)
 
-    // Track paths and waypoints from a single parse of the GPX file.
+    // Track paths and waypoints from the GPX file. When the file isn't downloaded yet (a route
+    // pulled from another device), fall back to the synced simplified geometry (entry.pathPoints)
+    // so the map/following still render instead of collapsing to RouteProgress.EMPTY.
     suspend fun loadRouteContent(entry: GpxFileEntry): RouteFileContent = withContext(Dispatchers.IO) {
-        runCatching {
+        val fromFile = runCatching {
             val document = gpxStorage.resolve(entry.fileName)
                 .inputStream()
                 .use { gpxParser.parse(it).gpxDocument }
@@ -185,8 +187,21 @@ class GpxFileEntryRepository @Inject constructor(
                 paths = document.trackPaths(),
                 waypoints = document.waypoints.map { Waypoint(it.lat, it.lon, it.name.orEmpty()) }
             )
-        }.getOrDefault(RouteFileContent(emptyList(), emptyList()))
+        }.getOrNull()
+
+        when {
+            fromFile != null && fromFile.paths.any { it.isNotEmpty() } -> fromFile
+            entry.pathPoints.isNotEmpty() ->
+                RouteFileContent(paths = listOf(entry.pathPoints), waypoints = emptyList())
+            else -> fromFile ?: RouteFileContent(emptyList(), emptyList())
+        }
     }
+
+    // Fetch a synced route's .gpx locally so a screen can upgrade from the simplified fallback.
+    suspend fun ensureRouteFileDownloaded(id: Long) = routeSyncManager.ensureFileDownloaded(id)
+
+    // Back up an owned route's .gpx to the cloud, healing "ghosts" whose file never uploaded.
+    suspend fun ensureRouteFileUploaded(id: Long) = routeSyncManager.ensureFileUploaded(id)
 
     // Elevation-over-distance series for the details profile chart; empty when the file has no `ele` data.
     suspend fun loadElevationProfile(entry: GpxFileEntry): List<ElevationSample> = withContext(Dispatchers.IO) {

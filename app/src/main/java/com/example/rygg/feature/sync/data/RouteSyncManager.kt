@@ -68,15 +68,20 @@ class RouteSyncManager @Inject constructor(
         pushPending(uid)
     }
 
-    // Clear the signed-out account's synced routes from this device (they're safe in the cloud and
-    // re-pull on next sign-in). Anything not yet uploaded reverts to a guest row so no work is lost.
+    // Drop the account's synced routes (safe in the cloud, re-pull next sign-in); unsynced ones
+    // revert to guest rows so nothing is lost.
     suspend fun onSignedOut(previousUid: String) {
         stopPull()
-        dao.getOwnedSynced(previousUid).forEach { entity ->
+        (dao.getOwnedSynced(previousUid) + dao.getOwnedPendingDelete(previousUid)).forEach { entity ->
             if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
             dao.deleteById(entity.id)
         }
         dao.revertOwnedUnsyncedToGuest(previousUid)
+    }
+
+    // Sync turned off while signed in: detach the pull, keep local data. onSignedIn resumes it.
+    fun pauseSync() {
+        stopPull()
     }
 
     private fun stopPull() {
@@ -84,9 +89,8 @@ class RouteSyncManager @Inject constructor(
         pullRegistration = null
     }
 
-    // Claim guest (ownerUid == null) routes for this account. Discard exact-content dupes this
-    // device already holds; link (not re-upload) content that already exists in the cloud from
-    // another device; otherwise mint a fresh remoteId and queue an upload.
+    // Claim guest (ownerUid == null) routes: drop local dupes, link cloud dupes (no re-upload),
+    // else mint a remoteId and let pushPending upload.
     private suspend fun adoptGuestRoutes(uid: String) {
         dao.getGuestRoutes().forEach { guest ->
             val localDupe = dao.getByContentHash(uid, guest.contentHash)
@@ -97,18 +101,15 @@ class RouteSyncManager @Inject constructor(
             }
             val remoteMatch = findRemoteByContentHash(uid, guest.contentHash)
             if (remoteMatch != null) {
-                // Same content already in the cloud: link this row to it (the following
-                // pushPending sees SYNCED and skips it).
                 dao.setOwnership(guest.id, uid, remoteMatch.remoteId, "SYNCED")
+                dao.setFileUploaded(guest.id, true)
             } else {
-                // New to the cloud: mark PENDING_UPLOAD; pushPending (next in onSignedIn) uploads it.
                 dao.setOwnership(guest.id, uid, Uuid.random().toString(), "PENDING_UPLOAD")
             }
         }
     }
 
-    // Look up an already-synced cloud route with the same content, so adoption links to it instead
-    // of creating a duplicate. Best-effort: offline (empty cache) returns null and we upload fresh.
+    // Best-effort: offline (empty cache) returns null and we upload fresh instead of linking.
     private suspend fun findRemoteByContentHash(uid: String, contentHash: String): RemoteRoute? {
         if (contentHash.isEmpty()) return null
         return runCatching {
@@ -138,19 +139,19 @@ class RouteSyncManager @Inject constructor(
             dao.setOwnership(entity.id, uid, it, "PENDING_UPLOAD")
         }
         val storagePath = "users/$uid/$remoteId.gpx"
-        val hasLocalFile = entity.fileDownloaded && entity.fileName.isNotEmpty()
-        // Eager metadata write so other devices see the route promptly. It rides Firestore's offline
-        // queue (no await), and the row stays PENDING_UPLOAD until the server actually acknowledges
-        // the write — so the "backed up" badge only appears once the data is really in the cloud.
+        // Skip the file upload on a metadata-only change (rename, favorite) — the .gpx is unchanged.
+        val needsFileUpload =
+            entity.fileDownloaded && entity.fileName.isNotEmpty() && !entity.fileUploaded
+        // Eager, no-await metadata write (rides Firestore's offline queue). The row stays
+        // PENDING_UPLOAD until the server acks, so the badge is only "backed up" once it truly is.
         userRoutes(uid).document(remoteId).set(entity.toRemote(remoteId, storagePath))
             .addOnSuccessListener {
-                // A route with a local file counts as synced only once its .gpx upload confirms (the
-                // upload worker flips it then). A file-less metadata change — e.g. renaming a route
-                // whose file already lives in the cloud — is done the moment this write is acked.
-                if (!hasLocalFile) scope.launch { dao.setSyncStatus(entity.id, "SYNCED") }
+                if (!needsFileUpload) scope.launch { dao.setSyncStatus(entity.id, "SYNCED") }
             }
-        if (hasLocalFile) {
-            enqueueUpload(entity.id, uid, remoteId, entity.fileName, settings.currentSyncWifiOnly())
+        if (needsFileUpload) {
+            // Any network: a small .gpx shouldn't wait for Wi-Fi, and a doc with no file is a
+            // "ghost" on other devices. The Wi-Fi-only setting still gates bulk incoming downloads.
+            enqueueUpload(entity.id, uid, remoteId, entity.fileName, wifiOnly = false)
         }
     }
 
@@ -181,19 +182,34 @@ class RouteSyncManager @Inject constructor(
             val newId = dao.insert(remote.toNewEntity(uid))
             enqueueDownload(newId, uid, remote.remoteId, immediate = false, wifiOnly = settings.currentSyncWifiOnly())
         } else if (remote.updatedAt > local.updatedAt) {
+            val contentChanged =
+                remote.contentHash.isNotEmpty() && remote.contentHash != local.contentHash
             // Last-write-wins: newer remote metadata replaces the local copy.
             dao.update(remote.toUpdatedEntity(local))
+            if (contentChanged) {
+                // Content changed in the cloud: re-fetch (stale file swept later by reconcile).
+                dao.markFileMissing(local.id)
+                enqueueDownload(local.id, uid, remote.remoteId, immediate = false, wifiOnly = settings.currentSyncWifiOnly())
+            }
         }
     }
 
     // --- Local mutation hooks (called by the library repository) ---
 
-    // A route was just inserted locally. When signed in, take ownership and push it.
+    // Take ownership and push a newly-inserted route, or link to an existing cloud copy of the
+    // same content instead of uploading a duplicate.
     suspend fun onRouteAdded(localId: Long) {
         val uid = auth.currentUser()?.uid ?: return
-        dao.setOwnership(localId, uid, Uuid.random().toString(), "PENDING_UPLOAD")
         val entity = dao.getById(localId) ?: return
-        pushUpsert(uid, entity)
+        val remoteMatch = findRemoteByContentHash(uid, entity.contentHash)
+        if (remoteMatch != null) {
+            dao.setOwnership(localId, uid, remoteMatch.remoteId, "SYNCED")
+            dao.setFileUploaded(localId, true)
+            return
+        }
+        dao.setOwnership(localId, uid, Uuid.random().toString(), "PENDING_UPLOAD")
+        val fresh = dao.getById(localId) ?: return
+        pushUpsert(uid, fresh)
     }
 
     // A route's metadata changed (rename, favorite, …). Re-push if it's owned.
@@ -206,9 +222,8 @@ class RouteSyncManager @Inject constructor(
         pushUpsert(uid, fresh)
     }
 
-    // Delete a route locally, and (if owned) remove its cloud copies too. An owned delete records a
-    // PENDING_DELETE tombstone first so an interrupted delete is retried by pushPending; a guest
-    // route (nothing in the cloud) is removed outright.
+    // Delete locally and, if owned, remove the cloud copies. An owned delete records a
+    // PENDING_DELETE tombstone first so an interrupted delete is retried by pushPending.
     suspend fun deleteRoute(entry: GpxFileEntry) {
         val entity = dao.getById(entry.id) ?: return
         val uid = entity.ownerUid
@@ -221,10 +236,8 @@ class RouteSyncManager @Inject constructor(
         pushDelete(uid, entity)
     }
 
-    // Remove an owned route's cloud copies, then drop the local row. The Firestore delete rides the
-    // offline write queue (no await), so it survives being issued offline and eventually reaches
-    // other devices as a REMOVED change; the blob delete is best-effort. The local row is removed
-    // here so pushPending won't re-upsert it.
+    // Firestore delete rides the offline queue (no await) and reaches other devices as REMOVED;
+    // the blob delete is best-effort. The local row is dropped here so pushPending won't re-upsert.
     private suspend fun pushDelete(uid: String, entity: GpxFileEntryEntity) {
         entity.remoteId?.let { remoteId ->
             userRoutes(uid).document(remoteId).delete()
@@ -241,6 +254,24 @@ class RouteSyncManager @Inject constructor(
         val remoteId = entity.remoteId ?: return
         if (entity.fileDownloaded) return
         enqueueDownload(localId, uid, remoteId, immediate = true, wifiOnly = false)
+    }
+
+    // Force-upload an owned route's .gpx now (any network) to heal a "ghost" whose file never
+    // reached the cloud. No-op if already uploaded, not owned, or no local file.
+    suspend fun ensureFileUploaded(localId: Long) {
+        if (!settings.currentSyncEnabled()) return
+        val uid = auth.currentUser()?.uid ?: return
+        val entity = dao.getById(localId) ?: return
+        val remoteId = entity.remoteId
+        if (remoteId == null ||
+            entity.ownerUid != uid ||
+            entity.fileUploaded ||
+            !entity.fileDownloaded ||
+            entity.fileName.isEmpty()
+        ) {
+            return
+        }
+        enqueueUpload(entity.id, uid, remoteId, entity.fileName, wifiOnly = false)
     }
 
     // --- Sharing (link -> save a copy) ---

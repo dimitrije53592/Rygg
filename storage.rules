@@ -13,11 +13,14 @@ service firebase.storage {
                    && request.resource.size < 20 * 1024 * 1024;
     }
 
-    // Public share copies: world-readable, written only by an authed user.
+    // Public share copies: world-readable. An authed user may only CREATE a new object
+    // (resource == null) — existing share blobs are immutable, so nobody can overwrite or tamper
+    // with a route someone else already shared.
     match /shared/{fileName} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.resource.size < 20 * 1024 * 1024;
+      allow create: if request.auth != null
+                    && request.resource.size < 20 * 1024 * 1024;
+      allow update, delete: if false;
     }
   }
 }

@@ -141,8 +141,6 @@ private fun DisciplineBadge(
     }
 }
 
-// Compact cloud glyph reflecting the route's sync state. Nothing is shown for guest/local
-// routes (LOCAL_ONLY) so signed-out users don't see sync chrome.
 @Composable
 private fun SyncBadge(entry: GpxFileEntry) {
     val (icon, tint) = when {

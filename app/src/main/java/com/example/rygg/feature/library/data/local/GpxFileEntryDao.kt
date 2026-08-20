@@ -48,8 +48,7 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE ownerUid IS NULL AND deletedAt IS NULL")
     suspend fun getGuestRoutes(): List<GpxFileEntryEntity>
 
-    // Owned rows whose metadata/file still needs pushing (uploads or tombstones). Oldest first
-    // so a backlog flushes in import order.
+    // Owned rows still needing a push (upload or tombstone), oldest first.
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus != 'SYNCED' ORDER BY importedAt ASC")
     suspend fun getPendingSync(ownerUid: String): List<GpxFileEntryEntity>
 
@@ -57,8 +56,23 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'SYNCED'")
     suspend fun getOwnedSynced(ownerUid: String): List<GpxFileEntryEntity>
 
+    // Owned rows with an in-flight delete tombstone.
+    @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'PENDING_DELETE'")
+    suspend fun getOwnedPendingDelete(ownerUid: String): List<GpxFileEntryEntity>
+
     @Query("UPDATE library SET syncStatus = :status WHERE id = :id")
     suspend fun setSyncStatus(id: Long, status: String)
+
+    // The .gpx upload confirmed: the file is in the cloud and the route is fully synced.
+    @Query("UPDATE library SET fileUploaded = 1, syncStatus = 'SYNCED' WHERE id = :id")
+    suspend fun markFileSynced(id: Long)
+
+    @Query("UPDATE library SET fileUploaded = :uploaded WHERE id = :id")
+    suspend fun setFileUploaded(id: Long, uploaded: Boolean)
+
+    // Force a re-fetch of a route whose .gpx content changed in the cloud.
+    @Query("UPDATE library SET fileDownloaded = 0 WHERE id = :id")
+    suspend fun markFileMissing(id: Long)
 
     // Mark an owned route dirty after a local edit so the next push re-uploads it.
     @Query("UPDATE library SET syncStatus = 'PENDING_UPLOAD', updatedAt = :now WHERE id = :id")
@@ -76,10 +90,10 @@ interface GpxFileEntryDao {
     @Query("UPDATE library SET syncStatus = 'PENDING_DELETE', deletedAt = :deletedAt WHERE id = :id")
     suspend fun markPendingDelete(id: Long, deletedAt: Long)
 
-    // On sign-out: an owned route not yet safely in the cloud reverts to a guest row so the
-    // user never loses unuploaded work. (Synced rows are deleted outright — they re-pull later.)
+    // On sign-out: revert an owned-but-unsynced route to a guest row so unuploaded work isn't lost.
     @Query(
-        "UPDATE library SET ownerUid = NULL, remoteId = NULL, sharedToken = NULL, syncStatus = 'LOCAL_ONLY' " +
+        "UPDATE library SET ownerUid = NULL, remoteId = NULL, sharedToken = NULL, " +
+            "fileUploaded = 0, syncStatus = 'LOCAL_ONLY' " +
             "WHERE ownerUid = :ownerUid AND syncStatus != 'SYNCED'"
     )
     suspend fun revertOwnedUnsyncedToGuest(ownerUid: String)

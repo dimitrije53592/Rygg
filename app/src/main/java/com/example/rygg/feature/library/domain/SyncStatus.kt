@@ -1,7 +1,6 @@
 package com.example.rygg.feature.library.domain
 
-// Where a route stands relative to the cloud. Drives the per-card sync badge and the
-// push queue. Guest/offline routes stay LOCAL_ONLY until an account adopts them.
+// Where a route stands relative to the cloud; drives the sync badge and the push queue.
 enum class SyncStatus {
     // Not linked to any account yet (guest, or signed-out).
     LOCAL_ONLY,

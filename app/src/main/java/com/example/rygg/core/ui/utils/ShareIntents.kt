@@ -6,14 +6,11 @@ import android.net.Uri
 import com.example.rygg.R
 
 // Builds the shareable web link for a route. The link opens the route in the Rygg app
-// (see the Details deep link in AppNavigation).
+// (see the shared-route deep link in AppNavigation).
 object RouteShareLinks {
     // Firebase Hosting domain for this project (rygg-b629e). Serves the App Links assetlinks.json
     // and the /s/<token> web fallback for recipients without the app installed.
     const val BASE = "https://rygg-b629e.web.app"
-
-    // Legacy local-only link (opener's device only). Kept for the existing /r deep link.
-    fun buildUrl(entryId: Long): String = "$BASE/r/$entryId"
 
     // Cross-device share link backed by a public sharedRoutes/{token} snapshot (see
     // RouteSyncManager.createShareLink). Resolves on any recipient's device.

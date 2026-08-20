@@ -52,6 +52,10 @@ class RouteFollowingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            // Kick off the full .gpx download for cloud routes; this session renders from the
+            // simplified fallback below, and the detail is present next time it's opened.
+            gpxFileEntryRepository.ensureRouteFileDownloaded(entryId)
+
             val entry = gpxFileEntryRepository.observeGpxFileEntries()
                 .first()
                 .firstOrNull { it.id == entryId }

@@ -1,16 +1,14 @@
 package com.example.rygg.feature.sync.data.remote
 
-import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.core.gpx.decodeGeoPoints
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryEntity
 import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.domain.SyncStatus
 
-// Firestore document shape for a synced route's metadata (stored under
-// users/{uid}/routes/{remoteId}). All fields have defaults so Firestore's reflective
-// deserialization (toObject) has a no-arg constructor to call. Geometry is the same
-// encoded thumbnail string the Room entity uses, so no GeoPoint re-encoding is needed.
+// Firestore document shape for a synced route's metadata (users/{uid}/routes/{remoteId}). Every
+// field has a default so Firestore's reflective toObject() can no-arg construct it.
 data class RemoteRoute(
     val remoteId: String = "",
     val name: String = "",
@@ -46,8 +44,7 @@ data class RemoteRoute(
     val deletedAt: Long? = null
 )
 
-// Public snapshot created at share time (stored under sharedRoutes/{token}); readable by
-// anyone holding the unguessable token, decoupled from the owner's private library.
+// Public snapshot created at share time (sharedRoutes/{token}); readable by anyone with the token.
 data class SharedRoute(
     val token: String = "",
     val ownerUid: String = "",
@@ -55,8 +52,8 @@ data class SharedRoute(
     val route: RemoteRoute = RemoteRoute()
 )
 
-// A transient, read-only domain entry for rendering a shared route in the Details screen
-// (not persisted). Geometry comes from the encoded thumbnail, so no file is needed.
+// A transient, unpersisted domain entry for previewing a shared route in Details (geometry from
+// the thumbnail, so no file needed).
 fun RemoteRoute.toPreviewEntry(): GpxFileEntry = GpxFileEntry(
     id = 0L,
     fileName = "",
@@ -88,7 +85,7 @@ fun RemoteRoute.toPreviewEntry(): GpxFileEntry = GpxFileEntry(
     minLon = minLon,
     maxLat = maxLat,
     maxLon = maxLon,
-    pathPoints = decodeThumbnail(thumbnailPath),
+    pathPoints = decodeGeoPoints(thumbnailPath),
     folder = folder,
     tags = tags,
     importedAt = importedAt,
@@ -96,16 +93,6 @@ fun RemoteRoute.toPreviewEntry(): GpxFileEntry = GpxFileEntry(
     creator = creator,
     originalFileName = originalFileName
 )
-
-private fun decodeThumbnail(value: String): List<GeoPoint> {
-    if (value.isBlank()) return emptyList()
-    return value.split(";").mapNotNull { pair ->
-        val parts = pair.split(",")
-        val lat = parts.getOrNull(0)?.toDoubleOrNull()
-        val lon = parts.getOrNull(1)?.toDoubleOrNull()
-        if (lat != null && lon != null) GeoPoint(lat, lon) else null
-    }
-}
 
 fun GpxFileEntryEntity.toRemote(remoteId: String, storagePath: String): RemoteRoute = RemoteRoute(
     remoteId = remoteId,
@@ -142,8 +129,7 @@ fun GpxFileEntryEntity.toRemote(remoteId: String, storagePath: String): RemoteRo
     deletedAt = deletedAt
 )
 
-// A brand-new local row for a route first seen on another device. The file isn't here yet
-// (fileDownloaded = false); a download worker fills fileName in later.
+// A new local row for a route first seen on another device; its file downloads later.
 fun RemoteRoute.toNewEntity(ownerUid: String): GpxFileEntryEntity = GpxFileEntryEntity(
     id = 0,
     fileName = "",
@@ -152,6 +138,7 @@ fun RemoteRoute.toNewEntity(ownerUid: String): GpxFileEntryEntity = GpxFileEntry
     ownerUid = ownerUid,
     syncStatus = "SYNCED",
     fileDownloaded = false,
+    fileUploaded = true,
     deletedAt = null,
     sharedToken = null,
     name = name,
@@ -184,9 +171,10 @@ fun RemoteRoute.toNewEntity(ownerUid: String): GpxFileEntryEntity = GpxFileEntry
     originalFileName = originalFileName
 )
 
-// Apply newer remote metadata onto an existing local row, preserving local-only concerns
-// (row id, on-disk file, download + sync bookkeeping).
+// Apply newer remote metadata onto an existing local row, preserving local-only fields (id, file,
+// sync bookkeeping). contentHash is carried over so the caller can detect a changed .gpx.
 fun RemoteRoute.toUpdatedEntity(local: GpxFileEntryEntity): GpxFileEntryEntity = local.copy(
+    contentHash = contentHash,
     name = name,
     description = description,
     color = color,
@@ -214,8 +202,7 @@ fun RemoteRoute.toUpdatedEntity(local: GpxFileEntryEntity): GpxFileEntryEntity =
     updatedAt = updatedAt
 )
 
-// A saved copy of someone else's shared route: a fresh, unsynced local row owned by the
-// saver (or a guest row when signed out). The file is already on disk (fileDownloaded).
+// A saved copy of someone else's shared route: a fresh local row with the file already on disk.
 fun RemoteRoute.toSavedCopyEntity(fileName: String, ownerUid: String?, now: Long): GpxFileEntryEntity =
     GpxFileEntryEntity(
         id = 0,
@@ -225,6 +212,7 @@ fun RemoteRoute.toSavedCopyEntity(fileName: String, ownerUid: String?, now: Long
         ownerUid = ownerUid,
         syncStatus = "LOCAL_ONLY",
         fileDownloaded = true,
+        fileUploaded = false,
         deletedAt = null,
         sharedToken = null,
         name = name,

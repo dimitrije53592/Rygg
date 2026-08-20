@@ -1,9 +1,12 @@
 package com.example.rygg.feature.library.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "library")
+// The unique index on remoteId stops a route from being inserted twice (e.g. two concurrent pull
+// snapshots racing on the same cloud doc). Multiple NULLs are allowed, so guest rows are unaffected.
+@Entity(tableName = "library", indices = [Index(value = ["remoteId"], unique = true)])
 data class GpxFileEntryEntity(
     // Identity and storage
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -14,6 +17,9 @@ data class GpxFileEntryEntity(
     val ownerUid: String? = null,
     val syncStatus: String = "LOCAL_ONLY",
     val fileDownloaded: Boolean = true,
+    // Whether this route's .gpx already lives in Cloud Storage. Lets a metadata-only change
+    // (rename, favorite) re-push the doc without re-uploading the unchanged file.
+    val fileUploaded: Boolean = false,
     val deletedAt: Long? = null,
     val sharedToken: String? = null,
     // File metadata

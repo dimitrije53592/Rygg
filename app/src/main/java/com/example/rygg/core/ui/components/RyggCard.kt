@@ -14,9 +14,6 @@ import androidx.compose.ui.draw.clip
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// A rounded, outlined surface panel used to group related content (settings sections, the account
-// summary). Fills width; children are laid out vertically. Pass [onClick] to make the whole card a
-// tappable row (the ripple is clipped to the rounded shape).
 @Composable
 fun RyggCard(
     modifier: Modifier = Modifier,

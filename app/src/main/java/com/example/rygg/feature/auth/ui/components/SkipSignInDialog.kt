@@ -9,8 +9,6 @@ import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// Shown when a user chooses to skip sign-in, spelling out what staying signed-out costs.
-// "Sign in" is emphasised; "Continue without account" is the quieter, secondary path.
 @Composable
 fun SkipSignInDialog(
     onContinueAsGuest: () -> Unit,

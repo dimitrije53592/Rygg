@@ -285,8 +285,7 @@ sealed interface DetailsMode {
         val onSave: () -> Unit
     ) : DetailsMode
 
-    // Preview of a route opened from a share link. It isn't in the library yet; the only
-    // action is saving a copy.
+    // A shared route opened from a link: not in the library yet, so the only action is save-a-copy.
     data class SharedPreview(
         val isSaving: Boolean,
         val onSaveCopy: () -> Unit

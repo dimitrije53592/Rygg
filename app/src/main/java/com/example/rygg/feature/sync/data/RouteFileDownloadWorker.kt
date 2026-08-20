@@ -21,7 +21,6 @@ class RouteFileDownloadWorker @AssistedInject constructor(
     private val dao: GpxFileEntryDao,
     private val storage: FirebaseStorage
 ) : CoroutineWorker(context, params) {
-
     override suspend fun doWork(): Result {
         val entryId = inputData.getLong(KEY_ENTRY_ID, -1L)
         val uid = inputData.getString(KEY_UID) ?: return Result.failure()
