@@ -41,6 +41,9 @@ android {
 
         buildConfigField("String", "EXAMPLE_API_KEY", "\"${localProperties.getProperty("EXAMPLE_API_KEY", "")}\"")
         buildConfigField("String", "MAPTILER_API_KEY", "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\"")
+        // Opt debug builds into the local Firebase Emulator Suite (set USE_FIREBASE_EMULATOR=true
+        // in local.properties). Ignored in release; see FirebaseModule.
+        buildConfigField("boolean", "USE_FIREBASE_EMULATOR", localProperties.getProperty("USE_FIREBASE_EMULATOR", "false"))
     }
 
     signingConfigs {
@@ -109,6 +112,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
@@ -119,6 +126,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)

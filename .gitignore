@@ -13,3 +13,12 @@ keystore.properties
 *.keystore
 google-services.json
 CLAUDE.md
+
+# Firebase CLI (generated on deploy / emulator runs; not source)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+storage-debug.log
+ui-debug.log
+pubsub-debug.log

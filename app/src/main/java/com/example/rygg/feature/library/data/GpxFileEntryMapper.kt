@@ -5,11 +5,18 @@ import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryEntity
 import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.domain.SyncStatus
 
 fun GpxFileEntryEntity.toDomain(): GpxFileEntry = GpxFileEntry(
     id = id,
     fileName = fileName,
     contentHash = contentHash,
+    remoteId = remoteId,
+    ownerUid = ownerUid,
+    syncStatus = runCatching { SyncStatus.valueOf(syncStatus) }.getOrDefault(SyncStatus.LOCAL_ONLY),
+    fileDownloaded = fileDownloaded,
+    deletedAt = deletedAt,
+    sharedToken = sharedToken,
     name = name,
     description = description,
     color = color,
@@ -44,6 +51,12 @@ fun GpxFileEntry.toEntity(): GpxFileEntryEntity = GpxFileEntryEntity(
     id = id,
     fileName = fileName,
     contentHash = contentHash,
+    remoteId = remoteId,
+    ownerUid = ownerUid,
+    syncStatus = syncStatus.name,
+    fileDownloaded = fileDownloaded,
+    deletedAt = deletedAt,
+    sharedToken = sharedToken,
     name = name,
     description = description,
     color = color,

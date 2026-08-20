@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Star
@@ -40,6 +43,7 @@ import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.domain.SyncStatus
 import com.example.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
 
 @Composable
@@ -98,6 +102,7 @@ fun GpxFileEntryCard(
                     style = RyggTheme.typography.bodySmall,
                     color = RyggTheme.getColor(RyggColor.TextSecondary)
                 )
+                SyncBadge(entry)
             }
             Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)) {
@@ -134,6 +139,32 @@ private fun DisciplineBadge(
             modifier = Modifier.size(RyggTheme.dimens.iconSize16)
         )
     }
+}
+
+// Compact cloud glyph reflecting the route's sync state. Nothing is shown for guest/local
+// routes (LOCAL_ONLY) so signed-out users don't see sync chrome.
+@Composable
+private fun SyncBadge(entry: GpxFileEntry) {
+    val (icon, tint) = when {
+        !entry.fileDownloaded ->
+            Icons.Default.CloudDownload to RyggTheme.getColor(RyggColor.TextSecondary)
+        entry.syncStatus == SyncStatus.SYNCED ->
+            Icons.Default.CloudDone to RyggTheme.getColor(RyggColor.BrandGreen)
+        entry.syncStatus == SyncStatus.PENDING_UPLOAD ->
+            Icons.Default.CloudUpload to RyggTheme.getColor(RyggColor.TextSecondary)
+        else -> return
+    }
+    val description = when {
+        !entry.fileDownloaded -> stringResource(R.string.sync_status_download_pending)
+        entry.syncStatus == SyncStatus.SYNCED -> stringResource(R.string.sync_status_synced)
+        else -> stringResource(R.string.sync_status_pending)
+    }
+    Icon(
+        imageVector = icon,
+        contentDescription = description,
+        tint = tint,
+        modifier = Modifier.size(RyggTheme.dimens.iconSize16)
+    )
 }
 
 @Composable

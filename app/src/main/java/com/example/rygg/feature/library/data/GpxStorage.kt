@@ -42,6 +42,13 @@ class GpxStorage @Inject constructor(
         target
     }
 
+    // Persist raw .gpx bytes pulled from the cloud into a fresh local file.
+    suspend fun saveBytes(bytes: ByteArray): File = withContext(Dispatchers.IO) {
+        val target = File(filesDir, "${Uuid.random()}.gpx")
+        target.writeBytes(bytes)
+        target
+    }
+
     // Rename a stored file to a human-readable, sanitized, de-duplicated "<name>.gpx".
     // Returns the final file name (or the current one if the rename fails).
     suspend fun rename(currentFileName: String, desiredBaseName: String): String = withContext(Dispatchers.IO) {

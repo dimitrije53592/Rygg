@@ -9,9 +9,9 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
 import com.example.rygg.core.gpx.model.ElevationSample
 import com.example.rygg.core.navigation.Details
-import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.sync.data.RouteSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
+    private val routeSyncManager: RouteSyncManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val entryId = savedStateHandle.toRoute<Details>().entryId
@@ -78,13 +79,22 @@ class DetailsViewModel @Inject constructor(
     // Shareable content Uri for the loaded route's .gpx file.
     fun shareFileUri(): Uri? = loadedEntry()?.let { gpxFileEntryRepository.gpxShareUri(it) }
 
-    // Deep link that opens the loaded route in the app.
-    fun shareLink(): String? = loadedEntry()?.let { RouteShareLinks.buildUrl(it.id) }
+    // Uploads the route (if needed) and returns a cross-device share link. Suspends because it
+    // touches the network; the caller shares the resulting URL.
+    suspend fun createShareLink(): Outcome<String> {
+        val entry = loadedEntry() ?: return Outcome.Error(IllegalStateException("No route"))
+        return routeSyncManager.createShareLink(entry)
+    }
 
     private fun loadedEntry(): GpxFileEntry? =
         (uiState.value.loadingState as? DetailsLoadingState.Loaded)?.entry
 
     private suspend fun loadProfile(entry: GpxFileEntry): List<ElevationSample> {
+        // A route pulled from another device may not have its .gpx yet — fetch it now.
+        if (!entry.fileDownloaded) {
+            routeSyncManager.ensureFileDownloaded(entry.id)
+            return emptyList()
+        }
         val cached = profileCache
         if (cached != null && cached.entryId == entry.id && cached.updatedAt == entry.updatedAt) {
             return cached.samples

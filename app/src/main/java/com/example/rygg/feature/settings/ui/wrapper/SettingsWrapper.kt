@@ -22,7 +22,9 @@ fun SettingsWrapper(
             onLanguageSelected = { language ->
                 viewModel.setLanguage(language)
                 activity?.recreate()
-            }
+            },
+            onSyncEnabledChanged = viewModel::setSyncEnabled,
+            onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly
         )
     )
 }

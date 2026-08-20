@@ -30,17 +30,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Route share deep link: https://rygg.app/r/{entryId} opens the route details.
-                 TODO(server): host /.well-known/assetlinks.json on rygg.app so autoVerify
-                 makes Rygg the default handler without the disambiguation dialog. -->
+            <!-- Route deep links on the Firebase Hosting domain (rygg-b629e.web.app):
+                   /r/{entryId} -> local route details (legacy, opener's device only)
+                   /s/{token}   -> shared route preview (resolves for any recipient)
+                 assetlinks.json is served from public/.well-known/ (see firebase.json). autoVerify
+                 makes Rygg the default handler once the Hosting site is deployed with the release
+                 signing SHA-256 in that file. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="rygg.app"
+                    android:host="rygg-b629e.web.app"
                     android:pathPrefix="/r" />
+                <data android:pathPrefix="/s" />
             </intent-filter>
         </activity>
 
@@ -58,6 +62,19 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Remove WorkManager's default initializer: RyggApplication supplies an on-demand
+             Configuration wired to the Hilt worker factory instead. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
         </provider>
     </application>
 

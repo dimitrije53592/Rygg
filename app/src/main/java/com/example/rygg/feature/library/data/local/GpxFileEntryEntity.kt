@@ -9,6 +9,13 @@ data class GpxFileEntryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val fileName: String,
     val contentHash: String,
+    // Cloud sync
+    val remoteId: String? = null,
+    val ownerUid: String? = null,
+    val syncStatus: String = "LOCAL_ONLY",
+    val fileDownloaded: Boolean = true,
+    val deletedAt: Long? = null,
+    val sharedToken: String? = null,
     // File metadata
     val name: String,
     val description: String,

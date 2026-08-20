@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Route .gpx blobs. Private copies live under users/{uid}/; public share copies live under
+// shared/. The 20 MB ceiling mirrors MAX_FILE_BYTES in RouteSyncManager / the file workers.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // A signed-in account's private route files.
+    match /users/{uid}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 20 * 1024 * 1024;
+    }
+
+    // Public share copies: world-readable, written only by an authed user.
+    match /shared/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 20 * 1024 * 1024;
+    }
+  }
+}
