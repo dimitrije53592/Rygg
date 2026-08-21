@@ -16,6 +16,8 @@
     <string name="follow_far_title">You\'re not on this trail yet</string>
     <string name="follow_far_body">You\'re %1$s from the route. Get closer to start following, or preview it.</string>
     <string name="follow_off_route">Off route</string>
+    <string name="follow_on_route">On route</string>
+    <string name="follow_off_route_distance">Off route · %1$s</string>
     <string name="follow_distance_left">Distance left</string>
     <string name="follow_speed">Speed</string>
     <string name="follow_elevation">Elevation</string>
@@ -79,7 +81,7 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_language_title">Language</string>
     <string name="settings_language_english">English</string>
-    <string name="settings_language_spanish">Spanish</string>
+    <string name="settings_language_serbian">Serbian</string>
 
     <!-- Library -->
     <string name="library_title">Library</string>

@@ -1,9 +1,11 @@
 package com.example.rygg.feature.map.domain
 
+import com.example.rygg.core.gpx.EARTH_RADIUS_METERS
 import com.example.rygg.core.gpx.haversineMeters
 import com.example.rygg.core.gpx.model.GeoPoint
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 
 const val ON_ROUTE_THRESHOLD_M = 60.0
@@ -21,29 +23,19 @@ class RouteGeometry private constructor(
 ) {
     val end: GeoPoint? get() = points.lastOrNull()
 
+    // Distance to the nearest point on the trail (projected onto each segment, not just the
+    // nearest vertex) so on/off-route stays accurate for any trail shape and sparse polylines.
     fun progressFor(lat: Double, lon: Double): RouteProgress {
         if (points.isEmpty()) return RouteProgress.EMPTY
-        var nearestIndex = 0
+        if (points.size == 1) {
+            return RouteProgress(haversineMeters(lat, lon, points[0].lat, points[0].lon))
+        }
         var nearestDist = Double.MAX_VALUE
-        points.forEachIndexed { index, point ->
-            val distance = haversineMeters(lat, lon, point.lat, point.lon)
-            if (distance < nearestDist) {
-                nearestDist = distance
-                nearestIndex = index
-            }
+        for (index in 0 until points.size - 1) {
+            val distance = distanceToSegmentMeters(lat, lon, points[index], points[index + 1])
+            if (distance < nearestDist) nearestDist = distance
         }
-        val remaining = (totalMeters - cumulative[nearestIndex]).coerceAtLeast(0.0)
-        val fraction = if (totalMeters > 0.0) {
-            (cumulative[nearestIndex] / totalMeters).coerceIn(0.0, 1.0)
-        } else {
-            0.0
-        }
-        return RouteProgress(
-            nearestIndex = nearestIndex,
-            distanceToRouteMeters = nearestDist,
-            distanceRemainingMeters = remaining,
-            fractionComplete = fraction
-        )
+        return RouteProgress(distanceToRouteMeters = nearestDist)
     }
 
     fun evenSamples(count: Int): List<TourSample> {
@@ -86,6 +78,25 @@ class RouteGeometry private constructor(
     }
 }
 
+// Perpendicular distance from a point to a segment, using a local equirectangular projection
+// to meters (accurate over the short spans between consecutive trail points).
+private fun distanceToSegmentMeters(lat: Double, lon: Double, a: GeoPoint, b: GeoPoint): Double {
+    val latRefRad = Math.toRadians(a.lat)
+    fun x(pLon: Double) = Math.toRadians(pLon - a.lon) * cos(latRefRad) * EARTH_RADIUS_METERS
+    fun y(pLat: Double) = Math.toRadians(pLat - a.lat) * EARTH_RADIUS_METERS
+
+    val px = x(lon)
+    val py = y(lat)
+    val bx = x(b.lon)
+    val by = y(b.lat)
+
+    val segLengthSq = bx * bx + by * by
+    if (segLengthSq == 0.0) return hypot(px, py)
+
+    val t = ((px * bx + py * by) / segLengthSq).coerceIn(0.0, 1.0)
+    return hypot(px - bx * t, py - by * t)
+}
+
 private fun segmentBearing(from: GeoPoint, to: GeoPoint): Double {
     val lat1 = Math.toRadians(from.lat)
     val lat2 = Math.toRadians(to.lat)
@@ -96,20 +107,12 @@ private fun segmentBearing(from: GeoPoint, to: GeoPoint): Double {
 }
 
 data class RouteProgress(
-    val nearestIndex: Int,
-    val distanceToRouteMeters: Double,
-    val distanceRemainingMeters: Double,
-    val fractionComplete: Double
+    val distanceToRouteMeters: Double
 ) {
     fun isOnRoute(accuracyMeters: Float): Boolean =
         distanceToRouteMeters <= ON_ROUTE_THRESHOLD_M + accuracyMeters
 
     companion object {
-        val EMPTY = RouteProgress(
-            nearestIndex = 0,
-            distanceToRouteMeters = Double.MAX_VALUE,
-            distanceRemainingMeters = 0.0,
-            fractionComplete = 0.0
-        )
+        val EMPTY = RouteProgress(distanceToRouteMeters = Double.MAX_VALUE)
     }
 }

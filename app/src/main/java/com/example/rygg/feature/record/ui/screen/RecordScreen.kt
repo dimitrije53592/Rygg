@@ -78,7 +78,9 @@ fun RecordScreen(params: RecordScreenParams) {
     }
 
     fun requestStart(discipline: Discipline) {
-        if (context.hasLocationPermission()) {
+        // Also gate on POST_NOTIFICATIONS: without it the foreground-service notification is
+        // silently suppressed on Android 13+, so the recording would run with no status-bar entry.
+        if (context.hasLocationPermission() && context.hasNotificationPermission()) {
             params.onStart(discipline)
         } else {
             pendingStart = discipline
@@ -425,6 +427,12 @@ private fun WaypointNameDialog(
 private fun Context.hasLocationPermission(): Boolean =
     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
         ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+// Below API 33 the notification is shown without a runtime grant; from 33+ it must be granted
+// or the foreground-service notification never reaches the status bar.
+private fun Context.hasNotificationPermission(): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
 private fun recordPermissions(): Array<String> = buildList {
     add(Manifest.permission.ACCESS_FINE_LOCATION)

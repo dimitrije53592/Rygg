@@ -40,6 +40,7 @@ import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.core.ui.utils.rememberLocationState
 import com.example.rygg.feature.map.ui.components.FarAwayCard
 import com.example.rygg.feature.map.ui.components.FollowingHud
+import com.example.rygg.feature.map.ui.components.FollowingStatusBar
 import com.example.rygg.feature.map.ui.components.MapToolbar
 import com.example.rygg.feature.map.ui.components.RouteMapCanvas
 import com.example.rygg.feature.map.ui.util.CameraAction
@@ -228,9 +229,9 @@ fun RouteFollowingScreen(
                     }
 
                     RouteFollowingPhase.FollowingActive -> {
-                        FollowingHud(
-                            fractionComplete = params.uiState.progress?.fractionComplete ?: 0.0,
-                            distanceRemainingMeters = params.uiState.progress?.distanceRemainingMeters ?: 0.0,
+                        FollowingStatusBar(
+                            isOnRoute = params.uiState.isOnRoute,
+                            distanceToRouteMeters = params.uiState.progress?.distanceToRouteMeters ?: 0.0,
                             speedText = if (location?.hasSpeed() == true) {
                                 formatSpeedKmh(location.speed.toDouble())
                             } else {
@@ -241,8 +242,6 @@ fun RouteFollowingScreen(
                             } else {
                                 stringResource(R.string.follow_stat_empty)
                             },
-                            offRoute = !params.uiState.isOnRoute,
-                            isPreview = false,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .navigationBarsPadding()

@@ -6,6 +6,8 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.example.rygg.R
 import com.example.rygg.core.notification.NotificationBuilder
+import com.example.rygg.core.ui.utils.formatDistanceKm
+import com.example.rygg.core.ui.utils.formatStopwatch
 import com.example.rygg.feature.record.domain.RecordingSnapshot
 
 // Rich foreground notification for an in-progress recording. A per-call strategy: content only —
@@ -20,8 +22,8 @@ class RecordingNotificationBuilder(
             .setContentText(
                 context.getString(
                     R.string.record_notification_text,
-                    snapshot.distanceMeters.toString(),
-                    snapshot.elapsedMillis.toString()
+                    formatDistanceKm(snapshot.distanceMeters),
+                    formatStopwatch(snapshot.elapsedMillis)
                 )
             )
             .setOngoing(true)

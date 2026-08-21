@@ -50,6 +50,7 @@ object Dimensions {
 
     val thumbnailSize66: Dp = 66.dp
     val badgeSize24: Dp = 24.dp
+    val statusDotSize10: Dp = 10.dp
 
     val radius4: Dp = 4.dp
     val radius8: Dp = 8.dp
