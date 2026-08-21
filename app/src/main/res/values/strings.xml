@@ -140,6 +140,36 @@
     <string name="details_source_recorded">Recorded</string>
     <string name="details_recording_preview">Recording preview</string>
     <string name="details_file_name">File name</string>
+    <string name="details_shared_preview">Shared route</string>
+    <string name="details_share_failed">Couldn\'t create a share link. Try again.</string>
+    <string name="details_share_file_not_ready">Route file is still downloading. Try again in a moment.</string>
+
+    <!-- Sync -->
+    <string name="sync_status_synced">Backed up</string>
+    <string name="sync_status_pending">Backing up…</string>
+    <string name="sync_status_download_pending">Downloading…</string>
+
+    <!-- Account skip prompt -->
+    <string name="auth_skip_title">Continue without an account?</string>
+    <string name="auth_skip_message">Without signing in, your routes stay on this device only:\n\n• No cloud backup if you lose or replace your phone\n• They won\'t sync to your other devices\n• You can\'t share routes with a link\n\nYou can sign in anytime to turn this on.</string>
+    <string name="auth_skip_continue">Continue without account</string>
+    <string name="auth_skip_sign_in">Sign in</string>
+
+    <!-- Profile / account -->
+    <string name="profile_title">Account</string>
+    <string name="profile_open_settings">Settings</string>
+    <string name="profile_backup_on">Your routes are backed up and synced</string>
+    <string name="profile_guest_title">You\'re not signed in</string>
+    <string name="profile_guest_message">Sign in to back up your routes, sync them across your devices, and share them with a link.</string>
+    <string name="profile_sign_in">Sign in</string>
+    <string name="library_open_profile">Account</string>
+
+    <!-- Settings: sync -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_sync_title">Sync &amp; backup</string>
+    <string name="settings_sync_enabled">Back up my routes</string>
+    <string name="settings_sync_wifi_only">Sync files on Wi-Fi only</string>
+    <string name="settings_sync_description">Keep your routes safe in the cloud and in sync across your devices.</string>
 
     <!-- Record -->
     <string name="record_choose_activity">Choose your activity</string>

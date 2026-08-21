@@ -17,6 +17,7 @@ import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.data.local.GpxFileEntryDao
 import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.sync.data.RouteSyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,7 +29,8 @@ class GpxFileEntryRepository @Inject constructor(
     private val gpxStorage: GpxStorage,
     private val gpxParser: GpxParser,
     private val gpxAnalyzer: GpxAnalyzer,
-    private val gpxWriter: GpxWriter
+    private val gpxWriter: GpxWriter,
+    private val routeSyncManager: RouteSyncManager
 ) {
     fun observeGpxFileEntries(): Flow<List<GpxFileEntry>> =
         gpxFileEntryDao.observeAll().map { entities -> entities.map { it.toDomain() } }
@@ -81,7 +83,7 @@ class GpxFileEntryRepository @Inject constructor(
     }
 
     suspend fun persistGpxFile(entry: GpxFileEntry): Outcome<Long> = outcomeCatching {
-        gpxFileEntryDao.insert(entry.toEntity())
+        gpxFileEntryDao.insert(entry.toEntity()).also { routeSyncManager.onRouteAdded(it) }
     }
 
     suspend fun discardStagedFile(entry: GpxFileEntry) {
@@ -144,16 +146,18 @@ class GpxFileEntryRepository @Inject constructor(
         val finalName = name.ifBlank { entry.name }.ifBlank { DEFAULT_RECORDING_NAME }
         val newFileName = gpxStorage.rename(entry.fileName, finalName)
         val toSave = entry.copy(name = finalName, fileName = newFileName, originalFileName = newFileName)
-        gpxFileEntryDao.insert(toSave.toEntity())
+        gpxFileEntryDao.insert(toSave.toEntity()).also { routeSyncManager.onRouteAdded(it) }
     }
 
+    // Delegates to the sync manager: local delete plus cloud removal when the route is owned.
     suspend fun deleteGpxFile(entry: GpxFileEntry): Outcome<Unit> = outcomeCatching {
-        gpxFileEntryDao.deleteById(entry.id)
-        gpxStorage.deleteFile(entry.fileName)
+        routeSyncManager.deleteRoute(entry)
     }
 
-    suspend fun setFavorite(id: Long, favorite: Boolean) =
+    suspend fun setFavorite(id: Long, favorite: Boolean) {
         gpxFileEntryDao.setFavorite(id, favorite)
+        routeSyncManager.onRouteChanged(id)
+    }
 
     // Rename an entry: update the display name and rename the on-disk .gpx to match.
     suspend fun renameGpxFile(entry: GpxFileEntry, newName: String): Outcome<Unit> = outcomeCatching {
@@ -165,14 +169,17 @@ class GpxFileEntryRepository @Inject constructor(
             fileName = newFileName,
             updatedAt = System.currentTimeMillis()
         )
+        routeSyncManager.onRouteChanged(entry.id)
     }
 
     // Shareable content Uri for an entry's .gpx file (see GpxStorage.shareUri).
     fun gpxShareUri(entry: GpxFileEntry): Uri = gpxStorage.shareUri(entry.fileName)
 
-    // Track paths and waypoints from a single parse of the GPX file.
+    // Track paths and waypoints from the GPX file. When the file isn't downloaded yet (a route
+    // pulled from another device), fall back to the synced simplified geometry (entry.pathPoints)
+    // so the map/following still render instead of collapsing to RouteProgress.EMPTY.
     suspend fun loadRouteContent(entry: GpxFileEntry): RouteFileContent = withContext(Dispatchers.IO) {
-        runCatching {
+        val fromFile = runCatching {
             val document = gpxStorage.resolve(entry.fileName)
                 .inputStream()
                 .use { gpxParser.parse(it).gpxDocument }
@@ -180,8 +187,21 @@ class GpxFileEntryRepository @Inject constructor(
                 paths = document.trackPaths(),
                 waypoints = document.waypoints.map { Waypoint(it.lat, it.lon, it.name.orEmpty()) }
             )
-        }.getOrDefault(RouteFileContent(emptyList(), emptyList()))
+        }.getOrNull()
+
+        when {
+            fromFile != null && fromFile.paths.any { it.isNotEmpty() } -> fromFile
+            entry.pathPoints.isNotEmpty() ->
+                RouteFileContent(paths = listOf(entry.pathPoints), waypoints = emptyList())
+            else -> fromFile ?: RouteFileContent(emptyList(), emptyList())
+        }
     }
+
+    // Fetch a synced route's .gpx locally so a screen can upgrade from the simplified fallback.
+    suspend fun ensureRouteFileDownloaded(id: Long) = routeSyncManager.ensureFileDownloaded(id)
+
+    // Back up an owned route's .gpx to the cloud, healing "ghosts" whose file never uploaded.
+    suspend fun ensureRouteFileUploaded(id: Long) = routeSyncManager.ensureFileUploaded(id)
 
     // Elevation-over-distance series for the details profile chart; empty when the file has no `ele` data.
     suspend fun loadElevationProfile(entry: GpxFileEntry): List<ElevationSample> = withContext(Dispatchers.IO) {

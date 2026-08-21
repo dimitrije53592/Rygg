@@ -29,7 +29,10 @@ private fun detailsParams(loadingState: DetailsLoadingState): DetailsScreenParam
         mode = DetailsMode.View(
             onViewOnMap = {},
             onToggleFavorite = {},
-            onDelete = {}
+            onRename = {},
+            onDelete = {},
+            onShareLink = {},
+            onShareFile = {}
         )
     )
 

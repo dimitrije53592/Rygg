@@ -9,13 +9,15 @@ import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.common.asResult
 import com.example.rygg.core.gpx.model.ElevationSample
 import com.example.rygg.core.navigation.Details
-import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.sync.data.RouteSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,10 +25,15 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
+    private val routeSyncManager: RouteSyncManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val entryId = savedStateHandle.toRoute<Details>().entryId
     private var profileCache: CachedProfile? = null
+
+    // One-shot share side effects handed to the wrapper (which owns the Context to act on them).
+    private val _events = Channel<DetailsEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     val uiState: StateFlow<DetailsUiState> =
         gpxFileEntryRepository.observeGpxFileEntry(entryId).asResult()
@@ -75,16 +82,44 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
-    // Shareable content Uri for the loaded route's .gpx file.
-    fun shareFileUri(): Uri? = loadedEntry()?.let { gpxFileEntryRepository.gpxShareUri(it) }
+    // Upload the route if needed, then emit a cross-device share link (or a failure).
+    fun onShareLink() {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            val event = when (val outcome = routeSyncManager.createShareLink(entry)) {
+                is Outcome.Success -> DetailsEvent.ShareLink(outcome.data, entry.name)
+                is Outcome.Error -> DetailsEvent.ShareLinkFailed
+                Outcome.Loading -> return@launch
+            }
+            _events.send(event)
+        }
+    }
 
-    // Deep link that opens the loaded route in the app.
-    fun shareLink(): String? = loadedEntry()?.let { RouteShareLinks.buildUrl(it.id) }
+    // Emit the .gpx file's share Uri, or — when the file isn't on this device yet — start its
+    // download and signal that it isn't ready (sharing it now would crash in FileProvider).
+    fun onShareFile() {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            if (!entry.fileDownloaded || entry.fileName.isBlank()) {
+                gpxFileEntryRepository.ensureRouteFileDownloaded(entry.id)
+                _events.send(DetailsEvent.FileNotReady)
+            } else {
+                _events.send(DetailsEvent.ShareFile(gpxFileEntryRepository.gpxShareUri(entry), entry.name))
+            }
+        }
+    }
 
     private fun loadedEntry(): GpxFileEntry? =
         (uiState.value.loadingState as? DetailsLoadingState.Loaded)?.entry
 
     private suspend fun loadProfile(entry: GpxFileEntry): List<ElevationSample> {
+        // A route pulled from another device may not have its .gpx yet — fetch it now.
+        if (!entry.fileDownloaded) {
+            routeSyncManager.ensureFileDownloaded(entry.id)
+            return emptyList()
+        }
+        // We hold the file: make sure it's backed up so other devices can download it.
+        gpxFileEntryRepository.ensureRouteFileUploaded(entry.id)
         val cached = profileCache
         if (cached != null && cached.entryId == entry.id && cached.updatedAt == entry.updatedAt) {
             return cached.samples
@@ -92,6 +127,17 @@ class DetailsViewModel @Inject constructor(
         return gpxFileEntryRepository.loadElevationProfile(entry)
             .also { profileCache = CachedProfile(entry.id, entry.updatedAt, it) }
     }
+}
+
+// One-shot events the wrapper turns into Context-bound side effects (share sheet, toast).
+sealed interface DetailsEvent {
+    data class ShareLink(val url: String, val routeName: String) : DetailsEvent
+
+    data class ShareFile(val uri: Uri, val routeName: String) : DetailsEvent
+
+    data object ShareLinkFailed : DetailsEvent
+
+    data object FileNotReady : DetailsEvent
 }
 
 private data class CachedProfile(

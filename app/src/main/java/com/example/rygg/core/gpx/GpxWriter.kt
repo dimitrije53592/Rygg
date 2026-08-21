@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 // Reverse of GpxParser: serializes our domain GpxDocument back into a GPX 1.1 file.
 class GpxWriter @Inject constructor() {
-
     fun write(document: GpxDocument): String {
         val writer = StringWriter()
         val serializer = Xml.newSerializer().apply {

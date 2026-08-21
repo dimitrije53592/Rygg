@@ -8,6 +8,13 @@ data class GpxFileEntry(
     val id: Long,
     val fileName: String,
     val contentHash: String,
+    // Cloud sync
+    val remoteId: String? = null,
+    val ownerUid: String? = null,
+    val syncStatus: SyncStatus = SyncStatus.LOCAL_ONLY,
+    val fileDownloaded: Boolean = true,
+    val deletedAt: Long? = null,
+    val sharedToken: String? = null,
     // File metadata
     val name: String,
     val description: String,

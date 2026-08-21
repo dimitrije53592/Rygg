@@ -50,5 +50,6 @@ private fun libraryParams(
         onDisciplineSelected = {},
         onToggleSort = {},
         onToggleFavoritesFilter = {},
-        onCycleSourceFilter = {}
+        onCycleSourceFilter = {},
+        onOpenProfile = {}
     )

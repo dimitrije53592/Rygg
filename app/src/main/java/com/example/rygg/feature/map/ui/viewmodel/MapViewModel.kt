@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.example.rygg.core.navigation.Map as MapRoute
 
@@ -26,6 +27,13 @@ class MapViewModel @Inject constructor(
     private val styleUrl = mapStyleSource.baseStyleUrl()
     private val focusEntryId = savedStateHandle.toRoute<MapRoute>().entryId
     private val contentCache = mutableMapOf<Long, CachedContent>()
+
+    init {
+        // Pull the focused route's full .gpx so it upgrades from the simplified fallback.
+        focusEntryId?.let { id ->
+            viewModelScope.launch { gpxFileEntryRepository.ensureRouteFileDownloaded(id) }
+        }
+    }
 
     val uiState: StateFlow<MapUiState> = gpxFileEntryRepository.observeGpxFileEntries()
         .map { entries ->
@@ -43,10 +51,13 @@ class MapViewModel @Inject constructor(
 
     private suspend fun GpxFileEntry.toRouteOverlay(): RouteOverlay {
         val cached = contentCache[id]
-        val content = if (cached != null && cached.updatedAt == updatedAt) {
+        // Key on fileName too: a .gpx download changes fileName without bumping updatedAt.
+        val content = if (cached != null && cached.updatedAt == updatedAt && cached.fileName == fileName) {
             cached.content
         } else {
-            gpxFileEntryRepository.loadRouteContent(this).also { contentCache[id] = CachedContent(updatedAt, it) }
+            gpxFileEntryRepository.loadRouteContent(this).also {
+                contentCache[id] = CachedContent(updatedAt, fileName, it)
+            }
         }
         return RouteOverlay(
             id = id,
@@ -65,6 +76,7 @@ class MapViewModel @Inject constructor(
 
 private data class CachedContent(
     val updatedAt: Long,
+    val fileName: String,
     val content: RouteFileContent
 )
 

@@ -23,9 +23,16 @@ class SettingsViewModel @Inject constructor(
 
     val uiState: StateFlow<SettingsUiState> = combine(
         settingsRepository.themeMode,
-        selectedLanguage
-    ) { themeMode, language ->
-        SettingsUiState(themeMode = themeMode, selectedLanguage = language)
+        selectedLanguage,
+        settingsRepository.syncEnabled,
+        settingsRepository.syncWifiOnly
+    ) { themeMode, language, syncEnabled, syncWifiOnly ->
+        SettingsUiState(
+            themeMode = themeMode,
+            selectedLanguage = language,
+            syncEnabled = syncEnabled,
+            syncWifiOnly = syncWifiOnly
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -39,5 +46,13 @@ class SettingsViewModel @Inject constructor(
     fun setLanguage(language: AppLanguage) {
         selectedLanguage.value = language
         settingsRepository.setLanguage(language)
+    }
+
+    fun setSyncEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setSyncEnabled(enabled) }
+    }
+
+    fun setSyncWifiOnly(wifiOnly: Boolean) {
+        viewModelScope.launch { settingsRepository.setSyncWifiOnly(wifiOnly) }
     }
 }

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.rygg",
+      "sha256_cert_fingerprints": [
+        "7C:47:92:A3:17:5E:60:3C:3A:38:87:18:0F:D1:70:8C:59:6C:12:73:DA:AE:34:88:56:7C:50:B4:0C:C5:8F:94"
+      ]
+    }
+  }
+]

@@ -125,6 +125,7 @@ private fun LoadedContent(
             EntrySource.IMPORTED -> stringResource(R.string.details_source_imported)
             EntrySource.RECORDED -> stringResource(R.string.details_source_recorded)
         }
+        is DetailsMode.SharedPreview -> stringResource(R.string.details_shared_preview)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -236,6 +237,15 @@ private fun BottomActionBar(
                         )
                     }
                 }
+
+                is DetailsMode.SharedPreview -> {
+                    RyggPrimaryButton(
+                        text = stringResource(R.string.details_save_to_library),
+                        onClick = mode.onSaveCopy,
+                        isLoading = mode.isSaving,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -273,5 +283,11 @@ sealed interface DetailsMode {
         val name: String?,
         val onNameChange: ((String) -> Unit)?,
         val onSave: () -> Unit
+    ) : DetailsMode
+
+    // A shared route opened from a link: not in the library yet, so the only action is save-a-copy.
+    data class SharedPreview(
+        val isSaving: Boolean,
+        val onSaveCopy: () -> Unit
     ) : DetailsMode
 }
