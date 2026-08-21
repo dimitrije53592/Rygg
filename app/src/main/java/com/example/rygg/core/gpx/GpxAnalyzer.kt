@@ -1,6 +1,7 @@
 package com.example.rygg.core.gpx
 
 import com.example.rygg.core.gpx.model.GeoPoint
+import com.example.rygg.core.gpx.model.GpxAnalysis
 import com.example.rygg.core.gpx.model.GpxDocument
 import com.example.rygg.core.gpx.model.GpxPoint
 import java.time.Instant

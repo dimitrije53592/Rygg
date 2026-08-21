@@ -1,6 +1,4 @@
-package com.example.rygg.core.gpx
-
-import com.example.rygg.core.gpx.model.GeoPoint
+package com.example.rygg.core.gpx.model
 
 data class GpxAnalysis(
     val name: String,
