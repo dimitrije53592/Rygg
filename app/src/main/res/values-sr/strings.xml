@@ -1,0 +1,205 @@
+<resources>
+    <string name="app_name">Rygg</string>
+
+    <!-- Navigation -->
+    <string name="nav_library">Biblioteka</string>
+    <string name="nav_record">Snimanje</string>
+    <string name="map_recenter">Centriraj na moju lokaciju</string>
+    <string name="map_compass">Okreni ka severu</string>
+    <string name="map_tracking_mode">Ruta</string>
+    <string name="map_tracking_close">Odbaci</string>
+    <string name="map_start_following">Započni praćenje</string>
+    <string name="nav_map">Mapa</string>
+    <string name="follow_locating">Učitavanje...</string>
+    <string name="follow_stop">Zaustavi praćenje</string>
+    <string name="follow_preview">Pregledaj rutu</string>
+    <string name="follow_far_title">Još niste na ovoj stazi</string>
+    <string name="follow_far_body">Udaljeni ste %1$s od rute. Priđite bliže da započnete praćenje ili je pregledajte.</string>
+    <string name="follow_off_route">Van rute</string>
+    <string name="follow_distance_left">Preostalo rastojanje</string>
+    <string name="follow_speed">Brzina</string>
+    <string name="follow_elevation">Nadmorska visina</string>
+    <string name="follow_preview_badge">Pregled</string>
+    <string name="follow_stat_empty">—</string>
+    <string name="map_location_off">Lokacija je isključena. Uključite lokaciju da vidite gde se nalazite.</string>
+    <string name="record_placeholder">Ekran za snimanje</string>
+    <string name="nav_profile">Profil</string>
+    <string name="nav_settings">Podešavanja</string>
+    <string name="nav_back">Nazad</string>
+    <string name="title_details">Detalji</string>
+
+    <!-- Home -->
+    <string name="home_add_item_hint">Nova stavka</string>
+    <string name="home_add_button">Dodaj</string>
+    <string name="home_delete_item">Obriši stavku</string>
+    <string name="home_empty">Još nema stavki</string>
+    <string name="home_send_notification">Obradi</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Obaveštenja</string>
+    <string name="notification_demo_title">Zdravo</string>
+    <string name="notification_demo_text">Ovo je obaveštenje iz aplikacije.</string>
+
+    <!-- Auth -->
+    <string name="auth_email">Imejl</string>
+    <string name="auth_password">Lozinka</string>
+    <string name="auth_name">Ime</string>
+    <string name="auth_surname">Prezime</string>
+    <string name="auth_confirm_password">Potvrdite lozinku</string>
+    <string name="auth_password_mismatch">Lozinke se ne poklapaju</string>
+    <string name="login_skip">Preskoči</string>
+    <string name="login_title">Dobro došli nazad</string>
+    <string name="login_button">Prijavi se</string>
+    <string name="login_google">Nastavi sa Google-om</string>
+    <string name="login_or">ili</string>
+    <string name="login_forgot_password">Zaboravili ste lozinku?</string>
+    <string name="login_new_to_rygg">Novi ste u Rygg-u?</string>
+    <string name="register_title">Napravite nalog</string>
+    <string name="register_button">Napravi nalog</string>
+    <string name="register_to_login">Nazad na prijavu</string>
+    <string name="register_have_account">Već imate nalog?</string>
+    <string name="forgot_title">Resetuj lozinku</string>
+    <string name="forgot_lead">Unesite imejl svog naloga i poslaćemo vam link za postavljanje nove lozinke.</string>
+    <string name="forgot_button">Pošalji imejl za resetovanje</string>
+    <string name="forgot_remembered">Setili ste se?</string>
+    <string name="forgot_sent_title">Proverite prijemno sanduče</string>
+    <string name="forgot_sent_body">Poslali smo link za resetovanje na %1$s. Otvorite ga da postavite novu lozinku.</string>
+    <string name="forgot_didnt_get">Niste ga dobili?</string>
+    <string name="forgot_resend">Pošalji ponovo</string>
+    <string name="forgot_to_login">Nazad na prijavu</string>
+
+    <!-- Profile -->
+    <string name="profile_sign_out">Odjavi se</string>
+    <string name="profile_no_name">Bez imena</string>
+
+    <!-- Settings -->
+    <string name="settings_theme_title">Tema</string>
+    <string name="settings_theme_system">Sistemski podrazumevano</string>
+    <string name="settings_theme_light">Svetla</string>
+    <string name="settings_theme_dark">Tamna</string>
+    <string name="settings_language_title">Jezik</string>
+    <string name="settings_language_english">Engleski</string>
+    <string name="settings_language_serbian">Srpski</string>
+
+    <!-- Library -->
+    <string name="library_title">Biblioteka</string>
+    <string name="library_filter_all">Sve</string>
+    <string name="library_import">Uvezi GPX datoteku</string>
+    <string name="library_imported">Uvezeno</string>
+    <string name="library_empty_title">Još nema aktivnosti</string>
+    <string name="library_empty_subtitle">Uvezite GPX datoteku da biste počeli</string>
+    <string name="library_delete">Obriši</string>
+    <string name="library_sort_name">Ime</string>
+    <string name="library_sort_date">Datum</string>
+    <string name="library_sort">Promeni redosled</string>
+    <string name="library_favorites_filter">Prikaži samo označene zvezdicom</string>
+    <string name="library_source_filter">Filtriraj po izvoru</string>
+    <string name="library_undated_section">Bez datuma</string>
+    <string name="library_no_matches">Nijedna aktivnost ne odgovara ovom filteru</string>
+    <plurals name="library_activities">
+        <item quantity="one">%d aktivnost</item>
+        <item quantity="few">%d aktivnosti</item>
+        <item quantity="other">%d aktivnosti</item>
+    </plurals>
+
+    <!-- Details -->
+    <string name="details_more_actions">Više radnji</string>
+    <string name="details_share">Podeli</string>
+    <string name="details_share_link">Podeli link</string>
+    <string name="details_share_file">Podeli GPX datoteku</string>
+    <string name="details_share_chooser_title">Podeli rutu</string>
+    <string name="details_share_link_message">%1$s\n\nPogledajte ovu rutu u Rygg-u: %2$s</string>
+    <string name="details_favorite">Dodaj u označene zvezdicom</string>
+    <string name="details_unfavorite">Ukloni iz označenih zvezdicom</string>
+    <string name="details_rename">Preimenuj</string>
+    <string name="details_rename_title">Preimenuj rutu</string>
+    <string name="details_rename_hint">Naziv rute</string>
+    <string name="details_rename_save">Sačuvaj</string>
+    <string name="details_rename_cancel">Otkaži</string>
+    <string name="details_delete">Obriši</string>
+    <string name="details_not_found">Ova ruta više nije dostupna</string>
+    <string name="details_view_on_map">Prikaži na mapi</string>
+    <string name="details_stat_distance">Rastojanje</string>
+    <string name="details_stat_ascent">Uspon</string>
+    <string name="details_stat_descent">Spust</string>
+    <string name="details_stat_moving_time">Vreme kretanja</string>
+    <string name="details_stat_high_point">Najviša tačka</string>
+    <string name="details_stat_points">Tačke</string>
+    <string name="details_elevation_profile">Profil visine</string>
+    <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
+    <string name="details_contents">Sadržaj</string>
+    <string name="details_main_track">Glavna staza</string>
+    <string name="details_track_summary">%1$s · %2$s</string>
+    <string name="details_waypoints">Tačke puta</string>
+    <string name="details_waypoint_count">%d označeno</string>
+    <string name="details_details">Detalji</string>
+    <string name="details_save_to_library">Sačuvaj u biblioteku</string>
+    <string name="details_discard">Odbaci</string>
+    <string name="details_save_error">Čuvanje nije uspelo. Pokušajte ponovo.</string>
+    <string name="details_import_preview">Pregled uvoza</string>
+    <string name="details_source_imported">Uvezeno</string>
+    <string name="details_source_recorded">Snimljeno</string>
+    <string name="details_recording_preview">Pregled snimka</string>
+    <string name="details_file_name">Naziv datoteke</string>
+    <string name="details_shared_preview">Deljena ruta</string>
+    <string name="details_share_failed">Kreiranje linka za deljenje nije uspelo. Pokušajte ponovo.</string>
+    <string name="details_share_file_not_ready">Datoteka rute se još preuzima. Pokušajte ponovo za trenutak.</string>
+
+    <!-- Sync -->
+    <string name="sync_status_synced">Rezervna kopija napravljena</string>
+    <string name="sync_status_pending">Pravljenje rezervne kopije…</string>
+    <string name="sync_status_download_pending">Preuzimanje…</string>
+
+    <!-- Account skip prompt -->
+    <string name="auth_skip_title">Nastaviti bez naloga?</string>
+    <string name="auth_skip_message">Bez prijave, vaše rute ostaju samo na ovom uređaju:\n\n• Nema rezervne kopije u oblaku ako izgubite ili zamenite telefon\n• Neće se sinhronizovati sa vašim drugim uređajima\n• Ne možete deliti rute putem linka\n\nMožete se prijaviti u bilo kom trenutku da ovo uključite.</string>
+    <string name="auth_skip_continue">Nastavi bez naloga</string>
+    <string name="auth_skip_sign_in">Prijavi se</string>
+
+    <!-- Profile / account -->
+    <string name="profile_title">Nalog</string>
+    <string name="profile_open_settings">Podešavanja</string>
+    <string name="profile_backup_on">Vaše rute su sačuvane i sinhronizovane</string>
+    <string name="profile_guest_title">Niste prijavljeni</string>
+    <string name="profile_guest_message">Prijavite se da napravite rezervnu kopiju svojih ruta, sinhronizujete ih između uređaja i delite ih putem linka.</string>
+    <string name="profile_sign_in">Prijavi se</string>
+    <string name="library_open_profile">Nalog</string>
+
+    <!-- Settings: sync -->
+    <string name="settings_title">Podešavanja</string>
+    <string name="settings_sync_title">Sinhronizacija i rezervna kopija</string>
+    <string name="settings_sync_enabled">Napravi rezervnu kopiju mojih ruta</string>
+    <string name="settings_sync_wifi_only">Sinhronizuj datoteke samo preko Wi-Fi-ja</string>
+    <string name="settings_sync_description">Čuvajte svoje rute bezbedno u oblaku i sinhronizovane između uređaja.</string>
+
+    <!-- Record -->
+    <string name="record_choose_activity">Izaberite aktivnost</string>
+    <string name="record_start">Započni snimanje</string>
+    <string name="record_gps_hint">GPS se pokreće kada dodirnete snimanje</string>
+    <string name="record_recording">Snimanje</string>
+    <string name="record_paused">Pauzirano</string>
+    <string name="record_add_waypoint">Dodaj tačku puta</string>
+    <string name="record_pause">Pauziraj</string>
+    <string name="record_resume">Nastavi</string>
+    <string name="record_stop">Zaustavi</string>
+    <string name="record_metric_distance">Rastojanje</string>
+    <string name="record_metric_speed">Brzina</string>
+    <string name="record_metric_ascent">Uspon</string>
+    <string name="record_metric_elevation">Nadmorska visina</string>
+    <string name="record_metric_points">Tačke</string>
+    <string name="record_metric_waypoints">Tačke puta</string>
+    <string name="record_waypoint_title">Nova tačka puta</string>
+    <string name="record_waypoint_hint">Nazovite ovo mesto</string>
+    <string name="record_waypoint_default">Tačka puta %d</string>
+    <string name="record_waypoint_save">Dodaj</string>
+    <string name="record_waypoint_cancel">Otkaži</string>
+    <string name="record_notification_channel">Snimanje</string>
+    <string name="record_notification_title">Snimanje aktivnosti</string>
+    <string name="record_notification_text">Rastojanje: %1$s · Vreme: %2$s</string>
+    <string name="record_empty_title">Nijedna ruta nije snimljena</string>
+    <string name="record_empty_message">Ovaj snimak nije zabeležio dovoljno kretanja da bi se ruta sačuvala.</string>
+    <string name="record_empty_confirm_title">Odbaciti snimak?</string>
+    <string name="record_empty_confirm_message">Nema šta da se sačuva, pa će ovaj snimak biti odbačen.</string>
+    <string name="record_empty_confirm_discard">Odbaci</string>
+    <string name="record_empty_confirm_cancel">Otkaži</string>
+</resources>

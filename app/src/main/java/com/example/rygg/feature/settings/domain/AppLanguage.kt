@@ -5,5 +5,5 @@ import com.example.rygg.R
 
 enum class AppLanguage(val tag: String, @StringRes val labelRes: Int) {
     ENGLISH("en", R.string.settings_language_english),
-    SPANISH("es", R.string.settings_language_spanish)
+    SERBIAN("sr", R.string.settings_language_serbian)
 }
