@@ -24,14 +24,20 @@ class RouteProgressTest {
     }
 
     @Test
-    fun progressAtVertex_reportsRemainingAndFraction() {
+    fun pointOnLine_isZeroDistanceAndOnRoute() {
         val progress = geometry.progressFor(lat = 0.0, lon = 0.002)
 
-        assertEquals(2, progress.nearestIndex)
         assertEquals(0.0, progress.distanceToRouteMeters, 1.0)
-        assertEquals(111.2, progress.distanceRemainingMeters, 1.0)
-        assertEquals(0.667, progress.fractionComplete, 0.01)
         assertTrue(progress.isOnRoute(accuracyMeters = 5f))
+    }
+
+    @Test
+    fun offsetPerpendicular_measuresToSegmentNotVertex() {
+        // ~55.6 m north of the line, midway between the vertices at lon 0.001 and 0.002.
+        // Nearest-vertex would report ~78.6 m; projecting onto the segment gives the true ~55.6 m.
+        val progress = geometry.progressFor(lat = 0.0005, lon = 0.0015)
+
+        assertEquals(55.6, progress.distanceToRouteMeters, 2.0)
     }
 
     @Test

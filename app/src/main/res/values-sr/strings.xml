@@ -16,6 +16,8 @@
     <string name="follow_far_title">Još niste na ovoj stazi</string>
     <string name="follow_far_body">Udaljeni ste %1$s od rute. Priđite bliže da započnete praćenje ili je pregledajte.</string>
     <string name="follow_off_route">Van rute</string>
+    <string name="follow_on_route">Na ruti</string>
+    <string name="follow_off_route_distance">Van rute · %1$s</string>
     <string name="follow_distance_left">Preostalo rastojanje</string>
     <string name="follow_speed">Brzina</string>
     <string name="follow_elevation">Nadmorska visina</string>
