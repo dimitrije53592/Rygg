@@ -1,17 +1,23 @@
 package com.example.rygg.core.navigation
 
+import android.content.Intent
 import android.net.Uri
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.util.Consumer
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,6 +27,7 @@ import androidx.navigation.navDeepLink
 import com.example.rygg.core.ui.components.RyggBottomAppBar
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.RouteShareLinks
+import com.example.rygg.feature.record.service.RecordingService
 import com.example.rygg.feature.auth.ui.components.SkipSignInDialog
 import com.example.rygg.feature.auth.ui.viewmodel.AuthViewModel
 import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
@@ -44,6 +51,30 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
+
+    val activity = LocalContext.current as ComponentActivity
+
+    // An internal deep link may need side effects before the jump (e.g. tearing down the recording
+    // service when the notification's Stop opens RecordingPreview). NavHost handles the nav itself.
+    fun handleDeepLinkSideEffects(intent: Intent?) {
+        if (intent?.data?.toString() == InternalDeepLinks.RECORDING_PREVIEW) {
+            RecordingService.stop(activity)
+        }
+    }
+
+    // Cold start: NavHost auto-handles the launch intent's deep link; we only owe the side effects.
+    LaunchedEffect(Unit) { handleDeepLinkSideEffects(activity.intent) }
+
+    // Warm start: a singleTop activity receives later deep links via onNewIntent, which NavHost does
+    // not observe — forward them to the NavController ourselves (plus run the side effects).
+    DisposableEffect(navController) {
+        val listener = Consumer<Intent> { intent ->
+            handleDeepLinkSideEffects(intent)
+            navController.handleDeepLink(intent)
+        }
+        activity.addOnNewIntentListener(listener)
+        onDispose { activity.removeOnNewIntentListener(listener) }
+    }
 
     val startDestination: Any = remember { if (authViewModel.isLoggedIn()) Library else Login }
 
@@ -146,12 +177,20 @@ fun AppNavigation() {
             composable<ImportPreview> {
                 ImportPreviewWrapper(onDone = { navController.popBackStack() })
             }
-            composable<Record> {
+            // Deep link "<InternalDeepLinks.RECORD>" opens the live recording screen when the
+            // ongoing-recording notification body is tapped (recording keeps running).
+            composable<Record>(
+                deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
+            ) {
                 RecordWrapper(
                     onRecordingStopped = { navController.navigate(RecordingPreview) }
                 )
             }
-            composable<RecordingPreview> {
+            // Deep link "<InternalDeepLinks.RECORDING_PREVIEW>" opens the save/preview screen when
+            // the recording notification's Stop action is tapped (see RecordingService).
+            composable<RecordingPreview>(
+                deepLinks = listOf(navDeepLink<RecordingPreview>(basePath = InternalDeepLinks.RECORDING_PREVIEW))
+            ) {
                 RecordingPreviewWrapper(onDone = { navController.popBackStack() })
             }
             composable<Map> {

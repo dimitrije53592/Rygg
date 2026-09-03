@@ -24,6 +24,7 @@
             android:name=".core.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Rygg">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

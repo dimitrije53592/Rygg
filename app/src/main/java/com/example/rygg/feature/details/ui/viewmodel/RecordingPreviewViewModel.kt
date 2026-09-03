@@ -39,6 +39,11 @@ class RecordingPreviewViewModel @Inject constructor(
     val error = _error.asSharedFlow()
 
     init {
+        // Guarantee the recording is stopped before we read it — race-free regardless of entry path
+        // (in-app Stop, or the notification's Stop deep link). stop() is idempotent, so this is a
+        // no-op when the controller is already IDLE. Keeps buildDocument() from reading a live track.
+        recordingController.stop()
+
         viewModelScope.launch {
             val document = recordingController.buildDocument()
             if (document == null) {
