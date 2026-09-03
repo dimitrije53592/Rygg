@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -151,7 +152,14 @@ private fun IdleContent(
             style = RyggTheme.typography.titleMedium,
             color = RyggTheme.getColor(RyggColor.TextSecondary)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(
+                RyggTheme.dimens.commonSpacing12,
+                Alignment.CenterHorizontally
+            ),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+        ) {
             Discipline.entries.forEach { discipline ->
                 DisciplineChip(
                     discipline = discipline,

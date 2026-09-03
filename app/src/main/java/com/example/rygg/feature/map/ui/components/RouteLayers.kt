@@ -117,4 +117,5 @@ private val Discipline.pinRes: Int
         Discipline.HIKE -> R.drawable.ic_map_pin_hike
         Discipline.RIDE -> R.drawable.ic_map_pin_bike
         Discipline.SKI -> R.drawable.ic_map_pin_ski
+        Discipline.PADDLE -> R.drawable.ic_map_pin_paddle
     }
