@@ -8,5 +8,6 @@ enum class Discipline(
 ) {
     HIKE(R.drawable.ic_hike),
     RIDE(R.drawable.ic_bike),
-    SKI(R.drawable.ic_ski)
+    SKI(R.drawable.ic_ski),
+    PADDLE(R.drawable.ic_paddle)
 }
