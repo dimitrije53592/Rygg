@@ -126,6 +126,9 @@
     <string name="details_stat_moving_time">Moving time</string>
     <string name="details_stat_high_point">High point</string>
     <string name="details_stat_points">Points</string>
+    <string name="details_stat_avg_speed">Avg speed</string>
+    <string name="details_stat_max_speed">Max speed</string>
+    <string name="details_stat_total_time">Total time</string>
     <string name="details_elevation_profile">Elevation profile</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
     <string name="details_contents">Contents</string>

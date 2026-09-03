@@ -44,7 +44,27 @@ class GpxAnalyzerTest {
         assertEquals(0L, analysis.startTimeMillis)
         assertEquals(50_000L, analysis.totalTimeMillis)
         assertEquals(20_000L, analysis.movingTimeMillis)
+        // Both moving segments cover ~111 m in 10 s -> ~11.1 m/s peak.
+        assertEquals(11.1, analysis.maxSpeedMps!!, 0.2)
         assertEquals("test", analysis.creator)
+    }
+
+    @Test
+    fun analyze_maxSpeed_excludesSubSecondGpsJump() {
+        val points = listOf(
+            GpxPoint(lat = 0.0, lon = 0.0, time = Instant.ofEpochMilli(0)),
+            // ~1113 m in 0.5 s would read as ~2200 m/s — a GPS jump the guard must drop.
+            GpxPoint(lat = 0.0, lon = 0.01, time = Instant.ofEpochMilli(500)),
+            // ~111 m in 10 s -> ~11.1 m/s, the real peak.
+            GpxPoint(lat = 0.0, lon = 0.011, time = Instant.ofEpochMilli(10_500))
+        )
+        val document = GpxDocument(
+            tracks = listOf(Track(segments = listOf(TrackSegment(points = points))))
+        )
+
+        val analysis = analyzer.analyze(document)
+
+        assertEquals(11.1, analysis.maxSpeedMps!!, 0.5)
     }
 
     @Test
@@ -60,6 +80,7 @@ class GpxAnalyzerTest {
         assertNull(analysis.startTimeMillis)
         assertNull(analysis.totalTimeMillis)
         assertNull(analysis.movingTimeMillis)
+        assertNull(analysis.maxSpeedMps)
         assertNull(analysis.minLat)
     }
 

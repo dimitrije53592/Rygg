@@ -31,6 +31,7 @@ class GpxAnalyzer @Inject constructor() {
             startTimeMillis = (gpxDocument.metadata?.time ?: times.minOrNull())?.toEpochMilli(),
             movingTimeMillis = movingTimeMillis(paths),
             totalTimeMillis = totalTimeMillis(times),
+            maxSpeedMps = maxSpeedMps(paths),
             minLat = gpxDocument.metadata?.bounds?.minLat ?: boundsPoints.minOfOrNull { it.lat },
             minLon = gpxDocument.metadata?.bounds?.minLon ?: boundsPoints.minOfOrNull { it.lon },
             maxLat = gpxDocument.metadata?.bounds?.maxLat ?: boundsPoints.maxOfOrNull { it.lat },
@@ -86,6 +87,26 @@ class GpxAnalyzer @Inject constructor() {
         return times.max().toEpochMilli() - times.min().toEpochMilli()
     }
 
+    // Peak speed along the track. Pairs with a sub-MIN_SPEED_SAMPLE_SECONDS gap are skipped:
+    // a single GPS jitter jump over a fraction of a second yields an absurdly high speed.
+    private fun maxSpeedMps(paths: List<List<GpxPoint>>): Double? {
+        var maxSpeed: Double? = null
+        paths.forEach { points ->
+            points.zipWithNext().forEach { (a, b) ->
+                val from = a.time
+                val to = b.time
+                if (from != null && to != null) {
+                    val dt = (to.toEpochMilli() - from.toEpochMilli()) / MILLIS_PER_SECOND
+                    if (dt in MIN_SPEED_SAMPLE_SECONDS..MAX_PAUSE_GAP_SECONDS) {
+                        val speed = haversineMeters(a.lat, a.lon, b.lat, b.lon) / dt
+                        if (maxSpeed == null || speed > maxSpeed!!) maxSpeed = speed
+                    }
+                }
+            }
+        }
+        return maxSpeed
+    }
+
     private fun movingTimeMillis(paths: List<List<GpxPoint>>): Long? {
         var hasTimedPair = false
         var movingSeconds = 0.0
@@ -112,6 +133,7 @@ class GpxAnalyzer @Inject constructor() {
         const val ELEVATION_NOISE_METERS = 1.0
         const val MIN_MOVING_SPEED_MPS = 0.8
         const val MAX_PAUSE_GAP_SECONDS = 60.0
+        const val MIN_SPEED_SAMPLE_SECONDS = 1.0
         const val MILLIS_PER_SECOND = 1000.0
         const val MAX_THUMBNAIL_POINTS = 48
     }

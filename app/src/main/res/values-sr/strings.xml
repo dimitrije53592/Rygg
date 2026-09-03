@@ -127,6 +127,9 @@
     <string name="details_stat_moving_time">Vreme kretanja</string>
     <string name="details_stat_high_point">Najviša tačka</string>
     <string name="details_stat_points">Tačke</string>
+    <string name="details_stat_avg_speed">Pros. brzina</string>
+    <string name="details_stat_max_speed">Maks. brzina</string>
+    <string name="details_stat_total_time">Ukupno vreme</string>
     <string name="details_elevation_profile">Profil visine</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
     <string name="details_contents">Sadržaj</string>
