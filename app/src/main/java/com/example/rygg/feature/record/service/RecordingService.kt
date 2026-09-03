@@ -9,6 +9,9 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import com.example.rygg.core.MainActivity
+import com.example.rygg.core.navigation.InternalDeepLinks
 import com.example.rygg.core.notification.DEFAULT_NOTIFICATION_ID
 import com.example.rygg.core.notification.NotificationHelper
 import com.example.rygg.feature.auth.domain.Discipline
@@ -92,6 +95,7 @@ class RecordingService : Service() {
     private fun notificationFor(snapshot: RecordingSnapshot): RecordingNotificationBuilder =
         RecordingNotificationBuilder(
             snapshot = snapshot,
+            contentPendingIntent = getContentPendingIntent(),
             pausePendingIntent = getPauseOrResumePendingIntent(snapshot.state == RecordingState.PAUSED),
             stopPendingIntent = getStopPendingIntent()
         )
@@ -110,13 +114,22 @@ class RecordingService : Service() {
         )
     }
 
-    private fun getStopPendingIntent(): PendingIntent {
-        val intent = Intent(this, RecordingService::class.java).apply {
-            action = ACTION_STOP
-        }
-        return PendingIntent.getService(
+    // Tapping the body opens the live recording screen; recording keeps running.
+    private fun getContentPendingIntent(): PendingIntent =
+        deepLinkActivityPendingIntent(REQUEST_CODE_CONTENT, InternalDeepLinks.RECORD)
+
+    // Stop opens the save/preview screen; the recording is stopped on arrival (AppNavigation's
+    // deep-link side effects + RecordingPreviewViewModel).
+    private fun getStopPendingIntent(): PendingIntent =
+        deepLinkActivityPendingIntent(REQUEST_CODE_STOP, InternalDeepLinks.RECORDING_PREVIEW)
+
+    // Activity PendingIntent, not getService: Android 12+ bans notification -> service -> activity
+    // trampolines, so notification navigation must target MainActivity directly via a deep link.
+    private fun deepLinkActivityPendingIntent(requestCode: Int, deepLink: String): PendingIntent {
+        val intent = Intent(Intent.ACTION_VIEW, deepLink.toUri(), this, MainActivity::class.java)
+        return PendingIntent.getActivity(
             this,
-            REQUEST_CODE_STOP,
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -139,6 +152,7 @@ class RecordingService : Service() {
         private const val REQUEST_CODE_PAUSE = 100
         private const val REQUEST_CODE_RESUME = 101
         private const val REQUEST_CODE_STOP = 102
+        private const val REQUEST_CODE_CONTENT = 103
 
         fun start(context: Context, discipline: Discipline) =
             send(context, ACTION_START, foreground = true) { putExtra(EXTRA_DISCIPLINE, discipline.name) }
