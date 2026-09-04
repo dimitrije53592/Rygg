@@ -44,27 +44,45 @@ class GpxAnalyzerTest {
         assertEquals(0L, analysis.startTimeMillis)
         assertEquals(50_000L, analysis.totalTimeMillis)
         assertEquals(20_000L, analysis.movingTimeMillis)
-        // Both moving segments cover ~111 m in 10 s -> ~11.1 m/s peak.
-        assertEquals(11.1, analysis.maxSpeedMps!!, 0.2)
+        // Moving basis: ~222 m of moving distance over 20 s of moving time -> ~11.1 m/s.
+        assertEquals(11.1, analysis.avgSpeedMps!!, 0.3)
+        // Windowed peak over the two ~111 m / 10 s moving segments -> ~11.1 m/s.
+        assertEquals(11.1, analysis.maxSpeedMps!!, 0.3)
         assertEquals("test", analysis.creator)
     }
 
     @Test
-    fun analyze_maxSpeed_excludesSubSecondGpsJump() {
-        val points = listOf(
-            GpxPoint(lat = 0.0, lon = 0.0, time = Instant.ofEpochMilli(0)),
-            // ~1113 m in 0.5 s would read as ~2200 m/s — a GPS jump the guard must drop.
-            GpxPoint(lat = 0.0, lon = 0.01, time = Instant.ofEpochMilli(500)),
-            // ~111 m in 10 s -> ~11.1 m/s, the real peak.
-            GpxPoint(lat = 0.0, lon = 0.011, time = Instant.ofEpochMilli(10_500))
-        )
+    fun analyze_maxSpeed_smoothsSingleFixJitterSpike() {
+        // A steady ~1 m/s walk (1 m east each second) with one fix jumping ~10 m out and back.
+        // The per-pair speed at the spike is ~10 m/s, but averaged over the >=5 s window the peak
+        // stays far below it.
+        val meters = listOf(0.0, 1.0, 2.0, 3.0, 13.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+        val points = meters.mapIndexed { index, east ->
+            GpxPoint(lat = 0.0, lon = metersEastToLon(east), time = Instant.ofEpochSecond(index.toLong()))
+        }
         val document = GpxDocument(
             tracks = listOf(Track(segments = listOf(TrackSegment(points = points))))
         )
 
         val analysis = analyzer.analyze(document)
 
-        assertEquals(11.1, analysis.maxSpeedMps!!, 0.5)
+        // Raw per-pair peak would be ~10 m/s; windowing must keep it well under 5 m/s.
+        assertTrue("max speed ${analysis.maxSpeedMps} should be smoothed", analysis.maxSpeedMps!! < 5.0)
+    }
+
+    @Test
+    fun analyze_maxSpeed_breaksWindowAcrossLongPause() {
+        // Two 1 m/s legs separated by a 5-minute stop; the window must not bridge the gap into a
+        // fake high speed. Each leg alone spans >=5 s at ~1 m/s.
+        val leg1 = (0..6).map { GpxPoint(lat = 0.0, lon = metersEastToLon(it.toDouble()), time = Instant.ofEpochSecond(it.toLong())) }
+        val leg2 = (0..6).map { GpxPoint(lat = 0.0, lon = metersEastToLon(1000.0 + it), time = Instant.ofEpochSecond(300L + it)) }
+        val document = GpxDocument(
+            tracks = listOf(Track(segments = listOf(TrackSegment(points = leg1 + leg2))))
+        )
+
+        val analysis = analyzer.analyze(document)
+
+        assertEquals(1.0, analysis.maxSpeedMps!!, 0.3)
     }
 
     @Test
@@ -80,10 +98,16 @@ class GpxAnalyzerTest {
         assertNull(analysis.startTimeMillis)
         assertNull(analysis.totalTimeMillis)
         assertNull(analysis.movingTimeMillis)
+        assertNull(analysis.avgSpeedMps)
         assertNull(analysis.maxSpeedMps)
         assertNull(analysis.minLat)
     }
 
     private fun point(lat: Double, lon: Double, ele: Double, second: Long): GpxPoint =
         GpxPoint(lat = lat, lon = lon, ele = ele, time = Instant.ofEpochSecond(second))
+
+    // Longitude offset (at the equator) that corresponds to `meters` east, so fixtures can be
+    // written in metres of travel rather than raw degrees.
+    private fun metersEastToLon(meters: Double): Double =
+        Math.toDegrees(meters / EARTH_RADIUS_METERS)
 }

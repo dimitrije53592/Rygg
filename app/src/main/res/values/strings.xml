@@ -182,6 +182,7 @@
     <string name="record_gps_hint">GPS starts when you tap record</string>
     <string name="record_recording">Recording</string>
     <string name="record_paused">Paused</string>
+    <string name="record_auto_paused">Auto-paused</string>
     <string name="record_add_waypoint">Add waypoint</string>
     <string name="record_pause">Pause</string>
     <string name="record_resume">Resume</string>

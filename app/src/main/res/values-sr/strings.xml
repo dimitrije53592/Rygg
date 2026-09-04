@@ -183,6 +183,7 @@
     <string name="record_gps_hint">GPS se pokreće kada dodirnete snimanje</string>
     <string name="record_recording">Snimanje</string>
     <string name="record_paused">Pauzirano</string>
+    <string name="record_auto_paused">Automatski pauzirano</string>
     <string name="record_add_waypoint">Dodaj tačku puta</string>
     <string name="record_pause">Pauziraj</string>
     <string name="record_resume">Nastavi</string>

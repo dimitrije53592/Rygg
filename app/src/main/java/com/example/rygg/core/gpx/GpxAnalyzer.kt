@@ -16,6 +16,7 @@ class GpxAnalyzer @Inject constructor() {
         val boundsPoints = pathPoints + gpxDocument.waypoints
         val elevations = boundsPoints.mapNotNull { it.ele }
         val times = pathPoints.mapNotNull { it.time }
+        val moving = movingStats(paths)
 
         return GpxAnalysis(
             name = resolveName(gpxDocument),
@@ -29,8 +30,9 @@ class GpxAnalyzer @Inject constructor() {
             waypointCount = gpxDocument.waypoints.size,
             hasTime = times.isNotEmpty(),
             startTimeMillis = (gpxDocument.metadata?.time ?: times.minOrNull())?.toEpochMilli(),
-            movingTimeMillis = movingTimeMillis(paths),
+            movingTimeMillis = moving?.movingMillis,
             totalTimeMillis = totalTimeMillis(times),
+            avgSpeedMps = moving?.avgSpeedMps,
             maxSpeedMps = maxSpeedMps(paths),
             minLat = gpxDocument.metadata?.bounds?.minLat ?: boundsPoints.minOfOrNull { it.lat },
             minLon = gpxDocument.metadata?.bounds?.minLon ?: boundsPoints.minOfOrNull { it.lon },
@@ -87,18 +89,30 @@ class GpxAnalyzer @Inject constructor() {
         return times.max().toEpochMilli() - times.min().toEpochMilli()
     }
 
-    // Peak speed along the track. Pairs with a sub-MIN_SPEED_SAMPLE_SECONDS gap are skipped:
-    // a single GPS jitter jump over a fraction of a second yields an absurdly high speed.
+    // Peak speed measured over a rolling window (>= SPEED_WINDOW_SECONDS) rather than per fix
+    // pair: a single GPS jitter jump reads as a huge instantaneous speed, but averaged across a
+    // few seconds of travel it disappears. Windows never span a pause gap > MAX_PAUSE_GAP_SECONDS.
     private fun maxSpeedMps(paths: List<List<GpxPoint>>): Double? {
         var maxSpeed: Double? = null
         paths.forEach { points ->
-            points.zipWithNext().forEach { (a, b) ->
-                val from = a.time
-                val to = b.time
-                if (from != null && to != null) {
-                    val dt = (to.toEpochMilli() - from.toEpochMilli()) / MILLIS_PER_SECOND
-                    if (dt in MIN_SPEED_SAMPLE_SECONDS..MAX_PAUSE_GAP_SECONDS) {
-                        val speed = haversineMeters(a.lat, a.lon, b.lat, b.lon) / dt
+            timedRuns(points).forEach { run ->
+                // Cumulative distance/time along the run so any window is an O(1) difference.
+                val cumMeters = DoubleArray(run.size)
+                val elapsedSeconds = DoubleArray(run.size)
+                for (i in 1 until run.size) {
+                    val a = run[i - 1]
+                    val b = run[i]
+                    cumMeters[i] = cumMeters[i - 1] + haversineMeters(a.lat, a.lon, b.lat, b.lon)
+                    elapsedSeconds[i] = elapsedSeconds[i - 1] +
+                        (b.time!!.toEpochMilli() - a.time!!.toEpochMilli()) / MILLIS_PER_SECOND
+                }
+                var start = 0
+                for (end in 1 until run.size) {
+                    // Tightest window that still spans >= SPEED_WINDOW_SECONDS.
+                    while (elapsedSeconds[end] - elapsedSeconds[start + 1] >= SPEED_WINDOW_SECONDS) start++
+                    val windowSeconds = elapsedSeconds[end] - elapsedSeconds[start]
+                    if (windowSeconds >= SPEED_WINDOW_SECONDS) {
+                        val speed = (cumMeters[end] - cumMeters[start]) / windowSeconds
                         if (maxSpeed == null || speed > maxSpeed!!) maxSpeed = speed
                     }
                 }
@@ -107,9 +121,13 @@ class GpxAnalyzer @Inject constructor() {
         return maxSpeed
     }
 
-    private fun movingTimeMillis(paths: List<List<GpxPoint>>): Long? {
+    // Moving time and average moving speed share a basis: both accumulate only over pairs whose
+    // speed clears MIN_MOVING_SPEED_MPS, so avg speed = moving distance / moving time (never
+    // inflated by dividing full distance by a shrunken moving-time denominator).
+    private fun movingStats(paths: List<List<GpxPoint>>): MovingStats? {
         var hasTimedPair = false
         var movingSeconds = 0.0
+        var movingMeters = 0.0
         paths.forEach { points ->
             points.zipWithNext().forEach { (a, b) ->
                 val from = a.time
@@ -118,22 +136,51 @@ class GpxAnalyzer @Inject constructor() {
                     hasTimedPair = true
                     val dt = (to.toEpochMilli() - from.toEpochMilli()) / MILLIS_PER_SECOND
                     if (dt > 0 && dt <= MAX_PAUSE_GAP_SECONDS) {
-                        val speed = haversineMeters(a.lat, a.lon, b.lat, b.lon) / dt
-                        if (speed >= MIN_MOVING_SPEED_MPS) {
+                        val meters = haversineMeters(a.lat, a.lon, b.lat, b.lon)
+                        if (meters / dt >= MIN_MOVING_SPEED_MPS) {
                             movingSeconds += dt
+                            movingMeters += meters
                         }
                     }
                 }
             }
         }
-        return if (hasTimedPair) (movingSeconds * MILLIS_PER_SECOND).toLong() else null
+        if (!hasTimedPair) return null
+        return MovingStats(
+            movingMillis = (movingSeconds * MILLIS_PER_SECOND).toLong(),
+            avgSpeedMps = if (movingSeconds > 0) movingMeters / movingSeconds else null
+        )
     }
+
+    // Split a segment into maximal runs of consecutive timed points, cutting where a pair is
+    // untimed or its gap exceeds MAX_PAUSE_GAP_SECONDS (a stop the windowed speed must not bridge).
+    private fun timedRuns(points: List<GpxPoint>): List<List<GpxPoint>> {
+        val runs = mutableListOf<List<GpxPoint>>()
+        var current = mutableListOf<GpxPoint>()
+        points.forEach { point ->
+            val previous = current.lastOrNull()
+            val gapSeconds = if (previous?.time != null && point.time != null) {
+                (point.time.toEpochMilli() - previous.time.toEpochMilli()) / MILLIS_PER_SECOND
+            } else {
+                null
+            }
+            if (point.time == null || (gapSeconds != null && gapSeconds > MAX_PAUSE_GAP_SECONDS)) {
+                if (current.size >= 2) runs += current
+                current = mutableListOf()
+            }
+            if (point.time != null) current += point
+        }
+        if (current.size >= 2) runs += current
+        return runs
+    }
+
+    private data class MovingStats(val movingMillis: Long, val avgSpeedMps: Double?)
 
     private companion object {
         const val ELEVATION_NOISE_METERS = 1.0
         const val MIN_MOVING_SPEED_MPS = 0.8
         const val MAX_PAUSE_GAP_SECONDS = 60.0
-        const val MIN_SPEED_SAMPLE_SECONDS = 1.0
+        const val SPEED_WINDOW_SECONDS = 5.0
         const val MILLIS_PER_SECOND = 1000.0
         const val MAX_THUMBNAIL_POINTS = 48
     }

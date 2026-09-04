@@ -47,8 +47,7 @@ fun DetailsStatsGrid(
         // Row 3: speed & time
         DetailsStat(
             stringResource(R.string.details_stat_avg_speed),
-            entry.movingTimeMillis?.takeIf { it > 0 }
-                ?.let { formatSpeedKmh(entry.distanceMeters / (it / 1000.0)) } ?: emptyValue
+            entry.avgSpeedMps?.let { formatSpeedKmh(it) } ?: emptyValue
         ),
         DetailsStat(
             stringResource(R.string.details_stat_max_speed),

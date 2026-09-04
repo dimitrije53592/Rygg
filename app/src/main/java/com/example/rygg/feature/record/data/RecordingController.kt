@@ -1,6 +1,9 @@
 package com.example.rygg.feature.record.data
 
+import android.location.Location
+import android.os.SystemClock
 import com.example.rygg.core.common.RyggTimer
+import com.example.rygg.core.gpx.haversineMeters
 import com.example.rygg.core.gpx.model.GpxDocument
 import com.example.rygg.core.location.RyggLocationManager
 import com.example.rygg.feature.auth.domain.Discipline
@@ -28,12 +31,16 @@ import javax.inject.Singleton
 class RecordingController @Inject constructor(
     private val locationManager: RyggLocationManager,
     private val timer: RyggTimer,
-    private val route: RouteAccumulator
+    private val route: RouteAccumulator,
+    private val autoPauseDetector: AutoPauseDetector
 ) {
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val session = MutableStateFlow(Session())
     private var locationJob: Job? = null
+
+    // Previous accepted fix, kept only to derive a speed when a fix carries none.
+    private var lastFix: Location? = null
 
     val snapshot: StateFlow<RecordingSnapshot> =
         combine(session, timer.elapsed, route.metrics) { s, elapsed, m ->
@@ -53,6 +60,7 @@ class RecordingController @Inject constructor(
 
     fun start(discipline: Discipline) {
         route.reset()
+        resetContinuity()
         session.value = Session(
             state = RecordingState.RECORDING,
             discipline = discipline,
@@ -62,17 +70,22 @@ class RecordingController @Inject constructor(
         startLocation()
     }
 
+    // Manual pause is sticky: it stops the location stream, so auto-resume can't fire until the
+    // user resumes. (Auto-pause, by contrast, keeps the stream running to detect movement.)
     fun pause() {
         if (session.value.state != RecordingState.RECORDING) return
         timer.pause()
         stopLocation()
+        resetContinuity()
         session.update { it.copy(state = RecordingState.PAUSED) }
     }
 
     fun resume() {
-        if (session.value.state != RecordingState.PAUSED) return
+        val state = session.value.state
+        if (state != RecordingState.PAUSED && state != RecordingState.AUTO_PAUSED) return
         timer.resume()
         route.breakContinuity()
+        resetContinuity()
         startLocation()
         session.update { it.copy(state = RecordingState.RECORDING) }
     }
@@ -80,6 +93,7 @@ class RecordingController @Inject constructor(
     fun stop() {
         timer.stop()
         stopLocation()
+        resetContinuity()
         session.update { it.copy(state = RecordingState.IDLE) }
     }
 
@@ -102,9 +116,60 @@ class RecordingController @Inject constructor(
         locationJob = scope.launch {
             locationManager.locationUpdates(minDistanceMeters = RECORDING_MIN_DISTANCE_M).collect { location ->
                 if (!session.value.gpsReady) session.update { it.copy(gpsReady = true) }
-                if (session.value.state == RecordingState.RECORDING) route.add(location)
+                onLocationFix(location)
             }
         }
+    }
+
+    private fun onLocationFix(location: Location) {
+        val state = session.value.state
+        if (state != RecordingState.RECORDING && state != RecordingState.AUTO_PAUSED) return
+        if (!isUsableFix(location)) return
+
+        val speed = speedOf(location)
+        lastFix = location
+        when (autoPauseDetector.onFix(speed, System.currentTimeMillis(), state == RecordingState.AUTO_PAUSED)) {
+            AutoPauseAction.PAUSE -> autoPause()
+            AutoPauseAction.RESUME -> autoResume()
+            AutoPauseAction.NONE -> Unit
+        }
+
+        if (session.value.state == RecordingState.RECORDING) route.add(location)
+    }
+
+    private fun autoPause() {
+        timer.pause()
+        route.breakContinuity()
+        session.update { it.copy(state = RecordingState.AUTO_PAUSED) }
+    }
+
+    private fun autoResume() {
+        timer.resume()
+        route.breakContinuity()
+        session.update { it.copy(state = RecordingState.RECORDING) }
+    }
+
+    // Drop fixes that would corrupt distance/speed: poor horizontal accuracy, and the stale
+    // fusedClient.lastLocation seed replayed at stream start (its position can be far and old).
+    private fun isUsableFix(location: Location): Boolean {
+        if (!location.hasAccuracy() || location.accuracy > MAX_ACCURACY_METERS) return false
+        val ageMs = (SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos) / NANOS_PER_MILLI
+        return ageMs <= STALE_FIX_MS
+    }
+
+    // Doppler speed when the fix carries it (most reliable); otherwise derive from the last fix.
+    private fun speedOf(location: Location): Double {
+        if (location.hasSpeed()) return location.speed.toDouble()
+        val previous = lastFix ?: return 0.0
+        val dtSeconds = (location.elapsedRealtimeNanos - previous.elapsedRealtimeNanos) / NANOS_PER_SECOND
+        if (dtSeconds <= 0) return 0.0
+        val meters = haversineMeters(previous.latitude, previous.longitude, location.latitude, location.longitude)
+        return meters / dtSeconds
+    }
+
+    private fun resetContinuity() {
+        lastFix = null
+        autoPauseDetector.reset()
     }
 
     private fun stopLocation() {
@@ -121,6 +186,12 @@ class RecordingController @Inject constructor(
 
     private companion object {
         const val CREATOR = "Rygg"
-        const val RECORDING_MIN_DISTANCE_M = 2f
+        // Time-based fixes (no displacement gate): a stopped user still yields fixes, so stop/
+        // resume can be detected, and per-fix speed is no longer biased by a forced minimum step.
+        const val RECORDING_MIN_DISTANCE_M = 0f
+        const val MAX_ACCURACY_METERS = 30f
+        const val STALE_FIX_MS = 5_000L
+        const val NANOS_PER_MILLI = 1_000_000.0
+        const val NANOS_PER_SECOND = 1_000_000_000.0
     }
 }
