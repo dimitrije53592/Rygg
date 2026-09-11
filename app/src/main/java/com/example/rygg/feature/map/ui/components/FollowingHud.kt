@@ -12,6 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +31,7 @@ import com.example.rygg.feature.map.ui.util.absorbTouches
 
 @Composable
 internal fun FollowingHud(
-    fractionComplete: Double,
+    fractionComplete: () -> Float,
     distanceRemainingMeters: Double,
     speedText: String,
     elevationText: String,
@@ -62,8 +65,12 @@ internal fun FollowingHud(
             )
         }
 
+        val percentText by remember {
+            derivedStateOf { formatPercent(fractionComplete().toDouble()) }
+        }
+
         LinearProgressIndicator(
-            progress = { fractionComplete.toFloat() },
+            progress = fractionComplete,
             color = RyggTheme.getColor(RyggColor.BrandGreen),
             trackColor = RyggTheme.getColor(RyggColor.SurfaceDim),
             modifier = Modifier.fillMaxWidth()
@@ -88,7 +95,7 @@ internal fun FollowingHud(
                 )
             }
             Text(
-                text = formatPercent(fractionComplete),
+                text = percentText,
                 style = RyggTheme.typography.titleMedium,
                 color = RyggTheme.getColor(RyggColor.BrandGreen)
             )

@@ -14,16 +14,15 @@ fun RouteFollowingWrapper(
     viewModel: RouteFollowingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val cameraAction by viewModel.cameraAction.collectAsStateWithLifecycle(initialValue = null)
 
     RouteFollowingScreen(
         params = RouteFollowingScreenParams(
             uiState = uiState,
-            cameraAction = cameraAction,
             onLocationChange = viewModel::onLocationChange,
             setFreeLook = viewModel::setFreeLook,
             setPendingRebearing = viewModel::setPendingRebearing,
             startPreview = viewModel::startPreview,
+            onPreviewFinished = viewModel::onPreviewFinished,
             onExit = onExit
         )
     )

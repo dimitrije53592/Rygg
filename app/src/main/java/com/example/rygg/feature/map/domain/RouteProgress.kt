@@ -10,6 +10,9 @@ import kotlin.math.sin
 
 const val ON_ROUTE_THRESHOLD_M = 60.0
 
+// How far ahead on the resampled grid a camera bearing looks, in samples.
+private const val BEARING_LOOKAHEAD_SAMPLES = 8
+
 data class TourSample(
     val lat: Double,
     val lon: Double,
@@ -42,7 +45,7 @@ class RouteGeometry private constructor(
         if (points.size < 2 || totalMeters <= 0.0) {
             return points.map { TourSample(it.lat, it.lon, 0.0) }
         }
-        val samples = ArrayList<TourSample>(count + 1)
+        val positions = ArrayList<GeoPoint>(count + 1)
         var segment = 0
         for (step in 0..count) {
             val target = totalMeters * step / count
@@ -52,13 +55,26 @@ class RouteGeometry private constructor(
             val fraction = ((target - segStart) / segLength).coerceIn(0.0, 1.0)
             val a = points[segment]
             val b = points[segment + 1]
-            samples += TourSample(
+            positions += GeoPoint(
                 lat = a.lat + (b.lat - a.lat) * fraction,
-                lon = a.lon + (b.lon - a.lon) * fraction,
-                bearing = segmentBearing(a, b)
+                lon = a.lon + (b.lon - a.lon) * fraction
             )
         }
-        return samples
+
+        // Bearings look ahead along the resampled grid rather than reading the source segment's
+        // heading. Taking it from the source made the heading piecewise-constant, so the camera
+        // sat on one angle across a whole segment and then snapped at the vertex; looking ahead
+        // spreads the turn out and lets the camera anticipate it.
+        val lastIndex = positions.lastIndex
+        return positions.mapIndexed { index, position ->
+            val ahead = positions[minOf(index + BEARING_LOOKAHEAD_SAMPLES, lastIndex)]
+            val bearingFrom = if (ahead == position && index > 0) positions[index - 1] else position
+            TourSample(
+                lat = position.lat,
+                lon = position.lon,
+                bearing = if (bearingFrom == ahead) 0.0 else segmentBearing(bearingFrom, ahead)
+            )
+        }
     }
 
     companion object {

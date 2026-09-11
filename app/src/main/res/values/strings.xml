@@ -171,6 +171,11 @@
 
     <!-- Settings: sync -->
     <string name="settings_title">Settings</string>
+    <string name="settings_recording_title">Recording resolution</string>
+    <string name="settings_recording_detailed">Detailed</string>
+    <string name="settings_recording_balanced">Balanced</string>
+    <string name="settings_recording_compact">Compact</string>
+    <string name="settings_recording_description">Controls how much detail is stored in recorded tracks. GPS accuracy is unchanged — a lower resolution just saves smaller files.</string>
     <string name="settings_sync_title">Sync &amp; backup</string>
     <string name="settings_sync_enabled">Back up my routes</string>
     <string name="settings_sync_wifi_only">Sync files on Wi-Fi only</string>

@@ -172,6 +172,11 @@
 
     <!-- Settings: sync -->
     <string name="settings_title">Podešavanja</string>
+    <string name="settings_recording_title">Rezolucija snimanja</string>
+    <string name="settings_recording_detailed">Detaljno</string>
+    <string name="settings_recording_balanced">Uravnoteženo</string>
+    <string name="settings_recording_compact">Kompaktno</string>
+    <string name="settings_recording_description">Određuje koliko detalja se čuva u snimljenim rutama. Preciznost GPS-a se ne menja — niža rezolucija samo čuva manje datoteke.</string>
     <string name="settings_sync_title">Sinhronizacija i rezervna kopija</string>
     <string name="settings_sync_enabled">Napravi rezervnu kopiju mojih ruta</string>
     <string name="settings_sync_wifi_only">Sinhronizuj datoteke samo preko Wi-Fi-ja</string>

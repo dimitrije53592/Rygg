@@ -24,7 +24,8 @@ fun SettingsWrapper(
                 activity?.recreate()
             },
             onSyncEnabledChanged = viewModel::setSyncEnabled,
-            onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly
+            onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly,
+            onRecordingResolutionSelected = viewModel::setRecordingResolution
         )
     )
 }

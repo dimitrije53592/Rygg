@@ -7,6 +7,8 @@ import com.example.rygg.core.gpx.haversineMeters
 import com.example.rygg.core.gpx.model.GpxDocument
 import com.example.rygg.core.location.RyggLocationManager
 import com.example.rygg.feature.auth.domain.Discipline
+import com.example.rygg.feature.settings.data.SettingsRepository
+import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.record.domain.RecordingSnapshot
 import com.example.rygg.feature.record.domain.RecordingState
 import kotlinx.coroutines.CoroutineScope
@@ -32,15 +34,21 @@ class RecordingController @Inject constructor(
     private val locationManager: RyggLocationManager,
     private val timer: RyggTimer,
     private val route: RouteAccumulator,
-    private val autoPauseDetector: AutoPauseDetector
+    private val autoPauseDetector: AutoPauseDetector,
+    private val trackPointFilter: TrackPointFilter,
+    settingsRepository: SettingsRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val session = MutableStateFlow(Session())
     private var locationJob: Job? = null
 
-    // Previous accepted fix, kept only to derive a speed when a fix carries none.
+    // Previous accepted fix, kept to derive a speed when a fix carries none and to flush the
+    // true stop position when recording ends.
     private var lastFix: Location? = null
+
+    private val resolution: StateFlow<RecordingResolution> = settingsRepository.recordingResolution
+        .stateIn(scope, SharingStarted.Eagerly, RecordingResolution.BALANCED)
 
     val snapshot: StateFlow<RecordingSnapshot> =
         combine(session, timer.elapsed, route.metrics) { s, elapsed, m ->
@@ -93,6 +101,7 @@ class RecordingController @Inject constructor(
     fun stop() {
         timer.stop()
         stopLocation()
+        flushFinalFix()
         resetContinuity()
         session.update { it.copy(state = RecordingState.IDLE) }
     }
@@ -134,7 +143,17 @@ class RecordingController @Inject constructor(
             AutoPauseAction.NONE -> Unit
         }
 
-        if (session.value.state == RecordingState.RECORDING) route.add(location)
+        if (session.value.state != RecordingState.RECORDING) return
+        if (trackPointFilter.shouldKeep(location.latitude, location.longitude, System.currentTimeMillis(), resolution.value)) {
+            route.add(location)
+        }
+    }
+
+    // Thinning can leave the last fix unrecorded, which would end the track short of where the
+    // user actually stopped (and can strand a brief recording under buildDocument's 2-point floor).
+    private fun flushFinalFix() {
+        val fix = lastFix ?: return
+        if (!trackPointFilter.isLastKept(fix.latitude, fix.longitude)) route.add(fix)
     }
 
     private fun autoPause() {
@@ -170,6 +189,7 @@ class RecordingController @Inject constructor(
     private fun resetContinuity() {
         lastFix = null
         autoPauseDetector.reset()
+        trackPointFilter.reset()
     }
 
     private fun stopLocation() {
