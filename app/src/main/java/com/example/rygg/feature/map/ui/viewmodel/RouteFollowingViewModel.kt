@@ -12,13 +12,9 @@ import com.example.rygg.feature.map.domain.RouteGeometry
 import com.example.rygg.feature.map.domain.RouteOverlay
 import com.example.rygg.feature.map.domain.RouteProgress
 import com.example.rygg.feature.map.domain.TourSample
-import com.example.rygg.feature.map.ui.util.CameraAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -43,9 +39,6 @@ class RouteFollowingViewModel @Inject constructor(
         )
     )
     val uiState = _uiState.asStateFlow()
-
-    private val _cameraAction = MutableSharedFlow<CameraAction>()
-    val cameraAction = _cameraAction.asSharedFlow()
 
     private var lastKnownLocation: Location? = null
     private var isLocationUnavailable: Boolean = false
@@ -152,74 +145,19 @@ class RouteFollowingViewModel @Inject constructor(
         }
     }
 
+    // Only flips the phase; the fly-over itself is driven frame-by-frame by the screen, so the
+    // camera runs at vsync instead of chasing values pushed through a flow.
     fun startPreview() {
         val currentState = _uiState.value
-        val samples = currentState.samples
         val totalDistance = currentState.geometry?.totalMeters
 
-        if (samples.size < MIN_SAMPLES || totalDistance == null || totalDistance <= 0.0) return
+        if (currentState.samples.size < MIN_SAMPLES || totalDistance == null || totalDistance <= 0.0) return
 
-        _uiState.update {
-            it.copy(
-                routeFollowingPhase = RouteFollowingPhase.PreviewActive,
-                previewFraction = PROGRESS_START
-            )
-        }
-
-        viewModelScope.launch(Dispatchers.Default) {
-            val startSample = samples.first()
-
-            _cameraAction.emit(
-                CameraAction.AnimateTo(
-                    longitude = startSample.lon,
-                    latitude = startSample.lat,
-                    bearing = startSample.bearing
-                )
-            )
-            delay(PREVIEW_HOLD_MS)
-
-            val startNanos = System.nanoTime()
-            val durationSeconds = totalDistance / PREVIEW_SPEED_METERS_PER_SECOND
-            val durationNanos = (durationSeconds * NANOS_PER_SECOND).toLong()
-
-            val lastIndex = samples.lastIndex
-            var fraction = PROGRESS_START
-
-            while (fraction < PROGRESS_COMPLETE) {
-                val elapsedNanos = System.nanoTime() - startNanos
-
-                fraction = (elapsedNanos.toDouble() / durationNanos).coerceIn(PROGRESS_START, PROGRESS_COMPLETE)
-
-                _uiState.update { it.copy(previewFraction = fraction) }
-
-                val exactPosition = fraction * lastIndex
-                val lowerIndex = exactPosition.toInt()
-                val upperIndex = minOf(lowerIndex + NEXT_INDEX_OFFSET, lastIndex)
-                val interpolationWeight = exactPosition - lowerIndex
-
-                val sampleA = samples[lowerIndex]
-                val sampleB = samples[upperIndex]
-
-                _cameraAction.emit(
-                    CameraAction.PositionTo(
-                        longitude = sampleA.lon + (sampleB.lon - sampleA.lon) * interpolationWeight,
-                        latitude = sampleA.lat + (sampleB.lat - sampleA.lat) * interpolationWeight,
-                        bearing = lerpAngle(sampleA.bearing, sampleB.bearing, interpolationWeight)
-                    )
-                )
-
-                if (fraction < PROGRESS_COMPLETE) {
-                    delay(FRAME_DELAY_MS)
-                }
-            }
-
-            _uiState.update { it.copy(routeFollowingPhase = RouteFollowingPhase.UserFarAway) }
-        }
+        _uiState.update { it.copy(routeFollowingPhase = RouteFollowingPhase.PreviewActive) }
     }
 
-    private fun lerpAngle(from: Double, to: Double, fraction: Double): Double {
-        val diff = ((to - from + MODULO_OFFSET_DEGREES) % FULL_CIRCLE_DEGREES) - HALF_CIRCLE_DEGREES
-        return (from + diff * fraction + FULL_CIRCLE_DEGREES) % FULL_CIRCLE_DEGREES
+    fun onPreviewFinished() {
+        _uiState.update { it.copy(routeFollowingPhase = RouteFollowingPhase.UserFarAway) }
     }
 }
 
@@ -242,22 +180,12 @@ data class RouteFollowingUiState(
     val samples: List<TourSample>,
     val progress: RouteProgress?,
     val isOnRoute: Boolean = false,
-    val previewFraction: Double = 0.0,
     val freeLook: Boolean = false,
     val pendingRebearing: Boolean = false,
     val routeFollowingPhase: RouteFollowingPhase = RouteFollowingPhase.InitialLoading
 )
 
-private const val PREVIEW_SPEED_METERS_PER_SECOND = 800.0
+const val PREVIEW_SPEED_METERS_PER_SECOND = 800.0
 private const val TOUR_SAMPLES_NUM = 250
 private const val FAR_AWAY_THRESHOLD_METERS = 200.0
-private const val PREVIEW_HOLD_MS = 700L
-private const val FRAME_DELAY_MS = 16L
-private const val NANOS_PER_SECOND = 1_000_000_000L
-private const val FULL_CIRCLE_DEGREES = 360.0
-private const val HALF_CIRCLE_DEGREES = 180.0
-private const val MODULO_OFFSET_DEGREES = 540.0
 private const val MIN_SAMPLES = 2
-private const val NEXT_INDEX_OFFSET = 1
-private const val PROGRESS_START = 0.0
-private const val PROGRESS_COMPLETE = 1.0

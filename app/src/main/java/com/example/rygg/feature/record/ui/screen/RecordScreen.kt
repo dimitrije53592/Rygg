@@ -190,7 +190,12 @@ private fun ActiveContent(
     onStop: () -> Unit,
     onAddWaypoint: () -> Unit
 ) {
-    val isPaused = uiState.state == RecordingState.PAUSED
+    val isPaused = uiState.state == RecordingState.PAUSED || uiState.state == RecordingState.AUTO_PAUSED
+    val statusText = when (uiState.state) {
+        RecordingState.AUTO_PAUSED -> stringResource(R.string.record_auto_paused)
+        RecordingState.PAUSED -> stringResource(R.string.record_paused)
+        else -> stringResource(R.string.record_recording)
+    }
 
     Column(
         modifier = Modifier
@@ -201,7 +206,7 @@ private fun ActiveContent(
     ) {
         Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
         Text(
-            text = if (isPaused) stringResource(R.string.record_paused) else stringResource(R.string.record_recording),
+            text = statusText,
             style = RyggTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
             color = if (isPaused) {

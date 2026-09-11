@@ -26,6 +26,7 @@ import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.domain.AppLanguage
 
 @Composable
@@ -62,6 +63,22 @@ fun SettingsScreen(params: SettingsScreenParams) {
                         onSelect = { params.onLanguageSelected(language) }
                     )
                 }
+            }
+
+            SettingsSection(title = stringResource(R.string.settings_recording_title)) {
+                RecordingResolution.entries.forEach { resolution ->
+                    OptionRow(
+                        label = stringResource(resolution.labelRes),
+                        selected = params.uiState.recordingResolution == resolution,
+                        onSelect = { params.onRecordingResolutionSelected(resolution) }
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.settings_recording_description),
+                    style = RyggTheme.typography.bodySmall,
+                    color = RyggTheme.getColor(RyggColor.TextSecondary),
+                    modifier = Modifier.padding(top = RyggTheme.dimens.commonContentPadding4)
+                )
             }
 
             SettingsSection(title = stringResource(R.string.settings_sync_title)) {
@@ -133,7 +150,8 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val selectedLanguage: AppLanguage = AppLanguage.ENGLISH,
     val syncEnabled: Boolean = true,
-    val syncWifiOnly: Boolean = true
+    val syncWifiOnly: Boolean = true,
+    val recordingResolution: RecordingResolution = RecordingResolution.BALANCED
 )
 
 data class SettingsScreenParams(
@@ -141,5 +159,6 @@ data class SettingsScreenParams(
     val onThemeModeSelected: (ThemeMode) -> Unit,
     val onLanguageSelected: (AppLanguage) -> Unit,
     val onSyncEnabledChanged: (Boolean) -> Unit,
-    val onSyncWifiOnlyChanged: (Boolean) -> Unit
+    val onSyncWifiOnlyChanged: (Boolean) -> Unit,
+    val onRecordingResolutionSelected: (RecordingResolution) -> Unit
 )

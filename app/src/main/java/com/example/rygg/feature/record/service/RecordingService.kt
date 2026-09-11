@@ -96,7 +96,9 @@ class RecordingService : Service() {
         RecordingNotificationBuilder(
             snapshot = snapshot,
             contentPendingIntent = getContentPendingIntent(),
-            pausePendingIntent = getPauseOrResumePendingIntent(snapshot.state == RecordingState.PAUSED),
+            pausePendingIntent = getPauseOrResumePendingIntent(
+                snapshot.state == RecordingState.PAUSED || snapshot.state == RecordingState.AUTO_PAUSED
+            ),
             stopPendingIntent = getStopPendingIntent()
         )
 

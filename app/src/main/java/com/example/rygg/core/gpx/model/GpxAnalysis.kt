@@ -14,6 +14,8 @@ data class GpxAnalysis(
     val startTimeMillis: Long?,
     val movingTimeMillis: Long?,
     val totalTimeMillis: Long?,
+    val avgSpeedMps: Double?,
+    val maxSpeedMps: Double?,
     val minLat: Double?,
     val minLon: Double?,
     val maxLat: Double?,

@@ -3,6 +3,7 @@ package com.example.rygg.feature.settings.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.data.SettingsRepository
 import com.example.rygg.feature.settings.domain.AppLanguage
 import com.example.rygg.feature.settings.ui.screen.SettingsUiState
@@ -25,13 +26,15 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.themeMode,
         selectedLanguage,
         settingsRepository.syncEnabled,
-        settingsRepository.syncWifiOnly
-    ) { themeMode, language, syncEnabled, syncWifiOnly ->
+        settingsRepository.syncWifiOnly,
+        settingsRepository.recordingResolution
+    ) { themeMode, language, syncEnabled, syncWifiOnly, recordingResolution ->
         SettingsUiState(
             themeMode = themeMode,
             selectedLanguage = language,
             syncEnabled = syncEnabled,
-            syncWifiOnly = syncWifiOnly
+            syncWifiOnly = syncWifiOnly,
+            recordingResolution = recordingResolution
         )
     }.stateIn(
         scope = viewModelScope,
@@ -54,5 +57,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setSyncWifiOnly(wifiOnly: Boolean) {
         viewModelScope.launch { settingsRepository.setSyncWifiOnly(wifiOnly) }
+    }
+
+    fun setRecordingResolution(resolution: RecordingResolution) {
+        viewModelScope.launch { settingsRepository.setRecordingResolution(resolution) }
     }
 }

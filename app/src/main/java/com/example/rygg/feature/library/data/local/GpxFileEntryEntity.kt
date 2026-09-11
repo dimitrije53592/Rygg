@@ -42,6 +42,8 @@ data class GpxFileEntryEntity(
     val startTimeMillis: Long?,
     val movingTimeMillis: Long?,
     val totalTimeMillis: Long?,
+    val avgSpeedMps: Double? = null,
+    val maxSpeedMps: Double? = null,
     // Bounds
     val minLat: Double?,
     val minLon: Double?,

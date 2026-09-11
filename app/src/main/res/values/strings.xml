@@ -126,6 +126,9 @@
     <string name="details_stat_moving_time">Moving time</string>
     <string name="details_stat_high_point">High point</string>
     <string name="details_stat_points">Points</string>
+    <string name="details_stat_avg_speed">Avg speed</string>
+    <string name="details_stat_max_speed">Max speed</string>
+    <string name="details_stat_total_time">Total time</string>
     <string name="details_elevation_profile">Elevation profile</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
     <string name="details_contents">Contents</string>
@@ -168,6 +171,11 @@
 
     <!-- Settings: sync -->
     <string name="settings_title">Settings</string>
+    <string name="settings_recording_title">Recording resolution</string>
+    <string name="settings_recording_detailed">Detailed</string>
+    <string name="settings_recording_balanced">Balanced</string>
+    <string name="settings_recording_compact">Compact</string>
+    <string name="settings_recording_description">Controls how much detail is stored in recorded tracks. GPS accuracy is unchanged — a lower resolution just saves smaller files.</string>
     <string name="settings_sync_title">Sync &amp; backup</string>
     <string name="settings_sync_enabled">Back up my routes</string>
     <string name="settings_sync_wifi_only">Sync files on Wi-Fi only</string>
@@ -179,6 +187,7 @@
     <string name="record_gps_hint">GPS starts when you tap record</string>
     <string name="record_recording">Recording</string>
     <string name="record_paused">Paused</string>
+    <string name="record_auto_paused">Auto-paused</string>
     <string name="record_add_waypoint">Add waypoint</string>
     <string name="record_pause">Pause</string>
     <string name="record_resume">Resume</string>

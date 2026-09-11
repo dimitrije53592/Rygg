@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.rygg.core.locale.AppLocaleStore
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.domain.AppLanguage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,16 @@ class SettingsRepository @Inject constructor(
 
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME_MODE_KEY] = mode.name }
+    }
+
+    // How densely recordings store track points; GPS polling is unaffected.
+    val recordingResolution: Flow<RecordingResolution> = dataStore.data.map { prefs ->
+        prefs[RECORDING_RESOLUTION_KEY]?.let { name -> RecordingResolution.entries.firstOrNull { it.name == name } }
+            ?: RecordingResolution.BALANCED
+    }
+
+    suspend fun setRecordingResolution(resolution: RecordingResolution) {
+        dataStore.edit { it[RECORDING_RESOLUTION_KEY] = resolution.name }
     }
 
     // Cloud sync preferences. Sync is on by default; files transfer on Wi-Fi by default.
@@ -54,5 +65,6 @@ class SettingsRepository @Inject constructor(
 }
 
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+private val RECORDING_RESOLUTION_KEY = stringPreferencesKey("recording_resolution")
 private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")

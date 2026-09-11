@@ -20,6 +20,7 @@ import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatDurationHoursMinutes
 import com.example.rygg.core.ui.utils.formatElevationMeters
 import com.example.rygg.core.ui.utils.formatPointCount
+import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.feature.library.domain.GpxFileEntry
 
 @Composable
@@ -42,6 +43,19 @@ fun DetailsStatsGrid(
         DetailsStat(
             stringResource(R.string.details_stat_high_point),
             entry.elevationMeters?.let { formatElevationMeters(it) } ?: emptyValue
+        ),
+        // Row 3: speed & time
+        DetailsStat(
+            stringResource(R.string.details_stat_avg_speed),
+            entry.avgSpeedMps?.let { formatSpeedKmh(it) } ?: emptyValue
+        ),
+        DetailsStat(
+            stringResource(R.string.details_stat_max_speed),
+            entry.maxSpeedMps?.let { formatSpeedKmh(it) } ?: emptyValue
+        ),
+        DetailsStat(
+            stringResource(R.string.details_stat_total_time),
+            entry.totalTimeMillis?.let { formatDurationHoursMinutes(it) } ?: emptyValue
         )
     )
 

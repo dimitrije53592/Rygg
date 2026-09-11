@@ -36,6 +36,8 @@ internal fun previewGpxFileEntry(
     startTimeMillis = if (hasTime) 1_498_500_000_000 else null,
     movingTimeMillis = if (hasTime) 20_400_000 else null,
     totalTimeMillis = if (hasTime) 21_000_000 else null,
+    avgSpeedMps = if (hasTime) 1.1 else null,
+    maxSpeedMps = if (hasTime) 1.9 else null,
     minLat = 46.36,
     minLon = 13.83,
     maxLat = 46.39,

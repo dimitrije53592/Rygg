@@ -28,13 +28,14 @@ class RecordingNotificationBuilder(
                     formatStopwatch(snapshot.elapsedMillis)
                 )
             )
+            .setSubText(context.getString(statusLabelRes(snapshot.state)))
             .setContentIntent(contentPendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
 
         pausePendingIntent?.let {
-            val isPaused = snapshot.state == RecordingState.PAUSED
+            val isPaused = snapshot.state == RecordingState.PAUSED || snapshot.state == RecordingState.AUTO_PAUSED
             val title = context.getString(if (isPaused) R.string.record_resume else R.string.record_pause)
             base.addAction(0, title, it)
         }
@@ -44,5 +45,11 @@ class RecordingNotificationBuilder(
         }
 
         return base.build()
+    }
+
+    private fun statusLabelRes(state: RecordingState): Int = when (state) {
+        RecordingState.AUTO_PAUSED -> R.string.record_auto_paused
+        RecordingState.PAUSED -> R.string.record_paused
+        else -> R.string.record_recording
     }
 }
