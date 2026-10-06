@@ -30,6 +30,7 @@ import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.rememberFilePicker
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.feature.library.ui.components.DeleteEntryDialog
 import com.example.rygg.feature.library.ui.components.GpxFileEntryList
 import com.example.rygg.feature.library.ui.components.ImportFab
 import com.example.rygg.feature.library.ui.components.LibraryDisciplineBar
@@ -46,6 +47,7 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 fun LibraryScreen(params: LibraryScreenParams) {
     var fabExpanded by remember { mutableStateOf(false) }
     var pendingDiscipline by remember { mutableStateOf(Discipline.HIKE) }
+    var pendingDelete by remember { mutableStateOf<GpxFileEntry?>(null) }
     val launchFilePicker = rememberFilePicker(
         onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
     )
@@ -103,10 +105,21 @@ fun LibraryScreen(params: LibraryScreenParams) {
                             LoadedContent(
                                 entries = state.gpxFilesEntries,
                                 uiState = params.uiState,
-                                params = params
+                                params = params,
+                                onRequestDelete = { entry -> pendingDelete = entry }
                             )
                     }
                 }
+            }
+            pendingDelete?.let { entry ->
+                DeleteEntryDialog(
+                    entryName = entry.name,
+                    onConfirm = {
+                        pendingDelete = null
+                        params.onDeleteEntry(entry)
+                    },
+                    onCancel = { pendingDelete = null }
+                )
             }
             if (fabExpanded) {
                 Box(
@@ -128,7 +141,8 @@ fun LibraryScreen(params: LibraryScreenParams) {
 private fun LoadedContent(
     entries: List<GpxFileEntry>,
     uiState: LibraryUiState,
-    params: LibraryScreenParams
+    params: LibraryScreenParams,
+    onRequestDelete: (GpxFileEntry) -> Unit
 ) {
     if (uiState.isLibraryEmpty) {
         LibraryEmptyState()
@@ -152,7 +166,7 @@ private fun LoadedContent(
                 sortMode = uiState.sortMode,
                 onEntryClick = params.onEntryClick,
                 onFavoriteClick = params.onFavoriteClick,
-                onDeleteEntry = params.onDeleteEntry
+                onDeleteEntry = onRequestDelete
             )
         }
     }

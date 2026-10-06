@@ -6,15 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,88 +19,56 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggDialog
 import com.example.rygg.core.ui.components.RyggPrimaryButton
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
+/**
+ * Confirmation shown when the user taps "Skip" on an auth screen. Signing in is the primary
+ * action; dismissing (back / outside tap) keeps the user on the auth screen rather than
+ * skipping, so an accidental tap never drops the account.
+ */
 @Composable
 fun SkipSignInDialog(
     onContinueAsGuest: () -> Unit,
     onSignIn: () -> Unit
 ) {
-    Dialog(
+    RyggDialog(
+        title = stringResource(R.string.auth_skip_title),
         onDismissRequest = onSignIn,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        icon = Icons.Default.CloudOff,
+        message = stringResource(R.string.auth_skip_message)
     ) {
         Column(
-            modifier = Modifier
-                .padding(horizontal = RyggTheme.dimens.commonContentPadding24)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
-                .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
-                .verticalScroll(rememberScrollState())
-                .padding(RyggTheme.dimens.commonContentPadding24),
-            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(RyggTheme.dimens.iconSize48)
-                    .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
-                    .background(RyggTheme.getColor(RyggColor.MossSurface)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudOff,
-                    contentDescription = null,
-                    tint = RyggTheme.getColor(RyggColor.BrandGreen),
-                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-                )
-            }
-            Text(
-                text = stringResource(R.string.auth_skip_title),
-                style = RyggTheme.typography.headlineSmall,
-                color = RyggTheme.getColor(RyggColor.TextPrimary),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = stringResource(R.string.auth_skip_message),
-                style = RyggTheme.typography.bodyMedium,
-                color = RyggTheme.getColor(RyggColor.TextSecondary),
-                textAlign = TextAlign.Center
-            )
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
-            ) {
-                SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_backup))
-                SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_sync))
-                SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_share))
-            }
-            Text(
-                text = stringResource(R.string.auth_skip_footnote),
-                style = RyggTheme.typography.bodySmall,
-                color = RyggTheme.getColor(RyggColor.TextSecondary),
-                textAlign = TextAlign.Center
-            )
-            RyggPrimaryButton(
-                text = stringResource(R.string.auth_skip_sign_in),
-                onClick = onSignIn,
-                modifier = Modifier.fillMaxWidth()
-            )
-            RyggPrimaryButton(
-                text = stringResource(R.string.auth_skip_continue),
-                onClick = onContinueAsGuest,
-                modifier = Modifier.fillMaxWidth(),
-                textColor = RyggTheme.getColor(RyggColor.TextSecondary),
-                backgroundColor = RyggTheme.getColor(RyggColor.Surface),
-                borderWidth = RyggTheme.dimens.border1,
-                borderColor = RyggTheme.getColor(RyggColor.Outline)
-            )
+            SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_backup))
+            SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_sync))
+            SkipDrawbackRow(text = stringResource(R.string.auth_skip_benefit_share))
         }
+        Text(
+            text = stringResource(R.string.auth_skip_footnote),
+            style = RyggTheme.typography.bodySmall,
+            color = RyggTheme.getColor(RyggColor.TextSecondary),
+            textAlign = TextAlign.Center
+        )
+        RyggPrimaryButton(
+            text = stringResource(R.string.auth_skip_sign_in),
+            onClick = onSignIn,
+            modifier = Modifier.fillMaxWidth()
+        )
+        RyggPrimaryButton(
+            text = stringResource(R.string.auth_skip_continue),
+            onClick = onContinueAsGuest,
+            modifier = Modifier.fillMaxWidth(),
+            textColor = RyggTheme.getColor(RyggColor.TextSecondary),
+            backgroundColor = RyggTheme.getColor(RyggColor.Surface),
+            borderWidth = RyggTheme.dimens.border1,
+            borderColor = RyggTheme.getColor(RyggColor.Outline)
+        )
     }
 }
 

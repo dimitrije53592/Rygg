@@ -91,6 +91,10 @@
     <string name="library_empty_title">Još nema aktivnosti</string>
     <string name="library_empty_subtitle">Uvezite GPX datoteku da biste počeli</string>
     <string name="library_delete">Obriši</string>
+    <string name="library_delete_title">Obrisati ovu rutu?</string>
+    <string name="library_delete_message">%1$s će biti uklonjena iz vaše biblioteke. Ovo se ne može poništiti.</string>
+    <string name="library_delete_confirm">Obriši</string>
+    <string name="library_delete_cancel">Otkaži</string>
     <string name="library_sort_name">Ime</string>
     <string name="library_sort_date">Datum</string>
     <string name="library_sort">Promeni redosled</string>
