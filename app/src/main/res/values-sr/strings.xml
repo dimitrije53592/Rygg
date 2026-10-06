@@ -157,8 +157,12 @@
 
     <!-- Account skip prompt -->
     <string name="auth_skip_title">Nastaviti bez naloga?</string>
-    <string name="auth_skip_message">Bez prijave, vaše rute ostaju samo na ovom uređaju:\n\n• Nema rezervne kopije u oblaku ako izgubite ili zamenite telefon\n• Neće se sinhronizovati sa vašim drugim uređajima\n• Ne možete deliti rute putem linka\n\nMožete se prijaviti u bilo kom trenutku da ovo uključite.</string>
-    <string name="auth_skip_continue">Nastavi bez naloga</string>
+    <string name="auth_skip_message">Propustićete funkcije koje čuvaju vaše rute — bez naloga one ostaju samo na ovom uređaju.</string>
+    <string name="auth_skip_benefit_backup">Nema rezervne kopije u oblaku ako izgubite ili zamenite telefon</string>
+    <string name="auth_skip_benefit_sync">Neće se sinhronizovati sa vašim drugim uređajima</string>
+    <string name="auth_skip_benefit_share">Ne možete deliti rute putem linka</string>
+    <string name="auth_skip_footnote">Možete se prijaviti u bilo kom trenutku da ovo uključite.</string>
+    <string name="auth_skip_continue">Ipak preskoči</string>
     <string name="auth_skip_sign_in">Prijavi se</string>
 
     <!-- Profile / account -->

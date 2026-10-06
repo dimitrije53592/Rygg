@@ -156,8 +156,12 @@
 
     <!-- Account skip prompt -->
     <string name="auth_skip_title">Continue without an account?</string>
-    <string name="auth_skip_message">Without signing in, your routes stay on this device only:\n\n• No cloud backup if you lose or replace your phone\n• They won\'t sync to your other devices\n• You can\'t share routes with a link\n\nYou can sign in anytime to turn this on.</string>
-    <string name="auth_skip_continue">Continue without account</string>
+    <string name="auth_skip_message">You\'ll miss out on the features that keep your routes safe — without an account they stay on this device only.</string>
+    <string name="auth_skip_benefit_backup">No cloud backup if you lose or replace your phone</string>
+    <string name="auth_skip_benefit_sync">They won\'t sync to your other devices</string>
+    <string name="auth_skip_benefit_share">You can\'t share routes with a link</string>
+    <string name="auth_skip_footnote">You can sign in anytime to turn this on.</string>
+    <string name="auth_skip_continue">Skip anyway</string>
     <string name="auth_skip_sign_in">Sign in</string>
 
     <!-- Profile / account -->
