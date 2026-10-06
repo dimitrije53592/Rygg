@@ -220,4 +220,21 @@
     <string name="record_empty_confirm_message">There\'s nothing to save, so this recording will be discarded.</string>
     <string name="record_empty_confirm_discard">Discard</string>
     <string name="record_empty_confirm_cancel">Cancel</string>
+
+    <!-- Feedback -->
+    <string name="profile_send_feedback">Send feedback</string>
+    <string name="feedback_title">Send feedback</string>
+    <string name="feedback_category_label">What\'s this about?</string>
+    <string name="feedback_category_bug">Something is broken</string>
+    <string name="feedback_category_idea">I have an idea</string>
+    <string name="feedback_category_other">Something else</string>
+    <string name="feedback_message_label">Your message</string>
+    <string name="feedback_message_placeholder">Tell us what happened, or what you\'d like to see.</string>
+    <string name="feedback_context_disclosure">Sent along with your message: app version, device model, Android version, app language, how many routes you have, and whether you\'re signed in. Your routes and location are never included.</string>
+    <string name="feedback_send">Send</string>
+    <string name="feedback_done">Done</string>
+    <string name="feedback_sent_title">Thanks for the feedback</string>
+    <string name="feedback_sent_message">We\'ve got it. We read everything that comes through here.</string>
+    <string name="feedback_queued_message">You\'re offline, so it\'s saved on your phone and will send itself as soon as you have a connection.</string>
+    <string name="feedback_failed">Couldn\'t send that. Check your connection and try again.</string>
 </resources>

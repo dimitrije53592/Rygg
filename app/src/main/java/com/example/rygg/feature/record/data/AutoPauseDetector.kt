@@ -45,6 +45,7 @@ class AutoPauseDetector @Inject constructor() {
         // would false-pause a genuinely slow stretch (a crawling uphill cyclist, a scrambling hiker).
         const val AUTO_PAUSE_SPEED_MPS = 0.2
         const val AUTO_RESUME_SPEED_MPS = 0.5
+
         // How long ground speed must stay below the pause threshold before we auto-pause.
         const val AUTO_PAUSE_DELAY_MS = 2_000L
     }

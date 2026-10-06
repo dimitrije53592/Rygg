@@ -12,6 +12,7 @@ import com.example.rygg.feature.profile.ui.viewmodel.ProfileViewModel
 fun ProfileWrapper(
     onAuthEntry: () -> Unit,
     onOpenSettings: () -> Unit,
+    onSendFeedback: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -24,7 +25,8 @@ fun ProfileWrapper(
                 onAuthEntry()
             },
             onSignIn = onAuthEntry,
-            onOpenSettings = onOpenSettings
+            onOpenSettings = onOpenSettings,
+            onSendFeedback = onSendFeedback
         )
     )
 }

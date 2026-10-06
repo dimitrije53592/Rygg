@@ -40,3 +40,6 @@ data object Profile
 
 @Serializable
 data object Settings
+
+@Serializable
+data object Feedback

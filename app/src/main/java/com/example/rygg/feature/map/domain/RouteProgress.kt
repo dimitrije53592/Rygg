@@ -98,7 +98,9 @@ class RouteGeometry private constructor(
 // to meters (accurate over the short spans between consecutive trail points).
 private fun distanceToSegmentMeters(lat: Double, lon: Double, a: GeoPoint, b: GeoPoint): Double {
     val latRefRad = Math.toRadians(a.lat)
+
     fun x(pLon: Double) = Math.toRadians(pLon - a.lon) * cos(latRefRad) * EARTH_RADIUS_METERS
+
     fun y(pLat: Double) = Math.toRadians(pLat - a.lat) * EARTH_RADIUS_METERS
 
     val px = x(lon)

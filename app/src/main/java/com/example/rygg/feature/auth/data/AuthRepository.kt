@@ -18,16 +18,16 @@ class AuthRepository @Inject constructor(
 ) {
     val authState: Flow<User?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
-            trySend(auth.currentUser?.toUser())
+            trySend(auth.signedInUser()?.toUser())
         }
 
         firebaseAuth.addAuthStateListener(listener)
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
     }
 
-    fun isLoggedIn(): Boolean = firebaseAuth.currentUser != null
+    fun isLoggedIn(): Boolean = firebaseAuth.signedInUser() != null
 
-    fun currentUser(): User? = firebaseAuth.currentUser?.toUser()
+    fun currentUser(): User? = firebaseAuth.signedInUser()?.toUser()
 
     suspend fun login(email: String, password: String): Outcome<Unit> = outcomeCatching {
         firebaseAuth.signInWithEmailAndPassword(email, password).await()
@@ -56,7 +56,20 @@ class AuthRepository @Inject constructor(
     fun signOut() {
         firebaseAuth.signOut()
     }
+
+    // Mints a uid for writes a guest is allowed to make (feedback), signing in anonymously if there
+    // is no session yet. Needs the network only on that first call; afterwards the session is cached.
+    suspend fun ensureAnyUid(): String =
+        firebaseAuth.currentUser?.uid
+            ?: firebaseAuth.signInAnonymously().await().user?.uid
+            ?: error("Anonymous sign-in returned no user")
 }
+
+// An anonymous session is a write credential, not a signed-in account — the rest of the app must
+// keep seeing a guest, or sync would switch on and adopt routes the user never asked to upload.
+// A later real sign-in replaces (rather than links) the anonymous account, orphaning its uid; that
+// is harmless, since the only documents written under it are feedback the user already sent.
+private fun FirebaseAuth.signedInUser(): FirebaseUser? = currentUser?.takeUnless { it.isAnonymous }
 
 private fun FirebaseUser.toUser(): User = User(
     uid = uid,

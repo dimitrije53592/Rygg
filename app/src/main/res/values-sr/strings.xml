@@ -221,4 +221,21 @@
     <string name="record_empty_confirm_message">Nema šta da se sačuva, pa će ovaj snimak biti odbačen.</string>
     <string name="record_empty_confirm_discard">Odbaci</string>
     <string name="record_empty_confirm_cancel">Otkaži</string>
+
+    <!-- Feedback -->
+    <string name="profile_send_feedback">Pošalji povratnu informaciju</string>
+    <string name="feedback_title">Pošalji povratnu informaciju</string>
+    <string name="feedback_category_label">O čemu se radi?</string>
+    <string name="feedback_category_bug">Nešto ne radi</string>
+    <string name="feedback_category_idea">Imam ideju</string>
+    <string name="feedback_category_other">Nešto drugo</string>
+    <string name="feedback_message_label">Vaša poruka</string>
+    <string name="feedback_message_placeholder">Opišite šta se dogodilo ili šta biste želeli da vidite.</string>
+    <string name="feedback_context_disclosure">Uz vašu poruku se šalju: verzija aplikacije, model uređaja, verzija Androida, jezik aplikacije, broj vaših ruta i da li ste prijavljeni. Vaše rute i lokacija se nikada ne šalju.</string>
+    <string name="feedback_send">Pošalji</string>
+    <string name="feedback_done">Gotovo</string>
+    <string name="feedback_sent_title">Hvala na povratnoj informaciji</string>
+    <string name="feedback_sent_message">Primili smo je. Čitamo sve što stigne ovim putem.</string>
+    <string name="feedback_queued_message">Trenutno ste offline, pa je poruka sačuvana na telefonu i biće poslata čim dobijete vezu.</string>
+    <string name="feedback_failed">Slanje nije uspelo. Proverite vezu i pokušajte ponovo.</string>
 </resources>
