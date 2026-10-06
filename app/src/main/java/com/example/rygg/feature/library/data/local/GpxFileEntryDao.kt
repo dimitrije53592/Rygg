@@ -18,6 +18,9 @@ interface GpxFileEntryDao {
     @Query("SELECT fileName FROM library")
     suspend fun getAllFileNames(): List<String>
 
+    @Query("SELECT COUNT(*) FROM library WHERE deletedAt IS NULL")
+    suspend fun countActive(): Int
+
     @Query("SELECT * FROM library WHERE id = :id")
     suspend fun getById(id: Long): GpxFileEntryEntity?
 

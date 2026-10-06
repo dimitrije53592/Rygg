@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggCard
+import com.example.rygg.core.ui.components.RyggNavigationRow
 import com.example.rygg.core.ui.components.RyggPrimaryButton
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
@@ -53,7 +54,16 @@ fun ProfileScreen(params: ProfileScreenParams) {
                 GuestContent(params)
             }
 
-            SettingsEntryRow(onOpenSettings = params.onOpenSettings)
+            RyggNavigationRow(
+                label = stringResource(R.string.profile_open_settings),
+                icon = Icons.Default.Settings,
+                onClick = params.onOpenSettings
+            )
+            RyggNavigationRow(
+                label = stringResource(R.string.profile_send_feedback),
+                icon = Icons.Default.Feedback,
+                onClick = params.onSendFeedback
+            )
         }
     }
 }
@@ -153,40 +163,6 @@ private fun GuestContent(params: ProfileScreenParams) {
     }
 }
 
-@Composable
-private fun SettingsEntryRow(onOpenSettings: () -> Unit) {
-    RyggCard(onClick = onOpenSettings) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = null,
-                    tint = RyggTheme.getColor(RyggColor.TextSecondary),
-                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-                )
-                Text(
-                    text = stringResource(R.string.profile_open_settings),
-                    style = RyggTheme.typography.bodyLarge,
-                    color = RyggTheme.getColor(RyggColor.TextPrimary)
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = RyggTheme.getColor(RyggColor.TextSecondary),
-                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-            )
-        }
-    }
-}
-
 data class ProfileUiState(
     val isSignedIn: Boolean = false,
     val displayName: String = "",
@@ -197,5 +173,6 @@ data class ProfileScreenParams(
     val uiState: ProfileUiState,
     val onSignOut: () -> Unit,
     val onSignIn: () -> Unit,
-    val onOpenSettings: () -> Unit
+    val onOpenSettings: () -> Unit,
+    val onSendFeedback: () -> Unit
 )

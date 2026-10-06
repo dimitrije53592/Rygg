@@ -37,6 +37,7 @@ import com.example.rygg.feature.details.ui.wrapper.DetailsWrapper
 import com.example.rygg.feature.details.ui.wrapper.ImportPreviewWrapper
 import com.example.rygg.feature.details.ui.wrapper.RecordingPreviewWrapper
 import com.example.rygg.feature.details.ui.wrapper.SharedRouteWrapper
+import com.example.rygg.feature.feedback.ui.wrapper.FeedbackWrapper
 import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.map.ui.wrapper.MapWrapper
 import com.example.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
@@ -210,11 +211,15 @@ fun AppNavigation() {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
                     },
-                    onOpenSettings = { navController.navigate(Settings) }
+                    onOpenSettings = { navController.navigate(Settings) },
+                    onSendFeedback = { navController.navigate(Feedback) }
                 )
             }
             composable<Settings> {
                 SettingsWrapper()
+            }
+            composable<Feedback> {
+                FeedbackWrapper(onNavigateBack = { navController.navigateUp() })
             }
         }
     }

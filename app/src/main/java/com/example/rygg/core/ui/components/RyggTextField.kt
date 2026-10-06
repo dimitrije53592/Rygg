@@ -36,6 +36,8 @@ fun RyggTextField(
     isEnabled: Boolean = true,
     isPassword: Boolean = false,
     singleLine: Boolean = true,
+    minLines: Int = 1,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     labelText: String? = null,
     labelTextColor: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     placeholderText: String? = null,
@@ -73,6 +75,8 @@ fun RyggTextField(
                 VisualTransformation.None
             },
             singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
             placeholder = placeholderText?.let { text ->
                 {
                     Text(
