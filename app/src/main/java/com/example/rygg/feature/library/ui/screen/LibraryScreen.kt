@@ -2,6 +2,8 @@ package com.example.rygg.feature.library.ui.screen
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +49,7 @@ fun LibraryScreen(params: LibraryScreenParams) {
     val launchFilePicker = rememberFilePicker(
         onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
     )
+    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold(
         topBar = {
@@ -75,33 +78,47 @@ fun LibraryScreen(params: LibraryScreenParams) {
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(RyggTheme.getColor(RyggColor.SurfaceDim))
-                .padding(innerPadding)
-        ) {
-            LibraryDisciplineBar(
-                disciplines = Discipline.entries,
-                selectedDiscipline = params.uiState.selectedDiscipline,
-                onDisciplineSelected = params.onDisciplineSelected
-            )
-
-            Box(
+        Box {
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .background(RyggTheme.getColor(RyggColor.SurfaceDim))
+                    .padding(innerPadding)
             ) {
-                when (val state = params.uiState.gpxFilesLoadingState) {
-                    is GpxFilesLoadingState.Loading -> LibraryLoadingState()
-                    is GpxFilesLoadingState.Error -> LibraryErrorState(state.errorMessage)
-                    is GpxFilesLoadingState.GpxFilesLoaded ->
-                        LoadedContent(
-                            entries = state.gpxFilesEntries,
-                            uiState = params.uiState,
-                            params = params
-                        )
+                LibraryDisciplineBar(
+                    disciplines = Discipline.entries,
+                    selectedDiscipline = params.uiState.selectedDiscipline,
+                    onDisciplineSelected = params.onDisciplineSelected
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    when (val state = params.uiState.gpxFilesLoadingState) {
+                        is GpxFilesLoadingState.Loading -> LibraryLoadingState()
+                        is GpxFilesLoadingState.Error -> LibraryErrorState(state.errorMessage)
+                        is GpxFilesLoadingState.GpxFilesLoaded ->
+                            LoadedContent(
+                                entries = state.gpxFilesEntries,
+                                uiState = params.uiState,
+                                params = params
+                            )
+                    }
                 }
+            }
+            if (fabExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(RyggTheme.getColor(RyggColor.SurfaceDim).copy(alpha = 0.8f))
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = { fabExpanded = false }
+                        )
+                )
             }
         }
     }

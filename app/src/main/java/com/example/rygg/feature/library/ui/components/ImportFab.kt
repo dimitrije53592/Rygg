@@ -70,7 +70,7 @@ private fun DisciplineFabOption(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
-                .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
+                .background(RyggTheme.getColor(RyggColor.BrandGreen))
                 .padding(
                     horizontal = RyggTheme.dimens.commonContentPadding12,
                     vertical = RyggTheme.dimens.commonContentPadding4
@@ -79,13 +79,13 @@ private fun DisciplineFabOption(
             Text(
                 text = discipline.name.capitalize(),
                 style = RyggTheme.typography.labelMedium,
-                color = RyggTheme.getColor(RyggColor.TextPrimary)
+                color = RyggTheme.getColor(RyggColor.OnBrand)
             )
         }
         SmallFloatingActionButton(
             onClick = onClick,
-            containerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-            contentColor = RyggTheme.getColor(RyggColor.BrandGreen)
+            containerColor = RyggTheme.getColor(RyggColor.BrandGreen),
+            contentColor = RyggTheme.getColor(RyggColor.OnBrand)
         ) {
             Icon(
                 painter = painterResource(discipline.iconRes),
