@@ -37,8 +37,8 @@ import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
+import com.example.rygg.core.ui.utils.formatAscent
 import com.example.rygg.core.ui.utils.formatDistanceKm
-import com.example.rygg.core.ui.utils.formatElevationDelta
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.core.ui.utils.rememberLocationState
 import com.example.rygg.feature.map.domain.RouteOverlay
@@ -244,9 +244,7 @@ private fun TrackingModeCard(
 
 private fun routeStats(route: RouteOverlay): List<String> = buildList {
     if (route.distanceMeters > 0.0) add(formatDistanceKm(route.distanceMeters))
-    if (route.ascentMeters > 0.0 || route.descentMeters > 0.0) {
-        add(formatElevationDelta(route.ascentMeters, route.descentMeters))
-    }
+    if (route.ascentMeters > 0.0) add(formatAscent(route.ascentMeters))
     add(formatPointCount(route.pointCount))
 }
 
