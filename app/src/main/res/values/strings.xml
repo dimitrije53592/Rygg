@@ -91,6 +91,10 @@
     <string name="library_empty_title">No activities yet</string>
     <string name="library_empty_subtitle">Import a GPX file to get started</string>
     <string name="library_delete">Delete</string>
+    <string name="library_delete_title">Delete this route?</string>
+    <string name="library_delete_message">%1$s will be removed from your library. This can\'t be undone.</string>
+    <string name="library_delete_confirm">Delete</string>
+    <string name="library_delete_cancel">Cancel</string>
     <string name="library_sort_name">Name</string>
     <string name="library_sort_date">Date</string>
     <string name="library_sort">Change sorting</string>
@@ -156,8 +160,12 @@
 
     <!-- Account skip prompt -->
     <string name="auth_skip_title">Continue without an account?</string>
-    <string name="auth_skip_message">Without signing in, your routes stay on this device only:\n\n• No cloud backup if you lose or replace your phone\n• They won\'t sync to your other devices\n• You can\'t share routes with a link\n\nYou can sign in anytime to turn this on.</string>
-    <string name="auth_skip_continue">Continue without account</string>
+    <string name="auth_skip_message">You\'ll miss out on the features that keep your routes safe — without an account they stay on this device only.</string>
+    <string name="auth_skip_benefit_backup">No cloud backup if you lose or replace your phone</string>
+    <string name="auth_skip_benefit_sync">They won\'t sync to your other devices</string>
+    <string name="auth_skip_benefit_share">You can\'t share routes with a link</string>
+    <string name="auth_skip_footnote">You can sign in anytime to turn this on.</string>
+    <string name="auth_skip_continue">Skip anyway</string>
     <string name="auth_skip_sign_in">Sign in</string>
 
     <!-- Profile / account -->

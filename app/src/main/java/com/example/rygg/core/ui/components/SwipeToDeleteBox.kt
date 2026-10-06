@@ -16,7 +16,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,12 +31,14 @@ fun SwipeToDeleteBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val state = rememberSwipeToDismissBoxState()
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-            onDelete()
+    // The swipe only *requests* the delete: rejecting the state change snaps the row back, so a
+    // cancelled confirmation leaves it in place instead of stranded off-screen.
+    val state = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value == SwipeToDismissBoxValue.StartToEnd) onDelete()
+            false
         }
-    }
+    )
     SwipeToDismissBox(
         state = state,
         modifier = modifier,
