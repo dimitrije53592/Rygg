@@ -5,36 +5,28 @@ import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.feature.feedback.data.FeedbackRepository
 import com.example.rygg.feature.feedback.domain.FeedbackCategory
-import com.example.rygg.feature.settings.data.SettingsRepository
+import com.example.rygg.feature.feedback.domain.FeedbackDelivery
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FeedbackViewModel @Inject constructor(
-    private val feedbackRepository: FeedbackRepository,
-    private val settingsRepository: SettingsRepository
+    private val feedbackRepository: FeedbackRepository
 ) : ViewModel() {
     private val state = MutableStateFlow(FeedbackUiState())
-
-    // One-shot outcomes handed to the wrapper, which owns the Context to toast and navigate on.
-    private val _events = Channel<FeedbackEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
 
     // Nothing to combine — the form is driven entirely by the user, so the backing flow is the state.
     val uiState: StateFlow<FeedbackUiState> = state.asStateFlow()
 
     fun onMessageChanged(message: String) {
-        // Hard cap rather than a validation error: the rule rejects longer messages, and the
-        // unawaited write would fail out of sight after the user was told it sent.
+        // Hard cap rather than a validation error: the rule rejects anything longer.
         if (message.length > FeedbackRepository.MAX_MESSAGE_LENGTH) return
-        state.update { it.copy(message = message) }
+        state.update { it.copy(message = message, sendState = FeedbackSendState.Editing) }
     }
 
     fun onCategorySelected(category: FeedbackCategory) {
@@ -46,46 +38,39 @@ class FeedbackViewModel @Inject constructor(
         if (!current.canSend) return
 
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
-            if (now - settingsRepository.lastFeedbackSentAt() < THROTTLE_WINDOW_MS) {
-                _events.send(FeedbackEvent.Throttled)
-                return@launch
-            }
+            state.update { it.copy(sendState = FeedbackSendState.Sending) }
 
-            state.update { it.copy(isSending = true) }
-            val outcome = feedbackRepository.submit(current.category, current.message)
-            state.update { it.copy(isSending = false) }
+            when (val outcome = feedbackRepository.submit(current.category, current.message)) {
+                is Outcome.Success ->
+                    state.update { it.copy(sendState = FeedbackSendState.Sent(outcome.data)) }
 
-            when (outcome) {
-                is Outcome.Success -> {
-                    settingsRepository.setLastFeedbackSentAt(now)
-                    _events.send(FeedbackEvent.Sent)
-                }
+                is Outcome.Error ->
+                    state.update {
+                        it.copy(sendState = FeedbackSendState.Failed(outcome.cause.message))
+                    }
 
-                is Outcome.Error -> _events.send(FeedbackEvent.Failed)
                 Outcome.Loading -> Unit
             }
         }
     }
-
-    private companion object {
-        const val THROTTLE_WINDOW_MS = 30_000L
-    }
-}
-
-// One-shot events the wrapper turns into a toast plus a trip back to where the user came from.
-sealed interface FeedbackEvent {
-    data object Sent : FeedbackEvent
-
-    data object Failed : FeedbackEvent
-
-    data object Throttled : FeedbackEvent
 }
 
 data class FeedbackUiState(
     val message: String = "",
     val category: FeedbackCategory = FeedbackCategory.BUG,
-    val isSending: Boolean = false
+    val sendState: FeedbackSendState = FeedbackSendState.Editing
 ) {
-    val canSend: Boolean get() = message.isNotBlank() && !isSending
+    val canSend: Boolean get() = message.isNotBlank() && sendState !is FeedbackSendState.Sending
+}
+
+sealed interface FeedbackSendState {
+    data object Editing : FeedbackSendState
+
+    data object Sending : FeedbackSendState
+
+    data class Sent(val delivery: FeedbackDelivery) : FeedbackSendState
+
+    // The cause is shown only in debug builds — it is the one place a send failure is visible,
+    // since the app has no logging of its own.
+    data class Failed(val cause: String?) : FeedbackSendState
 }

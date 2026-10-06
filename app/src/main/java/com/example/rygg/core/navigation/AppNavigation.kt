@@ -27,7 +27,6 @@ import androidx.navigation.navDeepLink
 import com.example.rygg.core.ui.components.RyggBottomAppBar
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.RouteShareLinks
-import com.example.rygg.feature.record.service.RecordingService
 import com.example.rygg.feature.auth.ui.components.SkipSignInDialog
 import com.example.rygg.feature.auth.ui.viewmodel.AuthViewModel
 import com.example.rygg.feature.auth.ui.wrapper.ForgotPasswordWrapper
@@ -42,6 +41,7 @@ import com.example.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.example.rygg.feature.map.ui.wrapper.MapWrapper
 import com.example.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
 import com.example.rygg.feature.profile.ui.wrapper.ProfileWrapper
+import com.example.rygg.feature.record.service.RecordingService
 import com.example.rygg.feature.record.ui.wrapper.RecordWrapper
 import com.example.rygg.feature.settings.ui.wrapper.SettingsWrapper
 

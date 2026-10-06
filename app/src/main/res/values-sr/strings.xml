@@ -233,7 +233,9 @@
     <string name="feedback_message_placeholder">Opišite šta se dogodilo ili šta biste želeli da vidite.</string>
     <string name="feedback_context_disclosure">Uz vašu poruku se šalju: verzija aplikacije, model uređaja, verzija Androida, jezik aplikacije, broj vaših ruta i da li ste prijavljeni. Vaše rute i lokacija se nikada ne šalju.</string>
     <string name="feedback_send">Pošalji</string>
-    <string name="feedback_sent_toast">Hvala — vaša povratna informacija je poslata.</string>
-    <string name="feedback_failed_toast">Trenutno nije moguće poslati. Proverite vezu i pokušajte ponovo.</string>
-    <string name="feedback_throttled_toast">Upravo ste poslali povratnu informaciju. Sačekajte trenutak pre sledeće.</string>
+    <string name="feedback_done">Gotovo</string>
+    <string name="feedback_sent_title">Hvala na povratnoj informaciji</string>
+    <string name="feedback_sent_message">Primili smo je. Čitamo sve što stigne ovim putem.</string>
+    <string name="feedback_queued_message">Trenutno ste offline, pa je poruka sačuvana na telefonu i biće poslata čim dobijete vezu.</string>
+    <string name="feedback_failed">Slanje nije uspelo. Proverite vezu i pokušajte ponovo.</string>
 </resources>

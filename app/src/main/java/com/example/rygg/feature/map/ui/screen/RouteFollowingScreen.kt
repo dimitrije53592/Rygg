@@ -19,8 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,8 +48,8 @@ import com.example.rygg.feature.map.ui.components.FollowingStatusBar
 import com.example.rygg.feature.map.ui.components.MapToolbar
 import com.example.rygg.feature.map.ui.components.RouteMapCanvas
 import com.example.rygg.feature.map.ui.util.toPuckLocation
-import com.example.rygg.feature.map.ui.viewmodel.RouteFollowingPhase
 import com.example.rygg.feature.map.ui.viewmodel.PREVIEW_SPEED_METERS_PER_SECOND
+import com.example.rygg.feature.map.ui.viewmodel.RouteFollowingPhase
 import com.example.rygg.feature.map.ui.viewmodel.RouteFollowingUiState
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraMoveReason

@@ -24,8 +24,9 @@ service cloud.firestore {
     // Write-only feedback drop box. Guests reach it with an anonymous session, so any authed uid
     // may file a report stamped with its own uid, but nothing can be read back or amended from a
     // client. Triage happens in the Firebase console, which bypasses these rules. Pinning
-    // createdAt to request.time forces a server timestamp the client cannot forge; rules cannot
-    // rate-limit without a read, so the app throttles sends locally as well.
+    // createdAt to request.time forces a server timestamp the client cannot forge. There is no
+    // rate limit — rules cannot count a user's writes without a read — so if this collection ever
+    // gets scripted, App Check with Play Integrity is the next step.
     match /feedback/{feedbackId} {
       allow read, update, delete: if false;
       allow create: if request.auth != null

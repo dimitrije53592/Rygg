@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.rygg.core.locale.AppLocaleStore
 import com.example.rygg.core.ui.theme.ThemeMode
@@ -63,18 +62,9 @@ class SettingsRepository @Inject constructor(
     fun setLanguage(language: AppLanguage) {
         AppLocaleStore.setLanguageTag(context, language.tag)
     }
-
-    // Feedback send throttle. Firestore rules cannot rate-limit without a read, so the only
-    // guard against a stuck finger (or a bored user) filling the collection lives on the client.
-    suspend fun lastFeedbackSentAt(): Long = dataStore.data.first()[FEEDBACK_LAST_SENT_KEY] ?: 0L
-
-    suspend fun setLastFeedbackSentAt(timestamp: Long) {
-        dataStore.edit { it[FEEDBACK_LAST_SENT_KEY] = timestamp }
-    }
 }
 
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
 private val RECORDING_RESOLUTION_KEY = stringPreferencesKey("recording_resolution")
 private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")
-private val FEEDBACK_LAST_SENT_KEY = longPreferencesKey("feedback_last_sent_at")

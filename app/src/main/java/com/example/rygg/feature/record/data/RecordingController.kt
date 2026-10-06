@@ -7,10 +7,10 @@ import com.example.rygg.core.gpx.haversineMeters
 import com.example.rygg.core.gpx.model.GpxDocument
 import com.example.rygg.core.location.RyggLocationManager
 import com.example.rygg.feature.auth.domain.Discipline
-import com.example.rygg.feature.settings.data.SettingsRepository
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.record.domain.RecordingSnapshot
 import com.example.rygg.feature.record.domain.RecordingState
+import com.example.rygg.feature.settings.data.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -206,6 +206,7 @@ class RecordingController @Inject constructor(
 
     private companion object {
         const val CREATOR = "Rygg"
+
         // Time-based fixes (no displacement gate): a stopped user still yields fixes, so stop/
         // resume can be detected, and per-fix speed is no longer biased by a forced minimum step.
         const val RECORDING_MIN_DISTANCE_M = 0f
