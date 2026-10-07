@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,12 +18,7 @@ internal fun RecenterButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FloatingActionButton(
-        onClick = onClick,
-        modifier = modifier,
-        containerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-        contentColor = RyggTheme.getColor(RyggColor.BrandGreen)
-    ) {
+    MapControlButton(onClick = onClick, modifier = modifier) {
         if (isLoading) {
             CircularProgressIndicator(
                 color = RyggTheme.getColor(RyggColor.BrandGreen),
@@ -34,7 +28,9 @@ internal fun RecenterButton(
         } else {
             Icon(
                 imageVector = Icons.Outlined.MyLocation,
-                contentDescription = stringResource(R.string.map_recenter)
+                contentDescription = stringResource(R.string.map_recenter),
+                tint = RyggTheme.getColor(RyggColor.BrandGreen),
+                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
             )
         }
     }
