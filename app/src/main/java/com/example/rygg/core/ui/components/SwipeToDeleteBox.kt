@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,9 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +30,8 @@ import com.example.rygg.core.ui.theme.RyggTheme
 fun SwipeToDeleteBox(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    // Must match the shape of whatever is swiped, or the red backdrop shows around its corners.
+    shape: Shape = RyggShapes.card,
     content: @Composable () -> Unit
 ) {
     // The swipe only *requests* the delete: rejecting the state change snaps the row back, so a
@@ -44,17 +47,17 @@ fun SwipeToDeleteBox(
         modifier = modifier,
         enableDismissFromStartToEnd = true,
         enableDismissFromEndToStart = false,
-        backgroundContent = { DeleteBackground() },
+        backgroundContent = { DeleteBackground(shape) },
         content = { content() }
     )
 }
 
 @Composable
-private fun DeleteBackground() {
+private fun DeleteBackground(shape: Shape) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
+            .clip(shape)
             .background(RyggTheme.getColor(RyggColor.Error))
             .padding(horizontal = RyggTheme.dimens.commonContentPadding20),
         verticalAlignment = Alignment.CenterVertically,
