@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,8 +73,8 @@ private fun SourceFilterToggle(
     onClick: () -> Unit
 ) {
     val icon: ImageVector = when (selectedSource) {
-        null -> Icons.Default.FilterList
-        EntrySource.IMPORTED -> Icons.Default.FileDownload
+        null -> Icons.Outlined.FilterList
+        EntrySource.IMPORTED -> Icons.Outlined.FileDownload
         EntrySource.RECORDED -> Icons.Default.FiberManualRecord
     }
     ToggleTarget(onClick = onClick) {
@@ -133,7 +133,7 @@ private fun FavoritesFilterToggle(
 ) {
     ToggleTarget(onClick = onClick) {
         Icon(
-            imageVector = if (active) Icons.Default.Star else Icons.Default.StarBorder,
+            imageVector = if (active) Icons.Default.Star else Icons.Outlined.StarBorder,
             contentDescription = stringResource(R.string.library_favorites_filter),
             tint = if (active) {
                 RyggTheme.getColor(RyggColor.BrandGreen)

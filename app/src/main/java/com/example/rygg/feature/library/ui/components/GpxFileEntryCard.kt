@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.CloudDownload
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.CloudDone
+import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -255,9 +255,9 @@ private fun DisciplineBadge(
 @Composable
 private fun SyncBadge(entry: GpxFileEntry) {
     val icon = when {
-        !entry.fileDownloaded -> Icons.Default.CloudDownload
-        entry.syncStatus == SyncStatus.SYNCED -> Icons.Default.CloudDone
-        entry.syncStatus == SyncStatus.PENDING_UPLOAD -> Icons.Default.CloudUpload
+        !entry.fileDownloaded -> Icons.Outlined.CloudDownload
+        entry.syncStatus == SyncStatus.SYNCED -> Icons.Outlined.CloudDone
+        entry.syncStatus == SyncStatus.PENDING_UPLOAD -> Icons.Outlined.CloudUpload
         else -> return
     }
     val description = when {
@@ -287,7 +287,7 @@ private fun FavoriteStar(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = if (favorite) Icons.Default.Star else Icons.Default.StarBorder,
+            imageVector = if (favorite) Icons.Default.Star else Icons.Outlined.StarBorder,
             contentDescription = stringResource(
                 if (favorite) R.string.details_unfavorite else R.string.details_favorite
             ),
@@ -316,7 +316,7 @@ private fun subtitle(entry: GpxFileEntry): String =
 
 private fun sourceIcon(source: EntrySource): ImageVector =
     when (source) {
-        EntrySource.IMPORTED -> Icons.Default.FileDownload
+        EntrySource.IMPORTED -> Icons.Outlined.FileDownload
         EntrySource.RECORDED -> Icons.Default.FiberManualRecord
     }
 

@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,13 +58,13 @@ fun LibraryScreen(params: LibraryScreenParams) {
                 title = stringResource(R.string.library_title),
                 actions = {
                     RyggTopBarAction(
-                        icon = Icons.Default.Add,
+                        icon = Icons.Outlined.Add,
                         contentDescription = stringResource(R.string.library_import),
                         onClick = { showImportSheet = true }
                     )
                     Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
                     RyggTopBarAction(
-                        icon = Icons.Default.Person,
+                        icon = Icons.Outlined.Person,
                         contentDescription = stringResource(R.string.library_open_profile),
                         onClick = params.onOpenProfile
                     )

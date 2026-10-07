@@ -2,7 +2,7 @@ package com.example.rygg.feature.map.ui.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,7 +33,7 @@ internal fun RecenterButton(
             )
         } else {
             Icon(
-                imageVector = Icons.Default.MyLocation,
+                imageVector = Icons.Outlined.MyLocation,
                 contentDescription = stringResource(R.string.map_recenter)
             )
         }

@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocationOff
-import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.LocationOff
+import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -201,7 +201,7 @@ private fun TrackingModeCard(
                     )
                 }
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = Icons.Outlined.Close,
                     contentDescription = stringResource(R.string.map_tracking_close),
                     tint = RyggTheme.getColor(RyggColor.TextSecondary),
                     modifier = Modifier
@@ -225,7 +225,7 @@ private fun TrackingModeCard(
                 horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Navigation,
+                    imageVector = Icons.Outlined.Navigation,
                     contentDescription = null,
                     tint = RyggTheme.getColor(RyggColor.BrandGreen),
                     modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -263,7 +263,7 @@ private fun LocationOffBanner(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
     ) {
         Icon(
-            imageVector = Icons.Default.LocationOff,
+            imageVector = Icons.Outlined.LocationOff,
             contentDescription = null,
             tint = RyggTheme.getColor(RyggColor.Error),
             modifier = Modifier.size(RyggTheme.dimens.iconSize16)

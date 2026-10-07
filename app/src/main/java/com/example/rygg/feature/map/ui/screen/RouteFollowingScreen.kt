@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -281,7 +281,7 @@ private fun StopButton(
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
     ) {
         Icon(
-            imageVector = Icons.Default.Close,
+            imageVector = Icons.Outlined.Close,
             contentDescription = null,
             tint = RyggTheme.getColor(RyggColor.TextPrimary),
             modifier = Modifier.size(RyggTheme.dimens.iconSize16)

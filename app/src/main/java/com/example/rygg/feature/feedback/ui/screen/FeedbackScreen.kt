@@ -14,9 +14,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.CloudQueue
-import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.CloudQueue
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -128,7 +128,7 @@ private fun ErrorBanner(cause: String?) {
             horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
             Icon(
-                imageVector = Icons.Default.ErrorOutline,
+                imageVector = Icons.Outlined.ErrorOutline,
                 contentDescription = null,
                 tint = RyggTheme.getColor(RyggColor.Error),
                 modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -165,8 +165,8 @@ private fun ColumnScope.SentContent(
         ) {
             Icon(
                 imageVector = when (delivery) {
-                    FeedbackDelivery.CONFIRMED -> Icons.Default.CheckCircle
-                    FeedbackDelivery.QUEUED -> Icons.Default.CloudQueue
+                    FeedbackDelivery.CONFIRMED -> Icons.Outlined.CheckCircle
+                    FeedbackDelivery.QUEUED -> Icons.Outlined.CloudQueue
                 },
                 contentDescription = null,
                 tint = RyggTheme.getColor(RyggColor.BrandGreen),

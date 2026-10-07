@@ -1,7 +1,7 @@
 package com.example.rygg.feature.map.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -23,7 +23,7 @@ internal fun CompassButton(
         contentColor = RyggTheme.getColor(RyggColor.BrandGreen)
     ) {
         Icon(
-            imageVector = Icons.Default.Explore,
+            imageVector = Icons.Outlined.Explore,
             contentDescription = stringResource(R.string.map_compass)
         )
     }

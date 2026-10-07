@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +41,7 @@ private const val CARD_ASPECT = 16f / 9f
 @Composable
 internal fun LibraryEmptyState(onImport: () -> Unit) {
     StateMessage(
-        icon = Icons.Default.Map,
+        icon = Icons.Outlined.Map,
         title = stringResource(R.string.library_empty_title),
         body = stringResource(R.string.library_empty_subtitle)
     ) {
@@ -56,7 +56,7 @@ internal fun LibraryEmptyState(onImport: () -> Unit) {
 @Composable
 internal fun LibraryErrorState(errorMessage: String?) {
     StateMessage(
-        icon = Icons.Default.ErrorOutline,
+        icon = Icons.Outlined.ErrorOutline,
         tint = RyggTheme.getColor(RyggColor.Error),
         title = stringResource(R.string.library_error_title),
         // A null message used to render an entirely blank screen.
@@ -67,7 +67,7 @@ internal fun LibraryErrorState(errorMessage: String?) {
 @Composable
 internal fun LibraryNoMatchesState() {
     StateMessage(
-        icon = Icons.Default.SearchOff,
+        icon = Icons.Outlined.SearchOff,
         title = stringResource(R.string.library_no_matches),
         body = null
     )

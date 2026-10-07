@@ -13,13 +13,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -104,7 +104,7 @@ fun DetailsHeroMap(
                 onClick = onNavigateBack,
                 content = {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         contentDescription = stringResource(R.string.nav_back),
                         tint = Color.White,
                         modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -163,7 +163,7 @@ private fun HeroShareButton(
         onClick = { showSheet = true },
         content = {
             Icon(
-                imageVector = Icons.Default.Share,
+                imageVector = Icons.Outlined.Share,
                 contentDescription = stringResource(R.string.details_share),
                 tint = Color.White,
                 modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -201,7 +201,7 @@ private fun HeroOverflowMenu(
             onClick = { expanded = true },
             content = {
                 Icon(
-                    imageVector = Icons.Default.MoreVert,
+                    imageVector = Icons.Outlined.MoreVert,
                     contentDescription = stringResource(R.string.details_more_actions),
                     tint = Color.White,
                     modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -219,7 +219,7 @@ private fun HeroOverflowMenu(
                 },
                 leadingIcon = {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarBorder,
+                        imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
                         contentDescription = null,
                         tint = RyggTheme.getColor(RyggColor.BrandGreen)
                     )
@@ -233,7 +233,7 @@ private fun HeroOverflowMenu(
                 text = { Text(text = stringResource(R.string.details_rename)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        imageVector = Icons.Outlined.Edit,
                         contentDescription = null,
                         tint = RyggTheme.getColor(RyggColor.BrandGreen)
                     )
@@ -247,7 +247,7 @@ private fun HeroOverflowMenu(
                 text = { Text(text = stringResource(R.string.details_delete)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = Icons.Outlined.Delete,
                         contentDescription = null,
                         tint = RyggTheme.getColor(RyggColor.Error)
                     )
