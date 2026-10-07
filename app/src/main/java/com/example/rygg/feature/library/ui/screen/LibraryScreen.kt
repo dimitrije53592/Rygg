@@ -2,8 +2,6 @@ package com.example.rygg.feature.library.ui.screen
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -32,7 +31,7 @@ import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.ui.components.DeleteEntryDialog
 import com.example.rygg.feature.library.ui.components.GpxFileEntryList
-import com.example.rygg.feature.library.ui.components.ImportFab
+import com.example.rygg.feature.library.ui.components.ImportDisciplineSheet
 import com.example.rygg.feature.library.ui.components.LibraryDisciplineBar
 import com.example.rygg.feature.library.ui.components.LibraryEmptyState
 import com.example.rygg.feature.library.ui.components.LibraryErrorState
@@ -45,19 +44,25 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 
 @Composable
 fun LibraryScreen(params: LibraryScreenParams) {
-    var fabExpanded by remember { mutableStateOf(false) }
+    var showImportSheet by remember { mutableStateOf(false) }
     var pendingDiscipline by remember { mutableStateOf(Discipline.HIKE) }
     var pendingDelete by remember { mutableStateOf<GpxFileEntry?>(null) }
     val launchFilePicker = rememberFilePicker(
         onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
     )
-    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold(
         topBar = {
             RyggTopAppBar(
                 title = stringResource(R.string.library_title),
                 actions = {
+                    IconButton(onClick = { showImportSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.library_import),
+                            tint = RyggTheme.getColor(RyggColor.OnBrand)
+                        )
+                    }
                     IconButton(onClick = params.onOpenProfile) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
@@ -65,17 +70,6 @@ fun LibraryScreen(params: LibraryScreenParams) {
                             tint = RyggTheme.getColor(RyggColor.OnBrand)
                         )
                     }
-                }
-            )
-        },
-        floatingActionButton = {
-            ImportFab(
-                expanded = fabExpanded,
-                onToggle = { fabExpanded = !fabExpanded },
-                onDisciplinePicked = { discipline ->
-                    pendingDiscipline = discipline
-                    fabExpanded = false
-                    launchFilePicker()
                 }
             )
         }
@@ -121,19 +115,18 @@ fun LibraryScreen(params: LibraryScreenParams) {
                     onCancel = { pendingDelete = null }
                 )
             }
-            if (fabExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(RyggTheme.getColor(RyggColor.SurfaceDim).copy(alpha = 0.8f))
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = { fabExpanded = false }
-                        )
-                )
-            }
         }
+    }
+
+    if (showImportSheet) {
+        ImportDisciplineSheet(
+            onDisciplinePicked = { discipline ->
+                pendingDiscipline = discipline
+                showImportSheet = false
+                launchFilePicker()
+            },
+            onDismiss = { showImportSheet = false }
+        )
     }
 }
 
