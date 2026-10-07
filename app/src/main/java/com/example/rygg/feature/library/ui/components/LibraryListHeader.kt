@@ -12,8 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
@@ -23,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
@@ -110,7 +109,7 @@ private fun SortToggle(
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
     ) {
         Icon(
-            imageVector = if (isName) Icons.Default.SortByAlpha else Icons.Default.Schedule,
+            painter = painterResource(R.drawable.ic_sort),
             contentDescription = stringResource(R.string.library_sort),
             tint = RyggTheme.getColor(RyggColor.TextPrimary),
             modifier = Modifier.size(RyggTheme.dimens.iconSize24)
