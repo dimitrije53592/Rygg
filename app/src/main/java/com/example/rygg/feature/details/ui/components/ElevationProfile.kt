@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.rygg.R
 import com.example.rygg.core.gpx.model.ElevationSample
 import com.example.rygg.core.ui.theme.RyggColor
@@ -70,6 +69,10 @@ fun ElevationProfile(
     val high = samples.maxOf { it.elevationMeters }
     val low = samples.minOf { it.elevationMeters }
     val totalMeters = samples.last().distanceMeters
+
+    val hairline = RyggTheme.dimens.border1
+    val lineStroke = RyggTheme.dimens.border2
+    val markerRadius = RyggTheme.dimens.chartMarker5
 
     val grades = remember(samples) { samples.smoothedGrades() }
     var scrubFraction by remember { mutableStateOf<Float?>(null) }
@@ -160,7 +163,7 @@ fun ElevationProfile(
                     color = gridColor,
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx()
+                    strokeWidth = hairline.toPx()
                 )
             }
 
@@ -181,7 +184,7 @@ fun ElevationProfile(
             )
 
             // Drawn as coloured segments rather than one path, so the climb bands are readable.
-            val strokeWidth = 2.dp.toPx()
+            val strokeWidth = lineStroke.toPx()
             for (index in 1 until projected.size) {
                 drawLine(
                     color = gradeColor(
@@ -206,14 +209,14 @@ fun ElevationProfile(
                     color = crosshairColor.copy(alpha = 0.5f),
                     start = Offset(point.x, plotTop),
                     end = Offset(point.x, size.height),
-                    strokeWidth = 1.dp.toPx()
+                    strokeWidth = hairline.toPx()
                 )
-                drawCircle(color = crosshairColor, radius = 5.dp.toPx(), center = point)
+                drawCircle(color = crosshairColor, radius = markerRadius.toPx(), center = point)
                 drawCircle(
                     color = accentColor,
-                    radius = 5.dp.toPx(),
+                    radius = markerRadius.toPx(),
                     center = point,
-                    style = Stroke(width = 2.dp.toPx())
+                    style = Stroke(width = lineStroke.toPx())
                 )
             }
         }
