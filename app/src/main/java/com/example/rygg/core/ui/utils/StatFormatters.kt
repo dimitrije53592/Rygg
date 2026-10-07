@@ -8,6 +8,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd. MMMM", Locale.getDefault())
+private val monthYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL yyyy", Locale.getDefault())
 
 fun formatDistanceKm(meters: Double): String =
     String.format(Locale.getDefault(), "%.1f km", meters / 1000.0)
@@ -58,3 +59,13 @@ fun formatDurationHoursMinutes(millis: Long): String {
 
 fun formatDate(millis: Long): String =
     Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(dateFormatter)
+
+fun formatMonthYear(millis: Long): String =
+    Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(monthYearFormatter)
+
+// Groups a timestamp by calendar month. Separate from formatMonthYear so the grouping key does not
+// change with locale or with how the heading happens to be rendered.
+fun monthKey(millis: Long): Int {
+    val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
+    return date.year * 100 + date.monthValue
+}

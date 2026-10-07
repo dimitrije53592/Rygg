@@ -2,6 +2,7 @@ package com.example.rygg.feature.library.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.SortMode
@@ -52,7 +54,7 @@ internal fun LibraryListHeader(
     ) {
         Text(
             text = pluralStringResource(R.plurals.library_activities, activityCount, activityCount),
-            style = RyggTheme.typography.titleSmall,
+            style = RyggTheme.textStyles.trackedLabel,
             color = RyggTheme.getColor(RyggColor.TextSecondary)
         )
         Row(
@@ -76,20 +78,18 @@ private fun SourceFilterToggle(
         EntrySource.IMPORTED -> Icons.Default.FileDownload
         EntrySource.RECORDED -> Icons.Default.FiberManualRecord
     }
-    Icon(
-        imageVector = icon,
-        contentDescription = stringResource(R.string.library_source_filter),
-        tint = if (selectedSource != null) {
-            RyggTheme.getColor(RyggColor.BrandGreen)
-        } else {
-            RyggTheme.getColor(RyggColor.TextSecondary)
-        },
-        modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
-            .clickable { onClick() }
-            .padding(RyggTheme.dimens.commonContentPadding4)
-            .size(RyggTheme.dimens.iconSize24)
-    )
+    ToggleTarget(onClick = onClick) {
+        Icon(
+            imageVector = icon,
+            contentDescription = stringResource(R.string.library_source_filter),
+            tint = if (selectedSource != null) {
+                RyggTheme.getColor(RyggColor.BrandGreen)
+            } else {
+                RyggTheme.getColor(RyggColor.TextSecondary)
+            },
+            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+        )
+    }
 }
 
 @Composable
@@ -132,18 +132,33 @@ private fun FavoritesFilterToggle(
     active: Boolean,
     onClick: () -> Unit
 ) {
-    Icon(
-        imageVector = if (active) Icons.Default.Star else Icons.Default.StarBorder,
-        contentDescription = stringResource(R.string.library_favorites_filter),
-        tint = if (active) {
-            RyggTheme.getColor(RyggColor.BrandGreen)
-        } else {
-            RyggTheme.getColor(RyggColor.TextSecondary)
-        },
+    ToggleTarget(onClick = onClick) {
+        Icon(
+            imageVector = if (active) Icons.Default.Star else Icons.Default.StarBorder,
+            contentDescription = stringResource(R.string.library_favorites_filter),
+            tint = if (active) {
+                RyggTheme.getColor(RyggColor.BrandGreen)
+            } else {
+                RyggTheme.getColor(RyggColor.TextSecondary)
+            },
+            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+        )
+    }
+}
+
+// Keeps the glyph at 24dp while giving the control the 48dp target it needs.
+@Composable
+private fun ToggleTarget(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
-            .clickable { onClick() }
-            .padding(RyggTheme.dimens.commonContentPadding4)
-            .size(RyggTheme.dimens.iconSize24)
-    )
+            .size(RyggTheme.dimens.iconSize48)
+            .clip(RyggShapes.chip)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
 }

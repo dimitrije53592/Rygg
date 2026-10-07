@@ -100,7 +100,8 @@ fun LibraryScreen(params: LibraryScreenParams) {
                                 entries = state.gpxFilesEntries,
                                 uiState = params.uiState,
                                 params = params,
-                                onRequestDelete = { entry -> pendingDelete = entry }
+                                onRequestDelete = { entry -> pendingDelete = entry },
+                                onImport = { showImportSheet = true }
                             )
                     }
                 }
@@ -135,10 +136,11 @@ private fun LoadedContent(
     entries: List<GpxFileEntry>,
     uiState: LibraryUiState,
     params: LibraryScreenParams,
-    onRequestDelete: (GpxFileEntry) -> Unit
+    onRequestDelete: (GpxFileEntry) -> Unit,
+    onImport: () -> Unit
 ) {
     if (uiState.isLibraryEmpty) {
-        LibraryEmptyState()
+        LibraryEmptyState(onImport = onImport)
         return
     }
     Column(modifier = Modifier.fillMaxSize()) {
