@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.SwipeToDeleteBox
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.domain.SortMode
@@ -35,7 +36,7 @@ internal fun GpxFileEntryList(
             top = RyggTheme.dimens.commonContentPadding4,
             bottom = RyggTheme.dimens.commonContentPadding80
         ),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
     ) {
         if (sortMode == SortMode.TIME) {
             val timed = entries.filter { it.startTimeMillis != null }
@@ -66,7 +67,10 @@ private fun LazyItemScope.EntryRow(
     onFavoriteClick: (GpxFileEntry) -> Unit,
     onDeleteEntry: (GpxFileEntry) -> Unit
 ) {
-    SwipeToDeleteBox(onDelete = { onDeleteEntry(entry) }) {
+    SwipeToDeleteBox(
+        onDelete = { onDeleteEntry(entry) },
+        modifier = Modifier.animateItem(placementSpec = RyggMotion.spatial())
+    ) {
         GpxFileEntryCard(
             entry = entry,
             onClick = onEntryClick,
