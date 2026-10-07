@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
@@ -88,13 +87,12 @@ private fun StatCell(
     ) {
         Text(
             text = stat.value,
-            style = RyggTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            style = RyggTheme.textStyles.statValue,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
         Text(
             text = stat.label.uppercase(),
-            style = RyggTheme.typography.labelSmall,
+            style = RyggTheme.textStyles.trackedLabel,
             color = RyggTheme.getColor(RyggColor.TextSecondary)
         )
     }

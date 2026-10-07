@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -81,7 +80,6 @@ fun GpxFileEntryCard(
             Text(
                 text = entry.name,
                 style = RyggTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
                 color = RyggTheme.getColor(RyggColor.TextPrimary),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -109,8 +107,7 @@ fun GpxFileEntryCard(
                 statsOf(entry).forEach { stat ->
                     Text(
                         text = stat,
-                        style = RyggTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        style = RyggTheme.textStyles.statValueSmall,
                         color = RyggTheme.getColor(RyggColor.TextPrimary)
                     )
                 }

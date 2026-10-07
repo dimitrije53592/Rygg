@@ -218,7 +218,6 @@ private fun ActiveContent(
         Text(
             text = formatStopwatch(uiState.elapsedMillis),
             style = RyggTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
 
@@ -290,13 +289,12 @@ private fun MetricGrid(uiState: RecordUiState) {
                     ) {
                         Text(
                             text = value,
-                            style = RyggTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+                            style = RyggTheme.textStyles.statValue,
                             color = RyggTheme.getColor(RyggColor.TextPrimary)
                         )
                         Text(
                             text = label.uppercase(),
-                            style = RyggTheme.typography.labelSmall,
+                            style = RyggTheme.textStyles.trackedLabel,
                             color = RyggTheme.getColor(RyggColor.TextSecondary)
                         )
                     }

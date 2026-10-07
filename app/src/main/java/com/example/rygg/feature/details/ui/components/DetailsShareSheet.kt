@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
@@ -48,7 +47,6 @@ fun DetailsShareSheet(
             Text(
                 text = stringResource(R.string.details_share),
                 style = RyggTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
                 color = RyggTheme.getColor(RyggColor.TextPrimary),
                 modifier = Modifier.padding(
                     horizontal = RyggTheme.dimens.commonContentPadding24,

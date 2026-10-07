@@ -57,7 +57,9 @@ object Dimensions {
     val radius8: Dp = 8.dp
     val radius12: Dp = 12.dp
     val radius16: Dp = 16.dp
+    val radius20: Dp = 20.dp
     val radius24: Dp = 24.dp
+    val radius28: Dp = 28.dp
 
     val border0: Dp = 0.dp
     val border1: Dp = 1.dp
@@ -66,6 +68,9 @@ object Dimensions {
     val elevation0: Dp = 0.dp
     val elevation2: Dp = 2.dp
     val elevation4: Dp = 4.dp
+    val elevation8: Dp = 8.dp
+    val elevation16: Dp = 16.dp
+    val elevation24: Dp = 24.dp
 
     val buttonSize32: Dp = 32.dp
     val buttonSize40: Dp = 40.dp

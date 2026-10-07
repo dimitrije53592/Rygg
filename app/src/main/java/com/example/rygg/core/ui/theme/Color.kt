@@ -4,46 +4,108 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
+// Dark is the designed theme; light is derived from it. The dark ramp steps deliberately between
+// SurfaceDim (background) / Surface / SurfaceElevated so surfaces separate by lightness, which is
+// what has to carry depth where shadows are invisible.
 enum class RyggColor(val lightColor: Color, val darkColor: Color) {
-    BrandGreen(lightColor = Color(0xFF0D7A52), darkColor = Color(0xFF0E8257)),
-    BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF1B3A31)),
-    BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0E1216)),
-    MutedGray(lightColor = Color(0xFFA8ADA9), darkColor = Color(0xFF8A938E)),
-    Surface(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF20262B)),
-    SurfaceElevated(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF2A3138)),
-    SurfaceDim(lightColor = Color(0xFFF2F2F2), darkColor = Color(0xFF121417)),
-    MossSurface(lightColor = Color(0xFFE6F4EE), darkColor = Color(0xFF17352E)),
-    MossSurfaceDim(lightColor = Color(0xFFD2EBDF), darkColor = Color(0xFF102420)),
-    OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF5F7F6)),
-    TextPrimary(lightColor = Color(0xFF1A1F26), darkColor = Color(0xFFEAEEEC)),
-    TextSecondary(lightColor = Color(0xFF6D737A), darkColor = Color(0xFF9BA5A0)),
-    Outline(lightColor = Color(0xFFE6F2ED), darkColor = Color(0xFF2E3A36)),
+    BrandGreen(lightColor = Color(0xFF0E7A52), darkColor = Color(0xFF16A06B)),
+
+    // Route lines, summit markers and highlights — reads against terrain where the CTA green does not.
+    AccentBright(lightColor = Color(0xFF1FB87E), darkColor = Color(0xFF2FD694)),
+    BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF11231D)),
+    BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0A0E12)),
+    MutedGray(lightColor = Color(0xFFA8ADA9), darkColor = Color(0xFF6E7A85)),
+    Surface(lightColor = Color(0xFFF5F5F5), darkColor = Color(0xFF141A20)),
+    SurfaceElevated(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFF1C242B)),
+    SurfaceDim(lightColor = Color(0xFFF2F3F2), darkColor = Color(0xFF0D1115)),
+    MossSurface(lightColor = Color(0xFFE6F4EE), darkColor = Color(0xFF15302A)),
+    MossSurfaceDim(lightColor = Color(0xFFD2EBDF), darkColor = Color(0xFF0E201C)),
+    OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF2F6F9)),
+    TextPrimary(lightColor = Color(0xFF1B2026), darkColor = Color(0xFFE8EDF2)),
+    TextSecondary(lightColor = Color(0xFF6B727A), darkColor = Color(0xFF94A1AD)),
+    Outline(lightColor = Color(0xFFE6E8E7), darkColor = Color(0xFF2A343D)),
+
+    // Content laid over map tiles or route imagery, so it does not flip with the theme.
+    ScrimDark(lightColor = Color(0xFF000000), darkColor = Color(0xFF000000)),
+    OnScrim(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFFFFFFF)),
     Success(lightColor = Color(0xFF2E7D32), darkColor = Color(0xFF81C784)),
-    Error(lightColor = Color(0xFFD32F2F), darkColor = Color(0xFFEF5350))
+
+    // Steep-slope shading and non-blocking cautions (docs/maps-offline.md).
+    Warning(lightColor = Color(0xFFB26A00), darkColor = Color(0xFFFFB74D)),
+    Error(lightColor = Color(0xFFD32F2F), darkColor = Color(0xFFFF6B6B)),
+    ErrorSurface(lightColor = Color(0xFFFDECEA), darkColor = Color(0xFF3A1E1E))
 }
 
+// Every Material role is mapped. Anything left unmapped falls back to the baseline Material
+// purple, which is how stock widgets (Switch, RadioButton) end up off-palette.
 val LightColorScheme = lightColorScheme(
     primary = RyggColor.BrandGreen.lightColor,
-    onPrimary = RyggColor.MutedGray.lightColor,
+    onPrimary = RyggColor.OnBrand.lightColor,
+    primaryContainer = RyggColor.MossSurface.lightColor,
+    onPrimaryContainer = RyggColor.BrandDarkGreen.lightColor,
     secondary = RyggColor.BrandGraphite.lightColor,
-    onSecondary = RyggColor.MutedGray.lightColor,
+    onSecondary = RyggColor.OnBrand.lightColor,
+    secondaryContainer = RyggColor.Surface.lightColor,
+    onSecondaryContainer = RyggColor.TextPrimary.lightColor,
+    tertiary = RyggColor.AccentBright.lightColor,
+    onTertiary = RyggColor.OnBrand.lightColor,
+    tertiaryContainer = RyggColor.MossSurfaceDim.lightColor,
+    onTertiaryContainer = RyggColor.BrandDarkGreen.lightColor,
     background = RyggColor.SurfaceDim.lightColor,
     onBackground = RyggColor.TextPrimary.lightColor,
     surface = RyggColor.Surface.lightColor,
     onSurface = RyggColor.TextPrimary.lightColor,
+    surfaceVariant = RyggColor.MossSurface.lightColor,
+    onSurfaceVariant = RyggColor.TextSecondary.lightColor,
+    surfaceContainerLowest = RyggColor.SurfaceElevated.lightColor,
+    surfaceContainerLow = RyggColor.SurfaceElevated.lightColor,
+    surfaceContainer = RyggColor.Surface.lightColor,
+    surfaceContainerHigh = RyggColor.SurfaceDim.lightColor,
+    surfaceContainerHighest = RyggColor.SurfaceDim.lightColor,
     outline = RyggColor.Outline.lightColor,
-    error = RyggColor.Error.lightColor
+    outlineVariant = RyggColor.Outline.lightColor,
+    scrim = RyggColor.ScrimDark.lightColor,
+    inverseSurface = RyggColor.BrandGraphite.lightColor,
+    inverseOnSurface = RyggColor.OnBrand.lightColor,
+    inversePrimary = RyggColor.AccentBright.lightColor,
+    error = RyggColor.Error.lightColor,
+    onError = RyggColor.OnBrand.lightColor,
+    errorContainer = RyggColor.ErrorSurface.lightColor,
+    onErrorContainer = RyggColor.Error.lightColor
 )
 
 val DarkColorScheme = darkColorScheme(
     primary = RyggColor.BrandGreen.darkColor,
-    onPrimary = RyggColor.MutedGray.darkColor,
+    onPrimary = RyggColor.OnBrand.darkColor,
+    primaryContainer = RyggColor.MossSurface.darkColor,
+    onPrimaryContainer = RyggColor.OnBrand.darkColor,
     secondary = RyggColor.BrandGraphite.darkColor,
-    onSecondary = RyggColor.MutedGray.darkColor,
+    onSecondary = RyggColor.OnBrand.darkColor,
+    secondaryContainer = RyggColor.Surface.darkColor,
+    onSecondaryContainer = RyggColor.TextPrimary.darkColor,
+    tertiary = RyggColor.AccentBright.darkColor,
+    onTertiary = RyggColor.BrandGraphite.darkColor,
+    tertiaryContainer = RyggColor.MossSurfaceDim.darkColor,
+    onTertiaryContainer = RyggColor.OnBrand.darkColor,
     background = RyggColor.SurfaceDim.darkColor,
     onBackground = RyggColor.TextPrimary.darkColor,
     surface = RyggColor.Surface.darkColor,
     onSurface = RyggColor.TextPrimary.darkColor,
+    surfaceVariant = RyggColor.MossSurface.darkColor,
+    onSurfaceVariant = RyggColor.TextSecondary.darkColor,
+    surfaceContainerLowest = RyggColor.SurfaceDim.darkColor,
+    surfaceContainerLow = RyggColor.Surface.darkColor,
+    surfaceContainer = RyggColor.Surface.darkColor,
+    surfaceContainerHigh = RyggColor.SurfaceElevated.darkColor,
+    surfaceContainerHighest = RyggColor.SurfaceElevated.darkColor,
     outline = RyggColor.Outline.darkColor,
-    error = RyggColor.Error.darkColor
+    outlineVariant = RyggColor.Outline.darkColor,
+    scrim = RyggColor.ScrimDark.darkColor,
+    inverseSurface = RyggColor.OnBrand.darkColor,
+    inverseOnSurface = RyggColor.BrandGraphite.darkColor,
+    inversePrimary = RyggColor.BrandGreen.darkColor,
+    error = RyggColor.Error.darkColor,
+    onError = RyggColor.BrandGraphite.darkColor,
+    errorContainer = RyggColor.ErrorSurface.darkColor,
+    onErrorContainer = RyggColor.Error.darkColor
 )

@@ -189,7 +189,6 @@ private fun TrackingModeCard(
                     Text(
                         text = route.name,
                         style = RyggTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
                         color = RyggTheme.getColor(RyggColor.TextPrimary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
