@@ -3,6 +3,13 @@ package com.example.rygg.core.navigation
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -25,6 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.example.rygg.core.ui.components.RyggBottomAppBar
+import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.feature.auth.ui.components.SkipSignInDialog
@@ -88,16 +96,45 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            RyggBottomAppBar(
-                navController,
-                currentDestination
-            )
+            AnimatedVisibility(
+                visible = currentDestination.isTopLevel(),
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = RyggMotion.spatial()
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = RyggMotion.spatialFast()
+                )
+            ) {
+                RyggBottomAppBar(
+                    navController,
+                    currentDestination
+                )
+            }
         },
         contentWindowInsets = WindowInsets(RyggTheme.dimens.zeroPadding)
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
+            // Forward motion slides in from the trailing edge and back reverses it, so the stack has
+            // a direction. The slide is a fraction of the width rather than the whole screen: a full
+            // -width slide at this duration reads as sluggish.
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it / SLIDE_FRACTION },
+                    animationSpec = RyggMotion.spatial()
+                ) + fadeIn(animationSpec = RyggMotion.effects())
+            },
+            exitTransition = { fadeOut(animationSpec = RyggMotion.effectsFast()) },
+            popEnterTransition = { fadeIn(animationSpec = RyggMotion.effects()) },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it / SLIDE_FRACTION },
+                    animationSpec = RyggMotion.spatial()
+                ) + fadeOut(animationSpec = RyggMotion.effects())
+            },
             modifier = Modifier
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
@@ -224,3 +261,5 @@ fun AppNavigation() {
         }
     }
 }
+
+private const val SLIDE_FRACTION = 6

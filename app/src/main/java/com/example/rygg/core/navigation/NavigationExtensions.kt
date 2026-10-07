@@ -1,6 +1,9 @@
 package com.example.rygg.core.navigation
 
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 
 // Switch to a bottom-nav tab. Pops any sub-screens back to the start destination so tapping a tab
@@ -19,3 +22,9 @@ fun NavController.navigateToTab(route: Any) {
         launchSingleTop = true
     }
 }
+
+fun NavDestination?.isOn(destination: TopLevelDestination): Boolean =
+    this?.hierarchy?.any { it.hasRoute(destination.route::class) } == true
+
+fun NavDestination?.isTopLevel(): Boolean =
+    TopLevelDestination.entries.any { isOn(it) }

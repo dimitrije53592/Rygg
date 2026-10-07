@@ -27,9 +27,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.rygg.core.navigation.TopLevelDestination
+import com.example.rygg.core.navigation.isOn
 import com.example.rygg.core.navigation.navigateToTab
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggElevation
@@ -44,9 +43,6 @@ fun RyggBottomAppBar(
     navController: NavController,
     currentDestination: NavDestination?
 ) {
-    val onTopLevel = TopLevelDestination.entries.any { currentDestination.isOn(it) }
-    if (!onTopLevel) return
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,6 +165,3 @@ private fun NavTab(
         )
     }
 }
-
-private fun NavDestination?.isOn(destination: TopLevelDestination): Boolean =
-    this?.hierarchy?.any { it.hasRoute(destination.route::class) } == true
