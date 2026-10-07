@@ -41,13 +41,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RouteCanvas
+import com.example.rygg.core.ui.components.RouteCanvasScale
 import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
-import com.example.rygg.feature.library.ui.components.TrailThumbnail
 
 @Composable
 fun DetailsHeroMap(
@@ -66,8 +67,9 @@ fun DetailsHeroMap(
             .fillMaxWidth()
             .size(RyggTheme.dimens.detailsHeroHeight)
     ) {
-        TrailThumbnail(
+        RouteCanvas(
             points = entry.pathPoints,
+            scale = RouteCanvasScale.Hero,
             modifier = Modifier.fillMaxSize()
         )
 

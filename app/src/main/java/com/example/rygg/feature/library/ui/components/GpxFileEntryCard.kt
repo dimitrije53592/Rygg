@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RouteCanvas
+import com.example.rygg.core.ui.components.RouteCanvasScale
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.formatAscent
@@ -63,8 +65,9 @@ fun GpxFileEntryCard(
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
     ) {
         Box(modifier = Modifier.size(RyggTheme.dimens.thumbnailSize66)) {
-            TrailThumbnail(
+            RouteCanvas(
                 points = entry.pathPoints,
+                scale = RouteCanvasScale.Card,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
