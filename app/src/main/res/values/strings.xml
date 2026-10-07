@@ -138,6 +138,7 @@
     <string name="details_stat_total_time">Total time</string>
     <string name="details_elevation_profile">Elevation profile</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
+    <string name="details_elevation_readout">%1$s · %2$s</string>
     <string name="details_contents">Contents</string>
     <string name="details_main_track">Main track</string>
     <string name="details_track_summary">%1$s · %2$s</string>

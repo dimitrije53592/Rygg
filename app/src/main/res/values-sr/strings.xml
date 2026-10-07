@@ -139,6 +139,7 @@
     <string name="details_stat_total_time">Ukupno vreme</string>
     <string name="details_elevation_profile">Profil visine</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
+    <string name="details_elevation_readout">%1$s · %2$s</string>
     <string name="details_contents">Sadržaj</string>
     <string name="details_main_track">Glavna staza</string>
     <string name="details_track_summary">%1$s · %2$s</string>

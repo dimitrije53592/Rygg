@@ -56,6 +56,7 @@ fun DetailsHeroMap(
     entry: GpxFileEntry,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    highlightFraction: Float? = null,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
     onRename: ((String) -> Unit)? = null,
@@ -71,6 +72,7 @@ fun DetailsHeroMap(
         RouteCanvas(
             points = entry.pathPoints,
             scale = RouteCanvasScale.Hero,
+            highlightFraction = highlightFraction,
             modifier = Modifier
                 .fillMaxSize()
                 .sharedRouteCanvas(entry.id)

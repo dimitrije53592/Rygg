@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
+import com.example.rygg.core.gpx.haversineMeters
 import com.example.rygg.core.gpx.model.GeoPoint
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
@@ -34,18 +36,24 @@ enum class RouteCanvasScale(
 private const val FIT_PADDING_FRACTION = 0.12f
 private const val GLOW_ALPHA = 0.22f
 private const val CONTOUR_ALPHA = 0.5f
+private const val HIGHLIGHT_SCALE = 1.4f
 
 @Composable
 fun RouteCanvas(
     points: List<GeoPoint>,
     modifier: Modifier = Modifier,
-    scale: RouteCanvasScale = RouteCanvasScale.Card
+    scale: RouteCanvasScale = RouteCanvasScale.Card,
+    // Fraction along the route to mark, used to tie the elevation profile's scrub to the map.
+    highlightFraction: Float? = null
 ) {
     val trackColor = RyggTheme.getColor(RyggColor.AccentBright)
     val groundTop = RyggTheme.getColor(RyggColor.MossSurface)
     val groundBottom = RyggTheme.getColor(RyggColor.MossSurfaceDim)
     val contourColor = RyggTheme.getColor(RyggColor.OnBrand).copy(alpha = CONTOUR_ALPHA)
     val startColor = RyggTheme.getColor(RyggColor.OnBrand)
+    // Cumulative distance, so a fraction of the route resolves by length rather than by point
+    // index: GPS points are not evenly spaced and an index-based marker visibly lags on long legs.
+    val cumulative = remember(points) { points.cumulativeDistances() }
 
     Box(
         modifier = modifier
@@ -92,6 +100,22 @@ fun RouteCanvas(
                 center = projected.last(),
                 style = Stroke(width = scale.track.toPx())
             )
+
+            // Filled accent with a light ring, so it cannot be mistaken for the white start dot.
+            highlightFraction?.let { fraction ->
+                val center = projected[cumulative.indexAtFraction(fraction)]
+                drawCircle(
+                    color = trackColor,
+                    radius = markerRadius * HIGHLIGHT_SCALE,
+                    center = center
+                )
+                drawCircle(
+                    color = startColor,
+                    radius = markerRadius * HIGHLIGHT_SCALE,
+                    center = center,
+                    style = Stroke(width = scale.track.toPx())
+                )
+            }
         }
     }
 }
@@ -126,4 +150,25 @@ private fun DrawScope.project(
         val y = offsetY + (1f - ((point.lat - minLat) / spanLat).toFloat()) * drawHeight
         Offset(x, y)
     }
+}
+
+private fun List<GeoPoint>.cumulativeDistances(): DoubleArray {
+    val distances = DoubleArray(size)
+    for (index in 1 until size) {
+        distances[index] = distances[index - 1] + haversineMeters(
+            this[index - 1].lat,
+            this[index - 1].lon,
+            this[index].lat,
+            this[index].lon
+        )
+    }
+    return distances
+}
+
+private fun DoubleArray.indexAtFraction(fraction: Float): Int {
+    val total = lastOrNull() ?: return 0
+    if (total <= 0.0) return 0
+    val target = total * fraction.coerceIn(0f, 1f)
+    val found = binarySearch(target)
+    return if (found >= 0) found else (-found - 1).coerceIn(0, size - 1)
 }

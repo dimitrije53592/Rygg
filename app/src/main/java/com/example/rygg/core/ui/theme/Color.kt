@@ -32,6 +32,14 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
 
     // Steep-slope shading and non-blocking cautions (docs/maps-offline.md).
     Warning(lightColor = Color(0xFFB26A00), darkColor = Color(0xFFFFB74D)),
+
+    // Gradient ramp for elevation profiles, following the banding the category has converged on:
+    // 3-7% moderate, 7-16% steep, 16-25% very steep, above that extreme. Anything gentler than 3%
+    // stays the brand accent, so a flat route reads as one colour rather than noise.
+    GradeModerate(lightColor = Color(0xFFCCA32E), darkColor = Color(0xFFE8C547)),
+    GradeSteep(lightColor = Color(0xFFCF7429), darkColor = Color(0xFFE8893D)),
+    GradeVerySteep(lightColor = Color(0xFFC03A33), darkColor = Color(0xFFE05950)),
+    GradeExtreme(lightColor = Color(0xFF8E2B24), darkColor = Color(0xFFB3463D)),
     Error(lightColor = Color(0xFFD32F2F), darkColor = Color(0xFFFF6B6B)),
     ErrorSurface(lightColor = Color(0xFFFDECEA), darkColor = Color(0xFF3A1E1E))
 }
