@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,7 +47,9 @@ fun RyggBottomAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = RyggTheme.dimens.fabRaise20)
+            // Room for the button to break the bar's top edge without leaving the Box bounds,
+            // which would stop it receiving touches.
+            .padding(top = RyggTheme.dimens.fabRaise24)
     ) {
         Row(
             modifier = Modifier
@@ -63,7 +66,7 @@ fun RyggBottomAppBar(
                 navController = navController,
                 modifier = Modifier.weight(1f)
             )
-            Box(modifier = Modifier.width(RyggTheme.dimens.fabSize64))
+            Box(modifier = Modifier.width(RyggTheme.dimens.fabSize72))
             NavTab(
                 destination = TopLevelDestination.MAP,
                 currentDestination = currentDestination,
@@ -76,8 +79,9 @@ fun RyggBottomAppBar(
             selected = currentDestination.isOn(TopLevelDestination.RECORD),
             onClick = { navController.navigateToTab(TopLevelDestination.RECORD.route) },
             modifier = Modifier
-                .align(Alignment.TopCenter)
+                .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
+                .offset(y = -RyggTheme.dimens.fabLift8)
         )
     }
 }
@@ -101,7 +105,7 @@ private fun RecordButton(
 
     Box(
         modifier = modifier
-            .size(RyggTheme.dimens.fabSize64)
+            .size(RyggTheme.dimens.fabSize72)
             .pressScale(interactionSource)
             .ryggElevation(level = RyggElevation.Floating, shape = CircleShape)
             .clip(CircleShape)
@@ -117,7 +121,7 @@ private fun RecordButton(
             painter = painterResource(TopLevelDestination.RECORD.icon),
             contentDescription = stringResource(TopLevelDestination.RECORD.labelRes),
             tint = RyggTheme.getColor(RyggColor.OnBrand),
-            modifier = Modifier.size(RyggTheme.dimens.iconSize32)
+            modifier = Modifier.size(RyggTheme.dimens.iconSize40)
         )
     }
 }

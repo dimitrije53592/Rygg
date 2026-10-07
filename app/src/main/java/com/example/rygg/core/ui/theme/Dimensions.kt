@@ -78,9 +78,14 @@ object Dimensions {
 
     val progressIndicator20: Dp = 20.dp
 
+    val actionSize44: Dp = 44.dp
+
     val bottomBarHeight64: Dp = 64.dp
-    val fabSize64: Dp = 64.dp
-    val fabRaise20: Dp = 20.dp
+
+    // Deliberately larger than the bar it sits in, so recording reads as the primary action.
+    val fabSize72: Dp = 72.dp
+    val fabRaise24: Dp = 24.dp
+    val fabLift8: Dp = 8.dp
 }
 
 val LocalRyggDimensions = staticCompositionLocalOf { Dimensions }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,16 +34,14 @@ fun RyggTopAppBar(
                 Icon(
                     painter = painterResource(R.drawable.ic_logo),
                     tint = RyggTheme.getColor(RyggColor.BrandGreen),
-                    modifier = Modifier.padding(bottom = RyggTheme.dimens.commonContentPadding20),
-                    contentDescription = ""
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize32),
+                    contentDescription = null
                 )
                 Text(
                     text = title,
                     style = RyggTheme.typography.titleLarge,
                     color = RyggTheme.getColor(RyggColor.OnBrand),
-                    modifier = Modifier
-                        .padding(horizontal = RyggTheme.dimens.commonContentPadding8)
-                        .padding(bottom = RyggTheme.dimens.commonContentPadding8)
+                    modifier = Modifier.padding(horizontal = RyggTheme.dimens.commonContentPadding8)
                 )
             }
         },
