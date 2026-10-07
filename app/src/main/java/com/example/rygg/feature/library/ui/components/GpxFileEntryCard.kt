@@ -40,6 +40,7 @@ import com.example.rygg.R
 import com.example.rygg.core.ui.components.RouteCanvas
 import com.example.rygg.core.ui.components.RouteCanvasScale
 import com.example.rygg.core.ui.components.pressScale
+import com.example.rygg.core.ui.components.sharedRouteCanvas
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggElevation
 import com.example.rygg.core.ui.theme.RyggShapes
@@ -107,7 +108,9 @@ fun GpxFileEntryCard(
             RouteCanvas(
                 points = entry.pathPoints,
                 scale = RouteCanvasScale.Card,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .sharedRouteCanvas(entry.id)
             )
 
             Box(

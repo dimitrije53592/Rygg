@@ -44,6 +44,7 @@ import com.example.rygg.R
 import com.example.rygg.core.ui.components.RouteCanvas
 import com.example.rygg.core.ui.components.RouteCanvasScale
 import com.example.rygg.core.ui.components.RyggTextField
+import com.example.rygg.core.ui.components.sharedRouteCanvas
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
@@ -70,7 +71,9 @@ fun DetailsHeroMap(
         RouteCanvas(
             points = entry.pathPoints,
             scale = RouteCanvasScale.Hero,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .sharedRouteCanvas(entry.id)
         )
 
         Box(
