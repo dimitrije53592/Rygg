@@ -3,12 +3,22 @@ package com.example.rygg.core.navigation
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +34,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.example.rygg.core.ui.components.LocalNavAnimatedVisibilityScope
+import com.example.rygg.core.ui.components.LocalSharedTransitionScope
 import com.example.rygg.core.ui.components.RyggBottomAppBar
+import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.RouteShareLinks
 import com.example.rygg.feature.auth.ui.components.SkipSignInDialog
@@ -45,7 +58,7 @@ import com.example.rygg.feature.record.service.RecordingService
 import com.example.rygg.feature.record.ui.wrapper.RecordWrapper
 import com.example.rygg.feature.settings.ui.wrapper.SettingsWrapper
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation() {
     val authViewModel: AuthViewModel = hiltViewModel()
@@ -55,19 +68,16 @@ fun AppNavigation() {
 
     val activity = LocalContext.current as ComponentActivity
 
-    // An internal deep link may need side effects before the jump (e.g. tearing down the recording
-    // service when the notification's Stop opens RecordingPreview). NavHost handles the nav itself.
+    // NavHost does the navigating; this only covers side effects a deep link owes first.
     fun handleDeepLinkSideEffects(intent: Intent?) {
         if (intent?.data?.toString() == InternalDeepLinks.RECORDING_PREVIEW) {
             RecordingService.stop(activity)
         }
     }
 
-    // Cold start: NavHost auto-handles the launch intent's deep link; we only owe the side effects.
     LaunchedEffect(Unit) { handleDeepLinkSideEffects(activity.intent) }
 
-    // Warm start: a singleTop activity receives later deep links via onNewIntent, which NavHost does
-    // not observe — forward them to the NavController ourselves (plus run the side effects).
+    // A singleTop activity gets later deep links via onNewIntent, which NavHost does not observe.
     DisposableEffect(navController) {
         val listener = Consumer<Intent> { intent ->
             handleDeepLinkSideEffects(intent)
@@ -79,7 +89,6 @@ fun AppNavigation() {
 
     val startDestination: Any = remember { if (authViewModel.isLoggedIn()) Library else Login }
 
-    // Enter the app at Library, clearing the auth back stack behind it.
     fun enterLibrary() {
         navController.navigate(Library) {
             popUpTo(navController.graph.id) { inclusive = true }
@@ -88,139 +97,171 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            RyggBottomAppBar(
-                navController,
-                currentDestination
-            )
+            AnimatedVisibility(
+                visible = currentDestination.isTopLevel(),
+                enter = slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = RyggMotion.spatial()
+                ),
+                exit = slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = RyggMotion.spatialFast()
+                )
+            ) {
+                RyggBottomAppBar(
+                    navController,
+                    currentDestination
+                )
+            }
         },
         contentWindowInsets = WindowInsets(RyggTheme.dimens.zeroPadding)
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = startDestination,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-        ) {
-            composable<Login> {
-                var showSkipDialog by remember { mutableStateOf(false) }
-                LoginWrapper(
-                    onAuthSkipped = { showSkipDialog = true },
-                    onLoggedIn = { enterLibrary() },
-                    onNavigateToRegister = { navController.navigate(Register) },
-                    onNavigateToForgotPassword = { navController.navigate(ForgotPassword) }
-                )
-                if (showSkipDialog) {
-                    SkipSignInDialog(
-                        onContinueAsGuest = {
-                            showSkipDialog = false
-                            enterLibrary()
-                        },
-                        onSignIn = { showSkipDialog = false }
-                    )
-                }
-            }
-            composable<Register> {
-                var showSkipDialog by remember { mutableStateOf(false) }
-                RegisterWrapper(
-                    onAuthSkip = { showSkipDialog = true },
-                    onRegistered = { enterLibrary() },
-                    onNavigateBack = { navController.navigateUp() }
-                )
-                if (showSkipDialog) {
-                    SkipSignInDialog(
-                        onContinueAsGuest = {
-                            showSkipDialog = false
-                            enterLibrary()
-                        },
-                        onSignIn = { showSkipDialog = false }
-                    )
-                }
-            }
-            composable<ForgotPassword> {
-                ForgotPasswordWrapper(onNavigateBack = { navController.navigateUp() })
-            }
-            composable<Library> {
-                LibraryWrapper(
-                    onEntryClick = { entryId ->
-                        navController.navigate(Details(entryId = entryId))
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                NavHost(
+                    navController = navController,
+                    startDestination = startDestination,
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it / SLIDE_FRACTION },
+                            animationSpec = RyggMotion.spatial()
+                        ) + fadeIn(animationSpec = RyggMotion.effects())
                     },
-                    onImport = { uri, discipline ->
-                        navController.navigate(
-                            // Encode the SAF content:// URI so its /, %, # don't mangle the route.
-                            ImportPreview(uri = Uri.encode(uri.toString()), discipline = discipline.name)
+                    exitTransition = { fadeOut(animationSpec = RyggMotion.effectsFast()) },
+                    popEnterTransition = { fadeIn(animationSpec = RyggMotion.effects()) },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it / SLIDE_FRACTION },
+                            animationSpec = RyggMotion.spatial()
+                        ) + fadeOut(animationSpec = RyggMotion.effects())
+                    },
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
+                ) {
+                    composable<Login> {
+                        var showSkipDialog by remember { mutableStateOf(false) }
+                        LoginWrapper(
+                            onAuthSkipped = { showSkipDialog = true },
+                            onLoggedIn = { enterLibrary() },
+                            onNavigateToRegister = { navController.navigate(Register) },
+                            onNavigateToForgotPassword = { navController.navigate(ForgotPassword) }
                         )
-                    },
-                    onOpenProfile = { navController.navigate(Profile) }
-                )
-            }
-            composable<Details> {
-                DetailsWrapper(
-                    onNavigateBack = { navController.navigateUp() },
-                    onViewOnMap = { entryId ->
-                        navController.navigate(Map(entryId = entryId))
-                    }
-                )
-            }
-            // Deep link "<RouteShareLinks.BASE>/s/{token}" opens a shared route for any recipient.
-            composable<SharedRoutePreview>(
-                deepLinks = listOf(navDeepLink<SharedRoutePreview>(basePath = "${RouteShareLinks.BASE}/s"))
-            ) {
-                SharedRouteWrapper(
-                    onNavigateBack = { navController.navigateUp() },
-                    onSaved = { entryId ->
-                        navController.navigate(Details(entryId = entryId)) {
-                            popUpTo<SharedRoutePreview> { inclusive = true }
+                        if (showSkipDialog) {
+                            SkipSignInDialog(
+                                onContinueAsGuest = {
+                                    showSkipDialog = false
+                                    enterLibrary()
+                                },
+                                onSignIn = { showSkipDialog = false }
+                            )
                         }
                     }
-                )
-            }
-            composable<ImportPreview> {
-                ImportPreviewWrapper(onDone = { navController.popBackStack() })
-            }
-            // Deep link "<InternalDeepLinks.RECORD>" opens the live recording screen when the
-            // ongoing-recording notification body is tapped (recording keeps running).
-            composable<Record>(
-                deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
-            ) {
-                RecordWrapper(
-                    onRecordingStopped = { navController.navigate(RecordingPreview) }
-                )
-            }
-            // Deep link "<InternalDeepLinks.RECORDING_PREVIEW>" opens the save/preview screen when
-            // the recording notification's Stop action is tapped (see RecordingService).
-            composable<RecordingPreview>(
-                deepLinks = listOf(navDeepLink<RecordingPreview>(basePath = InternalDeepLinks.RECORDING_PREVIEW))
-            ) {
-                RecordingPreviewWrapper(onDone = { navController.popBackStack() })
-            }
-            composable<Map> {
-                MapWrapper(
-                    onStartFollow = { entryId ->
-                        navController.navigate(FollowRoute(entryId = entryId))
-                    }
-                )
-            }
-            composable<FollowRoute> {
-                RouteFollowingWrapper(onExit = { navController.navigateUp() })
-            }
-            composable<Profile> {
-                ProfileWrapper(
-                    onAuthEntry = {
-                        navController.navigate(Login) {
-                            popUpTo(navController.graph.id) { inclusive = true }
+                    composable<Register> {
+                        var showSkipDialog by remember { mutableStateOf(false) }
+                        RegisterWrapper(
+                            onAuthSkip = { showSkipDialog = true },
+                            onRegistered = { enterLibrary() },
+                            onNavigateBack = { navController.navigateUp() }
+                        )
+                        if (showSkipDialog) {
+                            SkipSignInDialog(
+                                onContinueAsGuest = {
+                                    showSkipDialog = false
+                                    enterLibrary()
+                                },
+                                onSignIn = { showSkipDialog = false }
+                            )
                         }
-                    },
-                    onOpenSettings = { navController.navigate(Settings) },
-                    onSendFeedback = { navController.navigate(Feedback) }
-                )
-            }
-            composable<Settings> {
-                SettingsWrapper()
-            }
-            composable<Feedback> {
-                FeedbackWrapper(onNavigateBack = { navController.navigateUp() })
+                    }
+                    composable<ForgotPassword> {
+                        ForgotPasswordWrapper(onNavigateBack = { navController.navigateUp() })
+                    }
+                    composable<Library> {
+                        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                            LibraryWrapper(
+                                onEntryClick = { entryId ->
+                                    navController.navigate(Details(entryId = entryId))
+                                },
+                                onImport = { uri, discipline ->
+                                    navController.navigate(
+                                        // Encode the SAF content:// URI so its /, %, # don't mangle the route.
+                                        ImportPreview(uri = Uri.encode(uri.toString()), discipline = discipline.name)
+                                    )
+                                },
+                                onOpenProfile = { navController.navigate(Profile) }
+                            )
+                        }
+                    }
+                    composable<Details> {
+                        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                            DetailsWrapper(
+                                onNavigateBack = { navController.navigateUp() },
+                                onViewOnMap = { entryId ->
+                                    navController.navigate(Map(entryId = entryId))
+                                }
+                            )
+                        }
+                    }
+                    composable<SharedRoutePreview>(
+                        deepLinks = listOf(navDeepLink<SharedRoutePreview>(basePath = "${RouteShareLinks.BASE}/s"))
+                    ) {
+                        SharedRouteWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onSaved = { entryId ->
+                                navController.navigate(Details(entryId = entryId)) {
+                                    popUpTo<SharedRoutePreview> { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                    composable<ImportPreview> {
+                        ImportPreviewWrapper(onDone = { navController.popBackStack() })
+                    }
+                    composable<Record>(
+                        deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
+                    ) {
+                        RecordWrapper(
+                            onRecordingStopped = { navController.navigate(RecordingPreview) }
+                        )
+                    }
+                    composable<RecordingPreview>(
+                        deepLinks = listOf(navDeepLink<RecordingPreview>(basePath = InternalDeepLinks.RECORDING_PREVIEW))
+                    ) {
+                        RecordingPreviewWrapper(onDone = { navController.popBackStack() })
+                    }
+                    composable<Map> {
+                        MapWrapper(
+                            onStartFollow = { entryId ->
+                                navController.navigate(FollowRoute(entryId = entryId))
+                            }
+                        )
+                    }
+                    composable<FollowRoute> {
+                        RouteFollowingWrapper(onExit = { navController.navigateUp() })
+                    }
+                    composable<Profile> {
+                        ProfileWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onAuthEntry = {
+                                navController.navigate(Login) {
+                                    popUpTo(navController.graph.id) { inclusive = true }
+                                }
+                            },
+                            onOpenSettings = { navController.navigate(Settings) },
+                            onSendFeedback = { navController.navigate(Feedback) }
+                        )
+                    }
+                    composable<Settings> {
+                        SettingsWrapper(onNavigateBack = { navController.navigateUp() })
+                    }
+                    composable<Feedback> {
+                        FeedbackWrapper(onNavigateBack = { navController.navigateUp() })
+                    }
+                }
             }
         }
     }
 }
+
+private const val SLIDE_FRACTION = 6

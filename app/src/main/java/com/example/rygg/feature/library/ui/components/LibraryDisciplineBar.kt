@@ -1,27 +1,35 @@
 package com.example.rygg.feature.library.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.pressScale
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggMotion
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
@@ -35,16 +43,13 @@ internal fun LibraryDisciplineBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(RyggTheme.getColor(RyggColor.BrandGraphite))
+            .background(RyggTheme.getColor(RyggColor.SurfaceDim))
+            .horizontalScroll(rememberScrollState())
             .padding(
-                horizontal = RyggTheme.dimens.commonContentPadding12,
+                horizontal = RyggTheme.dimens.commonContentPadding16,
                 vertical = RyggTheme.dimens.commonContentPadding12
-            )
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(
-            space = RyggTheme.dimens.commonSpacing4,
-            alignment = Alignment.Start
-        )
+            ),
+        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
     ) {
         DisciplineChip(
             title = stringResource(R.string.library_filter_all),
@@ -69,29 +74,64 @@ private fun DisciplineChip(
     onClick: () -> Unit,
     @DrawableRes iconRes: Int? = null
 ) {
-    val containerColor = if (selected) {
-        RyggTheme.getColor(RyggColor.BrandGreen)
-    } else {
-        RyggTheme.getColor(RyggColor.TextSecondary).copy(alpha = 0.7f)
-    }
-    Button(
-        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
-        modifier = Modifier.height(RyggTheme.dimens.buttonSize32),
-        onClick = onClick
+    val interactionSource = remember { MutableInteractionSource() }
+    val container by animateColorAsState(
+        targetValue = if (selected) {
+            RyggTheme.getColor(RyggColor.BrandGreen)
+        } else {
+            RyggTheme.getColor(RyggColor.Surface)
+        },
+        animationSpec = RyggMotion.effects(),
+        label = "chipContainer"
+    )
+    val content by animateColorAsState(
+        targetValue = if (selected) {
+            RyggTheme.getColor(RyggColor.OnBrand)
+        } else {
+            RyggTheme.getColor(RyggColor.TextSecondary)
+        },
+        animationSpec = RyggMotion.effects(),
+        label = "chipContent"
+    )
+
+    Row(
+        modifier = Modifier
+            .pressScale(interactionSource)
+            .clip(RyggShapes.chip)
+            .background(container)
+            .then(
+                if (selected) {
+                    Modifier
+                } else {
+                    Modifier.border(
+                        width = RyggTheme.dimens.border1,
+                        color = RyggTheme.getColor(RyggColor.Outline),
+                        shape = RyggShapes.chip
+                    )
+                }
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .defaultMinSize(minHeight = RyggTheme.dimens.buttonSize40)
+            .padding(horizontal = RyggTheme.dimens.commonContentPadding16),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         iconRes?.let {
             Icon(
                 painter = painterResource(iconRes),
-                tint = RyggTheme.getColor(RyggColor.SurfaceElevated),
+                tint = content,
                 contentDescription = null,
                 modifier = Modifier.size(RyggTheme.dimens.iconSize16)
             )
-            Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
+            Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
         }
         Text(
             text = title.capitalize(),
-            color = RyggTheme.getColor(RyggColor.SurfaceElevated),
-            style = RyggTheme.typography.labelSmall
+            color = content,
+            style = RyggTheme.typography.labelLarge
         )
     }
 }

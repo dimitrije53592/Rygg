@@ -118,8 +118,7 @@ private fun InlineStat(
         )
         Text(
             text = value,
-            style = RyggTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = RyggTheme.textStyles.statValue,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
     }

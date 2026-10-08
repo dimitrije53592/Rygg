@@ -14,6 +14,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -128,6 +132,9 @@ private fun LoadedContent(
         is DetailsMode.SharedPreview -> stringResource(R.string.details_shared_preview)
     }
 
+    // Hoisted so dragging the elevation profile can mark the matching point on the hero route.
+    var scrubFraction by remember { mutableStateOf<Float?>(null) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -137,6 +144,7 @@ private fun LoadedContent(
         ) {
             DetailsHeroMap(
                 entry = entry,
+                highlightFraction = scrubFraction,
                 onNavigateBack = params.onNavigateBack,
                 sourceLabel = sourceLabel,
                 onToggleFavorite = (mode as? DetailsMode.View)?.onToggleFavorite,
@@ -164,7 +172,10 @@ private fun LoadedContent(
                 DetailsStatsGrid(entry)
 
                 if (elevationProfile.isNotEmpty()) {
-                    ElevationProfile(samples = elevationProfile)
+                    ElevationProfile(
+                        samples = elevationProfile,
+                        onScrubChange = { scrubFraction = it }
+                    )
                 }
 
                 Section(title = stringResource(R.string.details_contents)) {

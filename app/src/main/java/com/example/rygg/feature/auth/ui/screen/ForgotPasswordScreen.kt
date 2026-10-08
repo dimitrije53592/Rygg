@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MarkEmailRead
+import androidx.compose.material.icons.outlined.MarkEmailRead
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -106,7 +106,7 @@ private fun SentConfirmation(params: ForgotPasswordScreenParams) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Default.MarkEmailRead,
+            imageVector = Icons.Outlined.MarkEmailRead,
             tint = RyggTheme.getColor(RyggColor.BrandGreen),
             contentDescription = null,
             modifier = Modifier.size(RyggTheme.dimens.iconSize32)

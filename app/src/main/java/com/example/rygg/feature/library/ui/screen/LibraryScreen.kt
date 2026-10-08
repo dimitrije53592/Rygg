@@ -2,17 +2,16 @@ package com.example.rygg.feature.library.ui.screen
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggTopAppBar
+import com.example.rygg.core.ui.components.RyggTopBarAction
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.rememberFilePicker
@@ -32,7 +32,7 @@ import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.ui.components.DeleteEntryDialog
 import com.example.rygg.feature.library.ui.components.GpxFileEntryList
-import com.example.rygg.feature.library.ui.components.ImportFab
+import com.example.rygg.feature.library.ui.components.ImportDisciplineSheet
 import com.example.rygg.feature.library.ui.components.LibraryDisciplineBar
 import com.example.rygg.feature.library.ui.components.LibraryEmptyState
 import com.example.rygg.feature.library.ui.components.LibraryErrorState
@@ -45,37 +45,30 @@ import com.example.rygg.feature.library.ui.viewmodel.LibraryUiState
 
 @Composable
 fun LibraryScreen(params: LibraryScreenParams) {
-    var fabExpanded by remember { mutableStateOf(false) }
+    var showImportSheet by remember { mutableStateOf(false) }
     var pendingDiscipline by remember { mutableStateOf(Discipline.HIKE) }
     var pendingDelete by remember { mutableStateOf<GpxFileEntry?>(null) }
     val launchFilePicker = rememberFilePicker(
         onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
     )
-    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold(
         topBar = {
             RyggTopAppBar(
                 title = stringResource(R.string.library_title),
                 actions = {
-                    IconButton(onClick = params.onOpenProfile) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = stringResource(R.string.library_open_profile),
-                            tint = RyggTheme.getColor(RyggColor.OnBrand)
-                        )
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            ImportFab(
-                expanded = fabExpanded,
-                onToggle = { fabExpanded = !fabExpanded },
-                onDisciplinePicked = { discipline ->
-                    pendingDiscipline = discipline
-                    fabExpanded = false
-                    launchFilePicker()
+                    RyggTopBarAction(
+                        icon = Icons.Outlined.Add,
+                        contentDescription = stringResource(R.string.library_import),
+                        onClick = { showImportSheet = true }
+                    )
+                    Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
+                    RyggTopBarAction(
+                        icon = Icons.Outlined.Person,
+                        contentDescription = stringResource(R.string.library_open_profile),
+                        onClick = params.onOpenProfile
+                    )
+                    Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
                 }
             )
         }
@@ -106,7 +99,8 @@ fun LibraryScreen(params: LibraryScreenParams) {
                                 entries = state.gpxFilesEntries,
                                 uiState = params.uiState,
                                 params = params,
-                                onRequestDelete = { entry -> pendingDelete = entry }
+                                onRequestDelete = { entry -> pendingDelete = entry },
+                                onImport = { showImportSheet = true }
                             )
                     }
                 }
@@ -121,19 +115,18 @@ fun LibraryScreen(params: LibraryScreenParams) {
                     onCancel = { pendingDelete = null }
                 )
             }
-            if (fabExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(RyggTheme.getColor(RyggColor.SurfaceDim).copy(alpha = 0.8f))
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null,
-                            onClick = { fabExpanded = false }
-                        )
-                )
-            }
         }
+    }
+
+    if (showImportSheet) {
+        ImportDisciplineSheet(
+            onDisciplinePicked = { discipline ->
+                pendingDiscipline = discipline
+                showImportSheet = false
+                launchFilePicker()
+            },
+            onDismiss = { showImportSheet = false }
+        )
     }
 }
 
@@ -142,10 +135,11 @@ private fun LoadedContent(
     entries: List<GpxFileEntry>,
     uiState: LibraryUiState,
     params: LibraryScreenParams,
-    onRequestDelete: (GpxFileEntry) -> Unit
+    onRequestDelete: (GpxFileEntry) -> Unit,
+    onImport: () -> Unit
 ) {
     if (uiState.isLibraryEmpty) {
-        LibraryEmptyState()
+        LibraryEmptyState(onImport = onImport)
         return
     }
     Column(modifier = Modifier.fillMaxSize()) {

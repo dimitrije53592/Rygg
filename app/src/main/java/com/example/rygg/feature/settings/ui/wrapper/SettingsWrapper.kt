@@ -11,6 +11,7 @@ import com.example.rygg.feature.settings.ui.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsWrapper(
+    onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -18,6 +19,7 @@ fun SettingsWrapper(
     SettingsScreen(
         params = SettingsScreenParams(
             uiState = uiState,
+            onNavigateBack = onNavigateBack,
             onThemeModeSelected = viewModel::setThemeMode,
             onLanguageSelected = { language ->
                 viewModel.setLanguage(language)

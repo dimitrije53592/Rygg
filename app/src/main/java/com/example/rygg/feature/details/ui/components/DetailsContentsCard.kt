@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +41,7 @@ fun DetailsContentsCard(
             .padding(horizontal = RyggTheme.dimens.commonContentPadding16)
     ) {
         ContentRow(
-            icon = Icons.Default.Timeline,
+            icon = Icons.Outlined.Timeline,
             title = stringResource(R.string.details_main_track),
             subtitle = stringResource(
                 R.string.details_track_summary,
@@ -51,7 +51,7 @@ fun DetailsContentsCard(
         )
         if (entry.waypointCount > 0) {
             ContentRow(
-                icon = Icons.Default.Place,
+                icon = Icons.Outlined.Place,
                 title = stringResource(R.string.details_waypoints),
                 subtitle = stringResource(R.string.details_waypoint_count, entry.waypointCount)
             )

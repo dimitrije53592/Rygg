@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,7 +38,7 @@ fun SkipSignInDialog(
     RyggDialog(
         title = stringResource(R.string.auth_skip_title),
         onDismissRequest = onSignIn,
-        icon = Icons.Default.CloudOff,
+        icon = Icons.Outlined.CloudOff,
         message = stringResource(R.string.auth_skip_message)
     ) {
         Column(

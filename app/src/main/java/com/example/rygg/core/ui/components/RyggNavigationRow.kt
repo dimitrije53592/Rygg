@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// A card that reads as a row leading somewhere else: icon, label, chevron.
 @Composable
 fun RyggNavigationRow(
     label: String,
@@ -48,7 +47,7 @@ fun RyggNavigationRow(
                 )
             }
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
                 tint = RyggTheme.getColor(RyggColor.TextSecondary),
                 modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -63,7 +62,7 @@ private fun RyggNavigationRowPreview() {
     RyggTheme {
         RyggNavigationRow(
             label = "Settings",
-            icon = Icons.Default.Settings,
+            icon = Icons.Outlined.Settings,
             onClick = {}
         )
     }

@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.Feedback
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.CloudDone
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,7 +36,10 @@ import com.example.rygg.core.ui.theme.RyggTheme
 fun ProfileScreen(params: ProfileScreenParams) {
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.profile_title), actions = {})
+            RyggTopAppBar(
+                title = stringResource(R.string.profile_title),
+                onNavigateBack = params.onNavigateBack
+            )
         }
     ) { innerPadding ->
         Column(
@@ -56,12 +59,12 @@ fun ProfileScreen(params: ProfileScreenParams) {
 
             RyggNavigationRow(
                 label = stringResource(R.string.profile_open_settings),
-                icon = Icons.Default.Settings,
+                icon = Icons.Outlined.Settings,
                 onClick = params.onOpenSettings
             )
             RyggNavigationRow(
                 label = stringResource(R.string.profile_send_feedback),
-                icon = Icons.Default.Feedback,
+                icon = Icons.Outlined.Feedback,
                 onClick = params.onSendFeedback
             )
         }
@@ -77,7 +80,7 @@ private fun SignedInContent(params: ProfileScreenParams) {
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
         ) {
             Icon(
-                imageVector = Icons.Default.AccountCircle,
+                imageVector = Icons.Outlined.AccountCircle,
                 contentDescription = null,
                 tint = RyggTheme.getColor(RyggColor.BrandGreen),
                 modifier = Modifier.size(RyggTheme.dimens.iconSize80)
@@ -100,7 +103,7 @@ private fun SignedInContent(params: ProfileScreenParams) {
                 horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
             ) {
                 Icon(
-                    imageVector = Icons.Default.CloudDone,
+                    imageVector = Icons.Outlined.CloudDone,
                     contentDescription = null,
                     tint = RyggTheme.getColor(RyggColor.BrandGreen),
                     modifier = Modifier.size(RyggTheme.dimens.iconSize24)
@@ -135,7 +138,7 @@ private fun GuestContent(params: ProfileScreenParams) {
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
         ) {
             Icon(
-                imageVector = Icons.Default.AccountCircle,
+                imageVector = Icons.Outlined.AccountCircle,
                 contentDescription = null,
                 tint = RyggTheme.getColor(RyggColor.TextSecondary),
                 modifier = Modifier.size(RyggTheme.dimens.iconSize80)
@@ -171,6 +174,7 @@ data class ProfileUiState(
 
 data class ProfileScreenParams(
     val uiState: ProfileUiState,
+    val onNavigateBack: () -> Unit,
     val onSignOut: () -> Unit,
     val onSignIn: () -> Unit,
     val onOpenSettings: () -> Unit,

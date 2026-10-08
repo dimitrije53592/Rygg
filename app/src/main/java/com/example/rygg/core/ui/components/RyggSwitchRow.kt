@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +41,18 @@ fun RyggSwitchRow(
             style = RyggTheme.typography.bodyLarge,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
-        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            enabled = enabled,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = RyggTheme.getColor(RyggColor.OnBrand),
+                checkedTrackColor = RyggTheme.getColor(RyggColor.BrandGreen),
+                checkedBorderColor = RyggTheme.getColor(RyggColor.BrandGreen),
+                uncheckedThumbColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
+                uncheckedTrackColor = RyggTheme.getColor(RyggColor.MutedGray),
+                uncheckedBorderColor = RyggTheme.getColor(RyggColor.MutedGray)
+            )
+        )
     }
 }

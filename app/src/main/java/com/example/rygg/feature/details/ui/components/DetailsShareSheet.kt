@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
@@ -48,7 +47,6 @@ fun DetailsShareSheet(
             Text(
                 text = stringResource(R.string.details_share),
                 style = RyggTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
                 color = RyggTheme.getColor(RyggColor.TextPrimary),
                 modifier = Modifier.padding(
                     horizontal = RyggTheme.dimens.commonContentPadding24,
@@ -56,12 +54,12 @@ fun DetailsShareSheet(
                 )
             )
             ShareOption(
-                icon = Icons.Default.Link,
+                icon = Icons.Outlined.Link,
                 label = stringResource(R.string.details_share_link),
                 onClick = onShareLink
             )
             ShareOption(
-                icon = Icons.Default.FileDownload,
+                icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.details_share_file),
                 onClick = onShareFile
             )
@@ -106,8 +104,8 @@ private fun DetailsShareSheetPreview() {
     RyggTheme {
         // ModalBottomSheet renders in a separate window; the preview shows the option rows.
         Column {
-            ShareOption(icon = Icons.Default.Link, label = "Share link", onClick = {})
-            ShareOption(icon = Icons.Default.FileDownload, label = "Share GPX file", onClick = {})
+            ShareOption(icon = Icons.Outlined.Link, label = "Share link", onClick = {})
+            ShareOption(icon = Icons.Outlined.FileDownload, label = "Share GPX file", onClick = {})
         }
     }
 }

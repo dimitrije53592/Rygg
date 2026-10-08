@@ -32,7 +32,8 @@ fun RyggTheme(
 
     CompositionLocalProvider(
         LocalRyggIsDarkMode provides darkTheme,
-        LocalRyggDimensions provides Dimensions
+        LocalRyggDimensions provides Dimensions,
+        LocalRyggTextStyles provides RyggTextStyles
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
@@ -52,6 +53,11 @@ object RyggTheme {
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.typography
+
+    val textStyles: RyggTextStyles
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalRyggTextStyles.current
 
     val isDarkMode: Boolean
         @Composable

@@ -6,8 +6,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Pause
@@ -43,7 +49,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.example.rygg.R
@@ -51,7 +56,11 @@ import com.example.rygg.core.ui.components.KeepScreenOn
 import com.example.rygg.core.ui.components.RyggPrimaryButton
 import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.components.RyggTopAppBar
+import com.example.rygg.core.ui.components.pressScale
+import com.example.rygg.core.ui.components.screenContourLines
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggMotion
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.core.ui.utils.formatDistanceKm
@@ -93,13 +102,14 @@ fun RecordScreen(params: RecordScreenParams) {
 
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.nav_record), actions = {})
+            RyggTopAppBar(title = stringResource(R.string.nav_record))
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(RyggTheme.getColor(RyggColor.SurfaceDim))
+                .screenContourLines(RyggTheme.getColor(RyggColor.TextSecondary))
                 .padding(innerPadding)
         ) {
             when (params.uiState.state) {
@@ -205,21 +215,15 @@ private fun ActiveContent(
         verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24)
     ) {
         Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
+        RecordingStatus(statusText = statusText, isPaused = isPaused)
         Text(
-            text = statusText,
-            style = RyggTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
+            text = formatStopwatch(uiState.elapsedMillis),
+            style = RyggTheme.typography.displayLarge,
             color = if (isPaused) {
                 RyggTheme.getColor(RyggColor.TextSecondary)
             } else {
-                RyggTheme.getColor(RyggColor.BrandGreen)
+                RyggTheme.getColor(RyggColor.TextPrimary)
             }
-        )
-        Text(
-            text = formatStopwatch(uiState.elapsedMillis),
-            style = RyggTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
 
         MetricGrid(uiState)
@@ -274,7 +278,7 @@ private fun MetricGrid(uiState: RecordUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
+            .clip(RyggShapes.card)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .padding(RyggTheme.dimens.commonContentPadding8),
         verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
@@ -290,13 +294,12 @@ private fun MetricGrid(uiState: RecordUiState) {
                     ) {
                         Text(
                             text = value,
-                            style = RyggTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+                            style = RyggTheme.textStyles.statValue,
                             color = RyggTheme.getColor(RyggColor.TextPrimary)
                         )
                         Text(
                             text = label.uppercase(),
-                            style = RyggTheme.typography.labelSmall,
+                            style = RyggTheme.textStyles.trackedLabel,
                             color = RyggTheme.getColor(RyggColor.TextSecondary)
                         )
                     }
@@ -314,7 +317,7 @@ private fun DisciplineChip(
 ) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
+            .clip(RyggShapes.chip)
             .background(
                 if (selected) {
                     RyggTheme.getColor(RyggColor.BrandGreen)
@@ -359,12 +362,18 @@ private fun BigCircleButton(
     contentDescription: String,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
             .size(RyggTheme.dimens.recordButtonSize)
+            .pressScale(interactionSource)
             .clip(CircleShape)
             .background(containerColor)
-            .clickable(onClick = onClick),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -482,3 +491,53 @@ data class RecordScreenParams(
     val onStop: () -> Unit,
     val onAddWaypoint: (String) -> Unit
 )
+
+@Composable
+private fun RecordingStatus(
+    statusText: String,
+    isPaused: Boolean
+) {
+    val transition = rememberInfiniteTransition(label = "recordingPulse")
+    val pulse by transition.animateFloat(
+        initialValue = PULSE_MIN_ALPHA,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = PULSE_MILLIS),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "recordingPulseAlpha"
+    )
+    val dotColor by animateColorAsState(
+        targetValue = if (isPaused) {
+            RyggTheme.getColor(RyggColor.TextSecondary)
+        } else {
+            RyggTheme.getColor(RyggColor.AccentBright)
+        },
+        animationSpec = RyggMotion.effects(),
+        label = "recordingDot"
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(RyggTheme.dimens.statusDotSize10)
+                .clip(CircleShape)
+                .background(dotColor.copy(alpha = if (isPaused) 1f else pulse))
+        )
+        Text(
+            text = statusText.uppercase(),
+            style = RyggTheme.textStyles.trackedLabel,
+            color = if (isPaused) {
+                RyggTheme.getColor(RyggColor.TextSecondary)
+            } else {
+                RyggTheme.getColor(RyggColor.AccentBright)
+            }
+        )
+    }
+}
+
+private const val PULSE_MILLIS = 900
+private const val PULSE_MIN_ALPHA = 0.35f

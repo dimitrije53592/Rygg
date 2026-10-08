@@ -95,6 +95,9 @@
     <string name="library_delete_message">%1$s will be removed from your library. This can\'t be undone.</string>
     <string name="library_delete_confirm">Delete</string>
     <string name="library_delete_cancel">Cancel</string>
+    <string name="library_empty_action">Import a GPX file</string>
+    <string name="library_error_title">Unable to load your library</string>
+    <string name="library_error_body">Something went wrong reading your saved routes.</string>
     <string name="library_sort_name">Name</string>
     <string name="library_sort_date">Date</string>
     <string name="library_sort">Change sorting</string>
@@ -135,6 +138,7 @@
     <string name="details_stat_total_time">Total time</string>
     <string name="details_elevation_profile">Elevation profile</string>
     <string name="details_elevation_high_low">↑ %1$s · ↓ %2$s</string>
+    <string name="details_elevation_readout">%1$s · %2$s</string>
     <string name="details_contents">Contents</string>
     <string name="details_main_track">Main track</string>
     <string name="details_track_summary">%1$s · %2$s</string>

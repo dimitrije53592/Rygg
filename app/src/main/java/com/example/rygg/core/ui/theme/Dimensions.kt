@@ -51,13 +51,16 @@ object Dimensions {
     val thumbnailSize66: Dp = 66.dp
     val badgeSize24: Dp = 24.dp
     val bulletSize6: Dp = 6.dp
+    val chartMarker5: Dp = 5.dp
     val statusDotSize10: Dp = 10.dp
 
     val radius4: Dp = 4.dp
     val radius8: Dp = 8.dp
     val radius12: Dp = 12.dp
     val radius16: Dp = 16.dp
+    val radius20: Dp = 20.dp
     val radius24: Dp = 24.dp
+    val radius28: Dp = 28.dp
 
     val border0: Dp = 0.dp
     val border1: Dp = 1.dp
@@ -66,12 +69,23 @@ object Dimensions {
     val elevation0: Dp = 0.dp
     val elevation2: Dp = 2.dp
     val elevation4: Dp = 4.dp
+    val elevation8: Dp = 8.dp
+    val elevation16: Dp = 16.dp
+    val elevation24: Dp = 24.dp
 
     val buttonSize32: Dp = 32.dp
     val buttonSize40: Dp = 40.dp
     val buttonSize50: Dp = 50.dp
 
     val progressIndicator20: Dp = 20.dp
+
+    val actionSize44: Dp = 44.dp
+
+    val bottomBarHeight64: Dp = 64.dp
+
+    val fabSize72: Dp = 72.dp
+    val fabRaise24: Dp = 24.dp
+    val fabLift8: Dp = 8.dp
 }
 
 val LocalRyggDimensions = staticCompositionLocalOf { Dimensions }

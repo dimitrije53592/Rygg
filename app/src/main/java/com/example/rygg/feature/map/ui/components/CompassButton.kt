@@ -1,8 +1,8 @@
 package com.example.rygg.feature.map.ui.components
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,15 +16,12 @@ internal fun CompassButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FloatingActionButton(
-        onClick = onClick,
-        modifier = modifier,
-        containerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-        contentColor = RyggTheme.getColor(RyggColor.BrandGreen)
-    ) {
+    MapControlButton(onClick = onClick, modifier = modifier) {
         Icon(
-            imageVector = Icons.Default.Explore,
-            contentDescription = stringResource(R.string.map_compass)
+            imageVector = Icons.Outlined.Explore,
+            contentDescription = stringResource(R.string.map_compass),
+            tint = RyggTheme.getColor(RyggColor.BrandGreen),
+            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
         )
     }
 }

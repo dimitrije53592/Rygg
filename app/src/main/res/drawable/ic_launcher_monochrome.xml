@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed icons use only the alpha channel, so this is the same silhouette as a flat fill. The
+     foreground's gradient cannot serve as a monochrome layer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <group
+        android:scaleX="0.70"
+        android:scaleY="0.70"
+        android:translateX="7.2"
+        android:translateY="5.1">
+        <path
+            android:pathData="M6,38 L18,16l8,12 6,-8 10,18z"
+            android:fillColor="#FFFFFFFF" />
+    </group>
+</vector>

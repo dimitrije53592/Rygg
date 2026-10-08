@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +34,10 @@ import com.example.rygg.feature.settings.domain.AppLanguage
 fun SettingsScreen(params: SettingsScreenParams) {
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.settings_title), actions = {})
+            RyggTopAppBar(
+                title = stringResource(R.string.settings_title),
+                onNavigateBack = params.onNavigateBack
+            )
         }
     ) { innerPadding ->
         Column(
@@ -134,8 +138,19 @@ private fun OptionRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
     ) {
-        RadioButton(selected = selected, onClick = onSelect)
-        Text(text = label, style = RyggTheme.typography.bodyLarge)
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = RyggTheme.getColor(RyggColor.BrandGreen),
+                unselectedColor = RyggTheme.getColor(RyggColor.TextSecondary)
+            )
+        )
+        Text(
+            text = label,
+            style = RyggTheme.typography.bodyLarge,
+            color = RyggTheme.getColor(RyggColor.TextPrimary)
+        )
     }
 }
 
@@ -156,6 +171,7 @@ data class SettingsUiState(
 
 data class SettingsScreenParams(
     val uiState: SettingsUiState,
+    val onNavigateBack: () -> Unit,
     val onThemeModeSelected: (ThemeMode) -> Unit,
     val onLanguageSelected: (AppLanguage) -> Unit,
     val onSyncEnabledChanged: (Boolean) -> Unit,
