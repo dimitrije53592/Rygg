@@ -98,10 +98,7 @@ fun MapScreen(params: MapScreenParams) {
 
     Scaffold(
         topBar = {
-            RyggTopAppBar(
-                title = stringResource(R.string.nav_map),
-                actions = {}
-            )
+            RyggTopAppBar(title = stringResource(R.string.nav_map))
         }
     ) { innerPadding ->
         Box(

@@ -34,7 +34,10 @@ import com.example.rygg.feature.settings.domain.AppLanguage
 fun SettingsScreen(params: SettingsScreenParams) {
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.settings_title), actions = {})
+            RyggTopAppBar(
+                title = stringResource(R.string.settings_title),
+                onNavigateBack = params.onNavigateBack
+            )
         }
     ) { innerPadding ->
         Column(
@@ -168,6 +171,7 @@ data class SettingsUiState(
 
 data class SettingsScreenParams(
     val uiState: SettingsUiState,
+    val onNavigateBack: () -> Unit,
     val onThemeModeSelected: (ThemeMode) -> Unit,
     val onLanguageSelected: (AppLanguage) -> Unit,
     val onSyncEnabledChanged: (Boolean) -> Unit,

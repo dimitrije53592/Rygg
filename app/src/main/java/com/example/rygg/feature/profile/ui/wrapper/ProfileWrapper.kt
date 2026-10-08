@@ -10,6 +10,7 @@ import com.example.rygg.feature.profile.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileWrapper(
+    onNavigateBack: () -> Unit,
     onAuthEntry: () -> Unit,
     onOpenSettings: () -> Unit,
     onSendFeedback: () -> Unit,
@@ -20,6 +21,7 @@ fun ProfileWrapper(
     ProfileScreen(
         params = ProfileScreenParams(
             uiState = uiState,
+            onNavigateBack = onNavigateBack,
             onSignOut = {
                 viewModel.signOut()
                 onAuthEntry()

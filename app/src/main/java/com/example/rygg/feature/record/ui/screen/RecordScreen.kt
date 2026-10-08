@@ -102,7 +102,7 @@ fun RecordScreen(params: RecordScreenParams) {
 
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.nav_record), actions = {})
+            RyggTopAppBar(title = stringResource(R.string.nav_record))
         }
     ) { innerPadding ->
         Box(

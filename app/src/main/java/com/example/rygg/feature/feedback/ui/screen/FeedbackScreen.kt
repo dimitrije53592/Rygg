@@ -44,7 +44,10 @@ import com.example.rygg.feature.feedback.ui.viewmodel.FeedbackUiState
 fun FeedbackScreen(params: FeedbackScreenParams) {
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.feedback_title), actions = {})
+            RyggTopAppBar(
+                title = stringResource(R.string.feedback_title),
+                onNavigateBack = params.onNavigateBack
+            )
         }
     ) { innerPadding ->
         Column(
@@ -242,6 +245,7 @@ private fun FeedbackScreenPreview() {
                     message = "The elevation profile looks flat on routes I record above the tree line.",
                     category = FeedbackCategory.BUG
                 ),
+                onNavigateBack = {},
                 onMessageChanged = {},
                 onCategorySelected = {},
                 onSend = {},
@@ -260,6 +264,7 @@ private fun FeedbackScreenSentPreview() {
                 uiState = FeedbackUiState(
                     sendState = FeedbackSendState.Sent(FeedbackDelivery.CONFIRMED)
                 ),
+                onNavigateBack = {},
                 onMessageChanged = {},
                 onCategorySelected = {},
                 onSend = {},
@@ -271,6 +276,7 @@ private fun FeedbackScreenSentPreview() {
 
 data class FeedbackScreenParams(
     val uiState: FeedbackUiState,
+    val onNavigateBack: () -> Unit,
     val onMessageChanged: (String) -> Unit,
     val onCategorySelected: (FeedbackCategory) -> Unit,
     val onSend: () -> Unit,

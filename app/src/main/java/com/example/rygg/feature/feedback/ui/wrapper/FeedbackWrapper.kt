@@ -18,6 +18,7 @@ fun FeedbackWrapper(
     FeedbackScreen(
         params = FeedbackScreenParams(
             uiState = uiState,
+            onNavigateBack = onNavigateBack,
             onMessageChanged = { viewModel.onMessageChanged(it) },
             onCategorySelected = { viewModel.onCategorySelected(it) },
             onSend = { viewModel.onSend() },

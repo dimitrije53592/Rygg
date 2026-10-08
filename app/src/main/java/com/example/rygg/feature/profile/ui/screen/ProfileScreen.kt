@@ -36,7 +36,10 @@ import com.example.rygg.core.ui.theme.RyggTheme
 fun ProfileScreen(params: ProfileScreenParams) {
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.profile_title), actions = {})
+            RyggTopAppBar(
+                title = stringResource(R.string.profile_title),
+                onNavigateBack = params.onNavigateBack
+            )
         }
     ) { innerPadding ->
         Column(
@@ -171,6 +174,7 @@ data class ProfileUiState(
 
 data class ProfileScreenParams(
     val uiState: ProfileUiState,
+    val onNavigateBack: () -> Unit,
     val onSignOut: () -> Unit,
     val onSignIn: () -> Unit,
     val onOpenSettings: () -> Unit,

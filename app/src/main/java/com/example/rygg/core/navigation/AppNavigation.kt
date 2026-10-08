@@ -254,6 +254,7 @@ fun AppNavigation() {
                     }
                     composable<Profile> {
                         ProfileWrapper(
+                            onNavigateBack = { navController.navigateUp() },
                             onAuthEntry = {
                                 navController.navigate(Login) {
                                     popUpTo(navController.graph.id) { inclusive = true }
@@ -264,7 +265,7 @@ fun AppNavigation() {
                         )
                     }
                     composable<Settings> {
-                        SettingsWrapper()
+                        SettingsWrapper(onNavigateBack = { navController.navigateUp() })
                     }
                     composable<Feedback> {
                         FeedbackWrapper(onNavigateBack = { navController.navigateUp() })
