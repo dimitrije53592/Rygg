@@ -67,8 +67,6 @@ internal fun LibraryDisciplineBar(
     }
 }
 
-// Selected reads as a filled brand chip; unselected is an outline on the page ground rather than a
-// grey fill, so the bar does not compete with the cards below it.
 @Composable
 private fun DisciplineChip(
     title: String,

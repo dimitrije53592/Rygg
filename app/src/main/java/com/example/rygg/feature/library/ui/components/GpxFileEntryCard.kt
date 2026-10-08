@@ -57,14 +57,6 @@ import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.domain.SyncStatus
 import com.example.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
 
-// 16:9 keeps the route shape legible while still fitting about two and a half cards on screen.
-// Taller crops look better in isolation but cost scanning speed, which in this category reads as a
-// regression rather than a refinement.
-private const val CARD_ASPECT = 16f / 9f
-private const val SCRIM_START = 0.45f
-private const val SCRIM_ALPHA = 0.78f
-private const val GLASS_ALPHA = 0.32f
-
 @Composable
 fun GpxFileEntryCard(
     entry: GpxFileEntry,
@@ -273,7 +265,7 @@ private fun SyncBadge(entry: GpxFileEntry) {
     )
 }
 
-// The glyph stays 24dp but the target is a full 48dp, which it was not before.
+// 24dp glyph, 48dp touch target.
 @Composable
 private fun FavoriteStar(
     favorite: Boolean,
@@ -334,3 +326,8 @@ private fun GpxFileEntryCardPreview(
         )
     }
 }
+
+private const val CARD_ASPECT = 16f / 9f
+private const val SCRIM_START = 0.45f
+private const val SCRIM_ALPHA = 0.78f
+private const val GLASS_ALPHA = 0.32f

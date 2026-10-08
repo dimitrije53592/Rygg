@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// A card that reads as a row leading somewhere else: icon, label, chevron.
 @Composable
 fun RyggNavigationRow(
     label: String,

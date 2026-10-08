@@ -4,13 +4,8 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 
-// These mirror Material 3 Expressive's own motion scheme, read off ExpressiveMotionTokens in
-// material3 1.4.0. We restate them rather than calling MaterialTheme.motionScheme so the app is not
-// bound to @ExperimentalMaterial3ExpressiveApi; swap to the tokens once that opt-in is gone.
-//
-// The rule underneath the numbers: spatial springs (position, size, layout) overshoot slightly and
-// read as alive. Effects springs (opacity, colour) are critically damped — overshooting an alpha
-// looks like a glitch, not a flourish.
+// Restated from material3 1.4.0's ExpressiveMotionTokens rather than read off
+// MaterialTheme.motionScheme, so the app is not bound to @ExperimentalMaterial3ExpressiveApi.
 object RyggMotion {
     fun <T> spatialFast(): FiniteAnimationSpec<T> = spring(dampingRatio = 0.6f, stiffness = 800f)
 
@@ -24,7 +19,6 @@ object RyggMotion {
 
     fun <T> effectsSlow(): FiniteAnimationSpec<T> = spring(dampingRatio = 1f, stiffness = 800f)
 
-    // Deliberately bouncier than the spatial default: a press should feel like it springs back.
     fun <T> press(): FiniteAnimationSpec<T> =
         spring(dampingRatio = 0.4f, stiffness = Spring.StiffnessMedium)
 }

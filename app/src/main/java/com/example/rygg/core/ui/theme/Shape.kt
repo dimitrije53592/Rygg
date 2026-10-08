@@ -13,11 +13,8 @@ import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.toPath
 import kotlin.math.min
 
-// A plain rounded rectangle is one circular arc per corner. Smoothing splits that into a centre arc
-// plus two transition curves, giving continuous curvature — the difference between a rounded box
-// and a squircle, and most of why iOS surfaces look more expensive than stock Android ones.
-private const val CORNER_SMOOTHING = 0.6f
-
+// Smoothing splits each corner's single arc into a centre arc plus two transition curves, giving
+// the continuous curvature of a squircle rather than a plain rounded rectangle.
 class SmoothCornerShape(
     private val radius: Dp,
     private val smoothing: Float = CORNER_SMOOTHING
@@ -41,8 +38,12 @@ class SmoothCornerShape(
     }
 }
 
-// Named by role, not by value, so a radius change is one edit rather than a sweep of call sites.
-// Nested surfaces follow inner = outer - gap (see concentricTo) or the inner corner reads pinched.
+// Radius for a surface nested inside one of radius [outer] with [gap] of padding around it.
+fun concentricTo(outer: Dp, gap: Dp): Shape {
+    val inner = outer - gap
+    return SmoothCornerShape(if (inner.value > 0f) inner else Dp(0f))
+}
+
 object RyggShapes {
     val card: Shape = SmoothCornerShape(Dimensions.radius20)
     val sheet: Shape = SmoothCornerShape(Dimensions.radius28)
@@ -51,8 +52,4 @@ object RyggShapes {
     val thumbnail: Shape = SmoothCornerShape(Dimensions.radius16)
 }
 
-// Radius for a surface nested inside one of radius [outer] with [gap] of padding around it.
-fun concentricTo(outer: Dp, gap: Dp): Shape {
-    val inner = outer - gap
-    return SmoothCornerShape(if (inner.value > 0f) inner else Dp(0f))
-}
+private const val CORNER_SMOOTHING = 0.6f

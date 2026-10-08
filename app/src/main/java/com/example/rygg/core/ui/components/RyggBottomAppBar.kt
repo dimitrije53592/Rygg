@@ -37,8 +37,6 @@ import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ryggElevation
 
-// Recording is the app's primary action, so it gets a raised centre button rather than being one
-// flat tab of three. Library and Map sit either side of the gap it leaves.
 @Composable
 fun RyggBottomAppBar(
     navController: NavController,
@@ -47,8 +45,8 @@ fun RyggBottomAppBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            // Room for the button to break the bar's top edge without leaving the Box bounds,
-            // which would stop it receiving touches.
+            // Room for the raised button to overhang without leaving the Box, which would stop it
+            // receiving touches.
             .padding(top = RyggTheme.dimens.fabRaise24)
     ) {
         Row(

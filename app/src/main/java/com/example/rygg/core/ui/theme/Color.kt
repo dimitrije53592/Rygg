@@ -4,13 +4,11 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-// Dark is the designed theme; light is derived from it. The dark ramp steps deliberately between
-// SurfaceDim (background) / Surface / SurfaceElevated so surfaces separate by lightness, which is
-// what has to carry depth where shadows are invisible.
+// The dark ramp steps SurfaceDim / Surface / SurfaceElevated by lightness, which is what carries
+// depth where shadows are invisible.
 enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     BrandGreen(lightColor = Color(0xFF0E7A52), darkColor = Color(0xFF16A06B)),
 
-    // Route lines, summit markers and highlights — reads against terrain where the CTA green does not.
     AccentBright(lightColor = Color(0xFF1FB87E), darkColor = Color(0xFF2FD694)),
     BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF11231D)),
     BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0A0E12)),
@@ -30,12 +28,9 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     OnScrim(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFFFFFFF)),
     Success(lightColor = Color(0xFF2E7D32), darkColor = Color(0xFF81C784)),
 
-    // Steep-slope shading and non-blocking cautions (docs/maps-offline.md).
     Warning(lightColor = Color(0xFFB26A00), darkColor = Color(0xFFFFB74D)),
 
-    // Gradient ramp for elevation profiles, following the banding the category has converged on:
-    // 3-7% moderate, 7-16% steep, 16-25% very steep, above that extreme. Anything gentler than 3%
-    // stays the brand accent, so a flat route reads as one colour rather than noise.
+    // Elevation-profile grade bands; gentler than 3% stays the brand accent (see ElevationProfile).
     GradeModerate(lightColor = Color(0xFFCCA32E), darkColor = Color(0xFFE8C547)),
     GradeSteep(lightColor = Color(0xFFCF7429), darkColor = Color(0xFFE8893D)),
     GradeVerySteep(lightColor = Color(0xFFC03A33), darkColor = Color(0xFFE05950)),
@@ -44,8 +39,7 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     ErrorSurface(lightColor = Color(0xFFFDECEA), darkColor = Color(0xFF3A1E1E))
 }
 
-// Every Material role is mapped. Anything left unmapped falls back to the baseline Material
-// purple, which is how stock widgets (Switch, RadioButton) end up off-palette.
+// Map every Material role: an unmapped one falls back to baseline purple on stock widgets.
 val LightColorScheme = lightColorScheme(
     primary = RyggColor.BrandGreen.lightColor,
     onPrimary = RyggColor.OnBrand.lightColor,

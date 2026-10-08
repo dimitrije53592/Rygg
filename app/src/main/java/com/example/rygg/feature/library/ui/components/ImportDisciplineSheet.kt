@@ -28,8 +28,6 @@ import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
 
-// Import used to be a FAB that expanded into four discipline buttons. Recording now owns the single
-// raised action, so the choice moves into a sheet where the options can carry labels.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImportDisciplineSheet(

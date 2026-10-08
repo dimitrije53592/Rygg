@@ -132,7 +132,7 @@ private fun LoadedContent(
         is DetailsMode.SharedPreview -> stringResource(R.string.details_shared_preview)
     }
 
-    // Lifted so dragging the elevation profile can mark the matching point on the hero route.
+    // Hoisted so dragging the elevation profile can mark the matching point on the hero route.
     var scrubFraction by remember { mutableStateOf<Float?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {

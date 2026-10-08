@@ -492,8 +492,6 @@ data class RecordScreenParams(
     val onAddWaypoint: (String) -> Unit
 )
 
-// A dot that breathes while recording and holds still when paused reads at a glance from arm's
-// length, which a line of text alone does not.
 @Composable
 private fun RecordingStatus(
     statusText: String,

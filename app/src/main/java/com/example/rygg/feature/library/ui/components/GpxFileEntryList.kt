@@ -33,8 +33,7 @@ internal fun GpxFileEntryList(
     onDeleteEntry: (GpxFileEntry) -> Unit
 ) {
     val listState = rememberLazyListState()
-    // Changing sort re-groups the list but keeps the scroll offset, which parks the first section
-    // heading just above the viewport and makes it look like the group has no heading at all.
+    // Re-sorting keeps the scroll offset, which would park the first section heading off-screen.
     LaunchedEffect(sortMode) { listState.scrollToItem(0) }
 
     LazyColumn(
@@ -51,8 +50,6 @@ internal fun GpxFileEntryList(
         if (sortMode == SortMode.TIME) {
             val timed = entries.filter { it.startTimeMillis != null }
             val untimed = entries.filter { it.startTimeMillis == null }
-            // Entries arrive already ordered, and groupBy keeps encounter order, so the months come
-            // out in the same order the list is sorted in.
             timed.groupBy { monthKey(requireNotNull(it.startTimeMillis)) }
                 .forEach { (key, monthEntries) ->
                     item(key = "month-$key") {

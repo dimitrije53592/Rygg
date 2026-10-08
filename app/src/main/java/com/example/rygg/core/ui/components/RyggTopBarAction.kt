@@ -18,12 +18,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-// A bare glyph on the graphite header reads as decoration rather than a control. Giving it a
-// translucent disc and a hairline edge makes it legible as something pressable, and holds its own
-// against the contour texture behind it.
-private const val DISC_ALPHA = 0.10f
-private const val EDGE_ALPHA = 0.18f
-
 @Composable
 fun RyggTopBarAction(
     icon: ImageVector,
@@ -67,7 +61,7 @@ private fun TopBarActionSurface(
     val interactionSource = remember { MutableInteractionSource() }
     val onBrand = RyggTheme.getColor(RyggColor.OnBrand)
 
-    // The disc is 44dp but the target is a full 48dp.
+    // The disc is 44dp; the touch target is a full 48dp.
     Box(
         modifier = modifier
             .size(RyggTheme.dimens.iconSize48)
@@ -95,3 +89,6 @@ private fun TopBarActionSurface(
         }
     }
 }
+
+private const val DISC_ALPHA = 0.10f
+private const val EDGE_ALPHA = 0.18f

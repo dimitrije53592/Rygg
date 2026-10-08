@@ -14,10 +14,6 @@ import androidx.compose.ui.graphics.Brush
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-private const val SWEEP_MILLIS = 1400
-
-// Drawn in the draw phase via drawWithCache, so the sweep never triggers recomposition or layout —
-// a shimmer that costs a relayout every frame is worse than the spinner it replaced.
 @Composable
 fun Modifier.shimmer(): Modifier {
     val transition = rememberInfiniteTransition(label = "shimmer")
@@ -40,3 +36,5 @@ fun Modifier.shimmer(): Modifier {
         onDrawBehind { drawRect(brush) }
     }
 }
+
+private const val SWEEP_MILLIS = 1400

@@ -30,12 +30,12 @@ import com.example.rygg.core.ui.theme.RyggTheme
 fun SwipeToDeleteBox(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
-    // Must match the shape of whatever is swiped, or the red backdrop shows around its corners.
+    // Must match the shape of the swiped content, or the backdrop shows around its corners.
     shape: Shape = RyggShapes.card,
     content: @Composable () -> Unit
 ) {
-    // The swipe only *requests* the delete: rejecting the state change snaps the row back, so a
-    // cancelled confirmation leaves it in place instead of stranded off-screen.
+    // Always rejects the state change: the swipe only requests the delete, so a cancelled
+    // confirmation snaps the row back instead of leaving it stranded off-screen.
     val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.StartToEnd) onDelete()

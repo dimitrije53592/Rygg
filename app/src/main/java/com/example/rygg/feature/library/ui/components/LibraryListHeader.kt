@@ -145,7 +145,7 @@ private fun FavoritesFilterToggle(
     }
 }
 
-// Keeps the glyph at 24dp while giving the control the 48dp target it needs.
+// 24dp glyph, 48dp touch target.
 @Composable
 private fun ToggleTarget(
     onClick: () -> Unit,

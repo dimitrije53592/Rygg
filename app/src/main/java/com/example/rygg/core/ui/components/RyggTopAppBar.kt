@@ -27,7 +27,6 @@ import com.example.rygg.core.ui.theme.RyggTheme
 fun RyggTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
-    // Sub-screens pass this; top-level ones leave it null and keep the brand mark instead.
     onNavigateBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
@@ -36,8 +35,7 @@ fun RyggTopAppBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // The back control takes the leading slot, so showing the mark as well would put
-                // two unrelated glyphs in a row before the title.
+                // The back control already owns the leading slot.
                 if (onNavigateBack == null) {
                     Icon(
                         painter = painterResource(R.drawable.ic_logo),

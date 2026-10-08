@@ -37,8 +37,7 @@ fun RyggCard(
             .ryggElevation(level = elevation, shape = shape)
             .clip(shape)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
-            // Light mode gets its separation from the shadow; dark mode has no shadow to give, so
-            // the hairline carries the edge there instead.
+            // Dark mode has no visible shadow, so the hairline carries the card's edge there.
             .then(
                 if (RyggTheme.isDarkMode) {
                     Modifier.border(

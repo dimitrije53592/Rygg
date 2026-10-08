@@ -17,16 +17,8 @@ import com.example.rygg.core.ui.components.pressScale
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 
-private const val GLASS_ALPHA = 0.84f
-private const val EDGE_ALPHA = 0.22f
-
-// Map chrome floats over the basemap, not over an app surface, so it is styled against the map
-// rather than the theme: a translucent disc with a hairline edge and a real shadow, which separates
-// it from both pale terrain and dark forest.
-//
-// Deliberately no Modifier.blur: that blurs a composable's own drawing, not what is behind it, so
-// it would only soften the icon. Compose has no backdrop blur without compositing the map itself
-// into a layer, which is not worth the cost here.
+// Styled against the basemap rather than the theme. Deliberately no Modifier.blur: it blurs the
+// composable's own drawing, not the map behind it, so it would only soften the icon.
 @Composable
 internal fun MapControlButton(
     onClick: () -> Unit,
@@ -59,3 +51,6 @@ internal fun MapControlButton(
         content()
     }
 }
+
+private const val GLASS_ALPHA = 0.84f
+private const val EDGE_ALPHA = 0.22f

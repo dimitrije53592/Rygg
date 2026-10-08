@@ -22,28 +22,11 @@ import com.example.rygg.core.ui.theme.RyggTheme
 import kotlin.math.cos
 import kotlin.math.min
 
-// Stroke weights and marker sizes are picked per surface rather than derived from the canvas, so a
-// route reads the same whether it is a list card or a full-bleed hero.
-enum class RouteCanvasScale(
-    val track: Dp,
-    val glow: Dp,
-    val marker: Dp
-) {
-    Card(track = Dp(3f), glow = Dp(10f), marker = Dp(5f)),
-    Hero(track = Dp(4f), glow = Dp(14f), marker = Dp(7f))
-}
-
-private const val FIT_PADDING_FRACTION = 0.12f
-private const val GLOW_ALPHA = 0.22f
-private const val CONTOUR_ALPHA = 0.5f
-private const val HIGHLIGHT_SCALE = 1.4f
-
 @Composable
 fun RouteCanvas(
     points: List<GeoPoint>,
     modifier: Modifier = Modifier,
     scale: RouteCanvasScale = RouteCanvasScale.Card,
-    // Fraction along the route to mark, used to tie the elevation profile's scrub to the map.
     highlightFraction: Float? = null
 ) {
     val trackColor = RyggTheme.getColor(RyggColor.AccentBright)
@@ -51,8 +34,7 @@ fun RouteCanvas(
     val groundBottom = RyggTheme.getColor(RyggColor.MossSurfaceDim)
     val contourColor = RyggTheme.getColor(RyggColor.OnBrand).copy(alpha = CONTOUR_ALPHA)
     val startColor = RyggTheme.getColor(RyggColor.OnBrand)
-    // Cumulative distance, so a fraction of the route resolves by length rather than by point
-    // index: GPS points are not evenly spaced and an index-based marker visibly lags on long legs.
+    // By length, not by point index: GPS points are not evenly spaced.
     val cumulative = remember(points) { points.cumulativeDistances() }
 
     Box(
@@ -70,8 +52,6 @@ fun RouteCanvas(
                 }
             }
 
-            // A wide translucent pass under the track reads as the line sitting above the terrain
-            // rather than being stamped onto it.
             drawPath(
                 path = path,
                 color = trackColor.copy(alpha = GLOW_ALPHA),
@@ -92,7 +72,6 @@ fun RouteCanvas(
             )
 
             val markerRadius = scale.marker.toPx()
-            // Filled start, hollow end — so direction of travel is readable at a glance.
             drawCircle(color = startColor, radius = markerRadius, center = projected.first())
             drawCircle(
                 color = trackColor,
@@ -101,7 +80,6 @@ fun RouteCanvas(
                 style = Stroke(width = scale.track.toPx())
             )
 
-            // Filled accent with a light ring, so it cannot be mistaken for the white start dot.
             highlightFraction?.let { fraction ->
                 val center = projected[cumulative.indexAtFraction(fraction)]
                 drawCircle(
@@ -119,6 +97,20 @@ fun RouteCanvas(
         }
     }
 }
+
+enum class RouteCanvasScale(
+    val track: Dp,
+    val glow: Dp,
+    val marker: Dp
+) {
+    Card(track = Dp(3f), glow = Dp(10f), marker = Dp(5f)),
+    Hero(track = Dp(4f), glow = Dp(14f), marker = Dp(7f))
+}
+
+private const val FIT_PADDING_FRACTION = 0.12f
+private const val GLOW_ALPHA = 0.22f
+private const val CONTOUR_ALPHA = 0.5f
+private const val HIGHLIGHT_SCALE = 1.4f
 
 // Longitude degrees shrink by cos(latitude), so projecting lat/lon straight onto x/y stretches
 // every route horizontally — about 41% at 45N. Same correction as RouteProgress.toLocalMeters.

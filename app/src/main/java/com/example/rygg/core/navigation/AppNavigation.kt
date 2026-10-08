@@ -68,19 +68,16 @@ fun AppNavigation() {
 
     val activity = LocalContext.current as ComponentActivity
 
-    // An internal deep link may need side effects before the jump (e.g. tearing down the recording
-    // service when the notification's Stop opens RecordingPreview). NavHost handles the nav itself.
+    // NavHost does the navigating; this only covers side effects a deep link owes first.
     fun handleDeepLinkSideEffects(intent: Intent?) {
         if (intent?.data?.toString() == InternalDeepLinks.RECORDING_PREVIEW) {
             RecordingService.stop(activity)
         }
     }
 
-    // Cold start: NavHost auto-handles the launch intent's deep link; we only owe the side effects.
     LaunchedEffect(Unit) { handleDeepLinkSideEffects(activity.intent) }
 
-    // Warm start: a singleTop activity receives later deep links via onNewIntent, which NavHost does
-    // not observe — forward them to the NavController ourselves (plus run the side effects).
+    // A singleTop activity gets later deep links via onNewIntent, which NavHost does not observe.
     DisposableEffect(navController) {
         val listener = Consumer<Intent> { intent ->
             handleDeepLinkSideEffects(intent)
@@ -92,7 +89,6 @@ fun AppNavigation() {
 
     val startDestination: Any = remember { if (authViewModel.isLoggedIn()) Library else Login }
 
-    // Enter the app at Library, clearing the auth back stack behind it.
     fun enterLibrary() {
         navController.navigate(Library) {
             popUpTo(navController.graph.id) { inclusive = true }
@@ -125,9 +121,6 @@ fun AppNavigation() {
                 NavHost(
                     navController = navController,
                     startDestination = startDestination,
-                    // Forward motion slides in from the trailing edge and back reverses it, so the stack has
-                    // a direction. The slide is a fraction of the width rather than the whole screen: a full
-                    // -width slide at this duration reads as sluggish.
                     enterTransition = {
                         slideInHorizontally(
                             initialOffsetX = { it / SLIDE_FRACTION },
@@ -210,7 +203,6 @@ fun AppNavigation() {
                             )
                         }
                     }
-                    // Deep link "<RouteShareLinks.BASE>/s/{token}" opens a shared route for any recipient.
                     composable<SharedRoutePreview>(
                         deepLinks = listOf(navDeepLink<SharedRoutePreview>(basePath = "${RouteShareLinks.BASE}/s"))
                     ) {
@@ -226,8 +218,6 @@ fun AppNavigation() {
                     composable<ImportPreview> {
                         ImportPreviewWrapper(onDone = { navController.popBackStack() })
                     }
-                    // Deep link "<InternalDeepLinks.RECORD>" opens the live recording screen when the
-                    // ongoing-recording notification body is tapped (recording keeps running).
                     composable<Record>(
                         deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
                     ) {
@@ -235,8 +225,6 @@ fun AppNavigation() {
                             onRecordingStopped = { navController.navigate(RecordingPreview) }
                         )
                     }
-                    // Deep link "<InternalDeepLinks.RECORDING_PREVIEW>" opens the save/preview screen when
-                    // the recording notification's Stop action is tapped (see RecordingService).
                     composable<RecordingPreview>(
                         deepLinks = listOf(navDeepLink<RecordingPreview>(basePath = InternalDeepLinks.RECORDING_PREVIEW))
                     ) {

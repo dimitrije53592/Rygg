@@ -9,10 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.example.rygg.core.ui.theme.RyggMotion
 
-private const val PRESSED_SCALE = 0.98f
-
-// A spring-driven scale reads as a physical press in a way the default ripple does not. Driven
-// through graphicsLayer so it stays in the draw phase and never triggers layout.
 @Composable
 fun Modifier.pressScale(interactionSource: InteractionSource): Modifier {
     val pressed by interactionSource.collectIsPressedAsState()
@@ -26,3 +22,5 @@ fun Modifier.pressScale(interactionSource: InteractionSource): Modifier {
         scaleY = scale
     }
 }
+
+private const val PRESSED_SCALE = 0.98f

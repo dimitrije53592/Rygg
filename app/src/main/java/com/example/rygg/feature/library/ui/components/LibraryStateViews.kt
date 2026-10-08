@@ -35,9 +35,6 @@ import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
-private const val SKELETON_CARD_COUNT = 3
-private const val CARD_ASPECT = 16f / 9f
-
 @Composable
 internal fun LibraryEmptyState(onImport: () -> Unit) {
     StateMessage(
@@ -45,7 +42,6 @@ internal fun LibraryEmptyState(onImport: () -> Unit) {
         title = stringResource(R.string.library_empty_title),
         body = stringResource(R.string.library_empty_subtitle)
     ) {
-        // The copy told the user to import and then gave them nothing to press.
         RyggPrimaryButton(
             text = stringResource(R.string.library_empty_action),
             onClick = onImport
@@ -59,7 +55,6 @@ internal fun LibraryErrorState(errorMessage: String?) {
         icon = Icons.Outlined.ErrorOutline,
         tint = RyggTheme.getColor(RyggColor.Error),
         title = stringResource(R.string.library_error_title),
-        // A null message used to render an entirely blank screen.
         body = errorMessage?.takeIf { it.isNotBlank() } ?: stringResource(R.string.library_error_body)
     )
 }
@@ -73,7 +68,7 @@ internal fun LibraryNoMatchesState() {
     )
 }
 
-// Placeholders shaped like the cards that are coming, so the list does not jump when they land.
+// Shaped like the cards that are coming, so the list does not jump when they land.
 @Composable
 internal fun LibraryLoadingState() {
     LazyColumn(
@@ -177,3 +172,6 @@ private fun StateMessage(
         }
     }
 }
+
+private const val SKELETON_CARD_COUNT = 3
+private const val CARD_ASPECT = 16f / 9f

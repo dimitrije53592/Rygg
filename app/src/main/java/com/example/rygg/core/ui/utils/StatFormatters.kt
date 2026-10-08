@@ -63,8 +63,7 @@ fun formatDate(millis: Long): String =
 fun formatMonthYear(millis: Long): String =
     Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(monthYearFormatter)
 
-// Groups a timestamp by calendar month. Separate from formatMonthYear so the grouping key does not
-// change with locale or with how the heading happens to be rendered.
+// A locale-independent grouping key, so it does not shift with the rendered heading.
 fun monthKey(millis: Long): Int {
     val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
     return date.year * 100 + date.monthValue

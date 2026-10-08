@@ -9,19 +9,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.rygg.R
 
-// Inter is bundled rather than downloaded: Rygg has to render identically with no network, which
-// is exactly where it gets used.
+// Bundled rather than downloadable: the app has to render identically with no network.
 private val DefaultFontFamily = FontFamily(
     Font(R.font.inter_regular, FontWeight.Normal),
     Font(R.font.inter_medium, FontWeight.Medium),
     Font(R.font.inter_semibold, FontWeight.SemiBold),
     Font(R.font.inter_bold, FontWeight.Bold)
 )
-
-// Stats, timers and coordinates must keep digit columns aligned while the numbers tick, so every
-// numeric style opts into tabular figures. Without it a 1 is narrower than a 7 and the whole
-// readout jitters as it updates.
-private const val TABULAR_FIGURES = "tnum"
 
 val RyggTypography = Typography(
     displayLarge = TextStyle(
@@ -134,11 +128,8 @@ val RyggTypography = Typography(
     )
 )
 
-// Brand styles the Material scale has no slot for (designs/README.md: "tabular numerals for all
-// stats; uppercase tracked labels"). Values are read off a stat, never a paragraph.
 object RyggTextStyles {
-    // Caption above a metric or form field. Pair with .uppercase() at the call site so the string
-    // resource stays readable and translatable.
+    // Pair with .uppercase() at the call site, so the string resource stays translatable.
     val trackedLabel: TextStyle = TextStyle(
         fontFamily = DefaultFontFamily,
         fontWeight = FontWeight.Bold,
@@ -147,7 +138,6 @@ object RyggTextStyles {
         letterSpacing = 0.66.sp
     )
 
-    // A metric value in a card or grid.
     val statValue: TextStyle = TextStyle(
         fontFamily = DefaultFontFamily,
         fontWeight = FontWeight.SemiBold,
@@ -157,7 +147,6 @@ object RyggTextStyles {
         fontFeatureSettings = TABULAR_FIGURES
     )
 
-    // A compact metric in a dense row, such as the library card's stats line.
     val statValueSmall: TextStyle = TextStyle(
         fontFamily = DefaultFontFamily,
         fontWeight = FontWeight.SemiBold,
@@ -167,7 +156,6 @@ object RyggTextStyles {
         fontFeatureSettings = TABULAR_FIGURES
     )
 
-    // The dominant metric on a screen — the following HUD, the recording summary.
     val statValueLarge: TextStyle = TextStyle(
         fontFamily = DefaultFontFamily,
         fontWeight = FontWeight.Bold,
@@ -179,3 +167,6 @@ object RyggTextStyles {
 }
 
 val LocalRyggTextStyles = staticCompositionLocalOf { RyggTextStyles }
+
+// Keeps digit columns aligned while a stat ticks: without it a 1 is narrower than a 7.
+private const val TABULAR_FIGURES = "tnum"

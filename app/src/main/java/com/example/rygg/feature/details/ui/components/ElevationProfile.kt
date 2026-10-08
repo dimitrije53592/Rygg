@@ -35,21 +35,6 @@ import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatElevationMeters
 import kotlin.math.abs
 
-private const val FILL_ALPHA = 0.28f
-private const val GRID_ALPHA = 0.12f
-private const val GRID_LINES = 3
-
-// Raw point-to-point grade on real GPS data is confetti, so it is averaged over a window before a
-// colour is chosen. Bands follow the ramp the category has settled on.
-private const val GRADE_WINDOW_METERS = 60.0
-private const val GRADE_MODERATE = 0.03
-private const val GRADE_STEEP = 0.07
-private const val GRADE_VERY_STEEP = 0.16
-private const val GRADE_EXTREME = 0.25
-
-// The plot is inset so a peak touching the maximum is not sliced in half by the canvas edge.
-private const val VERTICAL_INSET = 0.08f
-
 @Composable
 fun ElevationProfile(
     samples: List<ElevationSample>,
@@ -99,7 +84,6 @@ fun ElevationProfile(
                 style = RyggTheme.typography.titleSmall,
                 color = RyggTheme.getColor(RyggColor.TextPrimary)
             )
-            // While scrubbing, the header turns into the readout for the point under the finger.
             val readout = scrubFraction?.let { fraction ->
                 val sample = samples.sampleAt(fraction)
                 stringResource(
@@ -128,7 +112,6 @@ fun ElevationProfile(
                 .fillMaxWidth()
                 .height(RyggTheme.dimens.elevationProfileHeight)
                 .pointerInput(samples) {
-                    // Press and drag both scrub; the readout clears when the finger lifts.
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
                         setScrub((down.position.x / size.width).coerceIn(0f, 1f))
@@ -183,7 +166,7 @@ fun ElevationProfile(
                 )
             )
 
-            // Drawn as coloured segments rather than one path, so the climb bands are readable.
+            // Segment by segment rather than one path, so the climb bands stay readable.
             val strokeWidth = lineStroke.toPx()
             for (index in 1 until projected.size) {
                 drawLine(
@@ -241,8 +224,7 @@ private fun List<ElevationSample>.sampleAt(fraction: Float): ElevationSample {
     return minByOrNull { abs(it.distanceMeters - target) } ?: first()
 }
 
-// Grade for each sample, averaged backwards over a fixed distance so short GPS jitter does not
-// flip the colour band every few pixels.
+// Averaged backwards over a fixed distance, or GPS jitter flips the colour band every few pixels.
 private fun List<ElevationSample>.smoothedGrades(): List<Double> {
     val grades = DoubleArray(size)
     var windowStart = 0
@@ -276,3 +258,15 @@ private fun gradeColor(
         else -> accent
     }
 }
+
+private const val FILL_ALPHA = 0.28f
+private const val GRID_ALPHA = 0.12f
+private const val GRID_LINES = 3
+private const val GRADE_WINDOW_METERS = 60.0
+private const val GRADE_MODERATE = 0.03
+private const val GRADE_STEEP = 0.07
+private const val GRADE_VERY_STEEP = 0.16
+private const val GRADE_EXTREME = 0.25
+
+// Inset so a peak touching the maximum is not sliced off by the canvas edge.
+private const val VERTICAL_INSET = 0.08f
