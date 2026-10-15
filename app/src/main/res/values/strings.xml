@@ -23,7 +23,6 @@
     <string name="follow_elevation">Elevation</string>
     <string name="follow_preview_badge">Preview</string>
     <string name="follow_stat_empty">—</string>
-    <string name="map_location_off">Location is off. Turn on location to see where you are.</string>
     <string name="record_placeholder">Record screen</string>
     <string name="nav_profile">Profile</string>
     <string name="nav_settings">Settings</string>
@@ -265,4 +264,32 @@
     <string name="unit_speed_kmh">%1$s km/h</string>
     <string name="unit_speed_mph">%1$s mph</string>
     <string name="unit_ascent">↑ %1$s</string>
+    <!-- Location prompts -->
+    <string name="location_prompt_permission_title">Allow location access</string>
+    <string name="location_prompt_permission_position">Rygg uses your location to show where you are on the map. It is only used while the map is open.</string>
+    <string name="location_prompt_permission_follow">Rygg needs your location to guide you along this route and warn you when you leave the trail.</string>
+    <string name="location_prompt_permission_record">Rygg needs your location to record your track, including while the screen is off.</string>
+    <string name="location_prompt_permission_action">Allow location</string>
+    <string name="location_prompt_blocked_title">Location access is blocked</string>
+    <string name="location_prompt_blocked_body">Location is turned off for Rygg. In the app settings, open Permissions → Location, choose \"Allow only while using the app\" and keep \"Use precise location\" on.</string>
+    <string name="location_prompt_blocked_action">Open settings</string>
+    <string name="location_prompt_services_title">Your phone\'s location is off</string>
+    <string name="location_prompt_services_position">Turn on location to see where you are on the map.</string>
+    <string name="location_prompt_services_follow">Turn on location to follow this route.</string>
+    <string name="location_prompt_services_record">Turn on location to record your track.</string>
+    <string name="location_prompt_services_action">Turn on location</string>
+    <string name="location_prompt_precise_title">Precise location needed</string>
+    <string name="location_prompt_precise_follow">Approximate location can be off by hundreds of meters, too far to follow a trail. Allow precise location to continue.</string>
+    <string name="location_prompt_precise_record">Approximate location can be off by hundreds of meters, which would ruin your track. Allow precise location to record.</string>
+    <string name="location_prompt_precise_action">Allow precise location</string>
+    <string name="location_prompt_dismiss">Not now</string>
+
+    <!-- Location status while following / recording -->
+    <string name="follow_signal_off">Location is off. Your position is not updating.</string>
+    <string name="location_turn_on">Turn on</string>
+    <string name="record_gps_waiting">Waiting for GPS…</string>
+    <string name="record_gps_ready">GPS ready</string>
+    <string name="record_location_paused">Location is off, so your track is paused. The timer keeps running.</string>
+    <string name="record_notification_location_paused">Location off · track paused</string>
+    <string name="record_notifications_off">Notifications are off, so recording progress won\'t show in the status bar.</string>
 </resources>

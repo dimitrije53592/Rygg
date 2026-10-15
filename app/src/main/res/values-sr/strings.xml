@@ -23,7 +23,6 @@
     <string name="follow_elevation">Nadmorska visina</string>
     <string name="follow_preview_badge">Pregled</string>
     <string name="follow_stat_empty">—</string>
-    <string name="map_location_off">Lokacija je isključena. Uključite lokaciju da vidite gde se nalazite.</string>
     <string name="record_placeholder">Ekran za snimanje</string>
     <string name="nav_profile">Profil</string>
     <string name="nav_settings">Podešavanja</string>
@@ -266,4 +265,32 @@
     <string name="unit_speed_kmh">%1$s km/h</string>
     <string name="unit_speed_mph">%1$s mph</string>
     <string name="unit_ascent">↑ %1$s</string>
+    <!-- Location prompts -->
+    <string name="location_prompt_permission_title">Dozvolite pristup lokaciji</string>
+    <string name="location_prompt_permission_position">Rygg koristi vašu lokaciju da prikaže gde se nalazite na mapi. Koristi se samo dok je mapa otvorena.</string>
+    <string name="location_prompt_permission_follow">Rygg-u je potrebna vaša lokacija da vas vodi ovom rutom i upozori kada skrenete sa staze.</string>
+    <string name="location_prompt_permission_record">Rygg-u je potrebna vaša lokacija da snimi vašu rutu, i dok je ekran isključen.</string>
+    <string name="location_prompt_permission_action">Dozvoli lokaciju</string>
+    <string name="location_prompt_blocked_title">Pristup lokaciji je blokiran</string>
+    <string name="location_prompt_blocked_body">Lokacija je isključena za Rygg. U podešavanjima aplikacije otvorite Dozvole → Lokacija, izaberite \"Dozvoli samo dok se aplikacija koristi\" i ostavite uključeno \"Koristi preciznu lokaciju\".</string>
+    <string name="location_prompt_blocked_action">Otvori podešavanja</string>
+    <string name="location_prompt_services_title">Lokacija na telefonu je isključena</string>
+    <string name="location_prompt_services_position">Uključite lokaciju da vidite gde se nalazite na mapi.</string>
+    <string name="location_prompt_services_follow">Uključite lokaciju da biste pratili ovu rutu.</string>
+    <string name="location_prompt_services_record">Uključite lokaciju da biste snimili rutu.</string>
+    <string name="location_prompt_services_action">Uključi lokaciju</string>
+    <string name="location_prompt_precise_title">Potrebna je precizna lokacija</string>
+    <string name="location_prompt_precise_follow">Približna lokacija može odstupati i stotinama metara, previše za praćenje staze. Dozvolite preciznu lokaciju da nastavite.</string>
+    <string name="location_prompt_precise_record">Približna lokacija može odstupati i stotinama metara, što bi pokvarilo snimak. Dozvolite preciznu lokaciju za snimanje.</string>
+    <string name="location_prompt_precise_action">Dozvoli preciznu lokaciju</string>
+    <string name="location_prompt_dismiss">Ne sada</string>
+
+    <!-- Location status while following / recording -->
+    <string name="follow_signal_off">Lokacija je isključena. Vaš položaj se ne ažurira.</string>
+    <string name="location_turn_on">Uključi</string>
+    <string name="record_gps_waiting">Čeka se GPS…</string>
+    <string name="record_gps_ready">GPS spreman</string>
+    <string name="record_location_paused">Lokacija je isključena, pa je snimanje rute pauzirano. Tajmer nastavlja da radi.</string>
+    <string name="record_notification_location_paused">Lokacija isključena · ruta pauzirana</string>
+    <string name="record_notifications_off">Obaveštenja su isključena, pa se napredak snimanja neće prikazivati u statusnoj traci.</string>
 </resources>

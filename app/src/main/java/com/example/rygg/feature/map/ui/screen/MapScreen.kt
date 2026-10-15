@@ -1,6 +1,5 @@
 package com.example.rygg.feature.map.ui.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.LocationOff
 import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -33,12 +31,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.rygg.R
+import com.example.rygg.core.location.LocationPurpose
+import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.core.ui.utils.formatPointCount
-import com.example.rygg.core.ui.utils.rememberLocationState
+import com.example.rygg.core.ui.utils.rememberLocationGate
 import com.example.rygg.core.units.UnitFormatter
 import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.map.domain.RouteOverlay
@@ -53,20 +53,16 @@ import org.maplibre.spatialk.geojson.Position
 @Composable
 fun MapScreen(params: MapScreenParams) {
     val cameraState = rememberCameraState()
-    val locationState = rememberLocationState()
+    val locationGate = rememberLocationGate()
+    var centerOnFirstFix by remember { mutableStateOf(params.focusEntryId == null) }
     var pendingRecenter by remember { mutableStateOf(false) }
     var pendingRebearing by remember { mutableStateOf(false) }
     var focusedRouteId by remember { mutableStateOf(params.focusEntryId) }
     var trackingRouteId by remember { mutableStateOf(params.focusEntryId) }
 
-    LaunchedEffect(Unit) {
-        locationState.request()
-        if (params.focusEntryId == null) pendingRecenter = true
-    }
-
-    LaunchedEffect(locationState.location, pendingRecenter) {
-        val location = locationState.location
-        if (pendingRecenter && location != null) {
+    LaunchedEffect(locationGate.location, pendingRecenter) {
+        val location = locationGate.location
+        if ((pendingRecenter || centerOnFirstFix) && location != null) {
             cameraState.animateTo(
                 CameraPosition(
                     target = Position(location.longitude, location.latitude),
@@ -74,7 +70,12 @@ fun MapScreen(params: MapScreenParams) {
                 )
             )
             pendingRecenter = false
+            centerOnFirstFix = false
         }
+    }
+
+    LaunchedEffect(locationGate.hasSignal) {
+        if (!locationGate.hasSignal) pendingRecenter = false
     }
 
     LaunchedEffect(pendingRebearing) {
@@ -93,7 +94,7 @@ fun MapScreen(params: MapScreenParams) {
         )
     }
 
-    val currentLocation = locationState.location
+    val currentLocation = locationGate.location
     val puckLocation = remember(currentLocation) { currentLocation?.toPuckLocation() }
 
     Scaffold(
@@ -135,24 +136,19 @@ fun MapScreen(params: MapScreenParams) {
                     pendingRebearing = true
                 },
                 onRecenterClick = {
-                    locationState.request()
-                    pendingRecenter = true
+                    locationGate.requestAccess(LocationPurpose.SHOW_POSITION) { pendingRecenter = true }
                 }
             )
-
-            if (locationState.isUnavailable && currentLocation == null) {
-                LocationOffBanner(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(RyggTheme.dimens.commonContentPadding12)
-                )
-            }
 
             val trackingRoute = params.routes.firstOrNull { it.id == trackingRouteId }
             if (trackingRoute != null) {
                 TrackingModeCard(
                     route = trackingRoute,
-                    onStart = { params.onStartFollow(trackingRoute.id) },
+                    onStart = {
+                        locationGate.requestAccess(LocationPurpose.FOLLOW_ROUTE) {
+                            params.onStartFollow(trackingRoute.id)
+                        }
+                    },
                     onClose = { trackingRouteId = null },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -161,6 +157,8 @@ fun MapScreen(params: MapScreenParams) {
             }
         }
     }
+
+    LocationGatePrompt(gate = locationGate)
 }
 
 @Composable
@@ -242,33 +240,6 @@ private fun routeStats(route: RouteOverlay, units: UnitFormatter): List<String> 
     if (route.distanceMeters > 0.0) add(units.distance(route.distanceMeters))
     if (route.ascentMeters > 0.0) add(units.ascent(route.ascentMeters))
     add(formatPointCount(route.pointCount))
-}
-
-@Composable
-private fun LocationOffBanner(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
-            .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
-            .padding(
-                horizontal = RyggTheme.dimens.commonContentPadding12,
-                vertical = RyggTheme.dimens.commonContentPadding8
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.LocationOff,
-            contentDescription = null,
-            tint = RyggTheme.getColor(RyggColor.Error),
-            modifier = Modifier.size(RyggTheme.dimens.iconSize16)
-        )
-        Text(
-            text = stringResource(R.string.map_location_off),
-            style = RyggTheme.typography.labelMedium,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
-        )
-    }
 }
 
 data class MapScreenParams(

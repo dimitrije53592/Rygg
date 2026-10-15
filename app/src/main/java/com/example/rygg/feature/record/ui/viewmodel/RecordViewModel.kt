@@ -35,7 +35,8 @@ class RecordViewModel @Inject constructor(
                 elevationMeters = snapshot.elevationMeters,
                 pointCount = snapshot.pointCount,
                 waypointCount = snapshot.waypointCount,
-                gpsReady = snapshot.gpsReady
+                gpsReady = snapshot.gpsReady,
+                locationOff = snapshot.locationOff
             )
         }.stateIn(
             scope = viewModelScope,
@@ -78,5 +79,6 @@ data class RecordUiState(
     val elevationMeters: Double? = null,
     val pointCount: Int = 0,
     val waypointCount: Int = 0,
-    val gpsReady: Boolean = false
+    val gpsReady: Boolean = false,
+    val locationOff: Boolean = false
 )

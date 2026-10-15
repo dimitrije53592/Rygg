@@ -30,7 +30,11 @@ class RecordingNotificationBuilder(
                     formatStopwatch(snapshot.elapsedMillis)
                 )
             )
-            .setSubText(context.getString(statusLabelRes(snapshot.state)))
+            .setSubText(
+                context.getString(
+                    if (snapshot.locationOff) R.string.record_notification_location_paused else statusLabelRes(snapshot.state)
+                )
+            )
             .setContentIntent(contentPendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
