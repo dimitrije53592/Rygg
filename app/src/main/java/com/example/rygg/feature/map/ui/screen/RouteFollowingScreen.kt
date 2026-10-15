@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
@@ -33,13 +34,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
+import com.example.rygg.core.ui.theme.ryggElevation
+import com.example.rygg.core.ui.theme.RyggElevation
 import com.example.rygg.core.location.LocationPurpose
 import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.KeepScreenOn
 import com.example.rygg.core.ui.components.LoadingIndicator
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.rememberLocationGate
+import com.example.rygg.core.units.Quantity
 import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.map.domain.TourSample
 import com.example.rygg.feature.map.ui.components.FarAwayCard
@@ -215,8 +220,8 @@ fun RouteFollowingScreen(
                         FollowingHud(
                             fractionComplete = { previewFraction.floatValue },
                             distanceRemainingMeters = distanceRemaining,
-                            speedText = stringResource(R.string.follow_stat_empty),
-                            elevationText = stringResource(R.string.follow_stat_empty),
+                            speed = Quantity(stringResource(R.string.follow_stat_empty)),
+                            elevation = Quantity(stringResource(R.string.follow_stat_empty)),
                             offRoute = false,
                             isPreview = true,
                             modifier = Modifier
@@ -229,15 +234,15 @@ fun RouteFollowingScreen(
                         FollowingStatusBar(
                             isOnRoute = params.uiState.isOnRoute,
                             distanceToRouteMeters = params.uiState.progress?.distanceToRouteMeters ?: 0.0,
-                            speedText = if (location?.hasSpeed() == true) {
-                                units.speed(location.speed.toDouble())
+                            speed = if (location?.hasSpeed() == true) {
+                                units.speedParts(location.speed.toDouble())
                             } else {
-                                stringResource(R.string.follow_stat_empty)
+                                Quantity(stringResource(R.string.follow_stat_empty))
                             },
-                            elevationText = if (location?.hasAltitude() == true) {
-                                units.elevation(location.altitude)
+                            elevation = if (location?.hasAltitude() == true) {
+                                units.elevationParts(location.altitude)
                             } else {
-                                stringResource(R.string.follow_stat_empty)
+                                Quantity(stringResource(R.string.follow_stat_empty))
                             },
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -269,7 +274,9 @@ private fun StopButton(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
+            .defaultMinSize(minHeight = RyggTheme.dimens.iconSize48)
+            .ryggElevation(level = RyggElevation.Raised, shape = CircleShape)
+            .clip(CircleShape)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .clickable { onClick() }
             .padding(

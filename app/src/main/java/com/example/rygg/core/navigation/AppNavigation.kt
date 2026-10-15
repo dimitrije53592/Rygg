@@ -32,11 +32,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.example.rygg.core.ui.components.LocalNavAnimatedVisibilityScope
 import com.example.rygg.core.ui.components.LocalSharedTransitionScope
 import com.example.rygg.core.ui.components.RyggBottomAppBar
+import com.example.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
 import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.RouteShareLinks
@@ -62,6 +64,8 @@ import com.example.rygg.feature.settings.ui.wrapper.SettingsWrapper
 @Composable
 fun AppNavigation() {
     val authViewModel: AuthViewModel = hiltViewModel()
+    val liveRecordingViewModel: LiveRecordingViewModel = hiltViewModel()
+    val liveRecording by liveRecordingViewModel.liveRecording.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
@@ -109,8 +113,10 @@ fun AppNavigation() {
                 )
             ) {
                 RyggBottomAppBar(
-                    navController,
-                    currentDestination
+                    navController = navController,
+                    currentDestination = currentDestination,
+                    recordingElapsedMillis = liveRecording?.elapsedMillis,
+                    recordingPaused = liveRecording?.isPaused == true
                 )
             }
         },

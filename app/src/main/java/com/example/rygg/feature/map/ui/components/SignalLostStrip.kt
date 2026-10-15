@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOff
 import androidx.compose.material3.Icon
@@ -19,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
 @Composable
@@ -28,7 +28,7 @@ internal fun SignalLostStrip(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
+            .clip(RyggShapes.large)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .padding(
                 start = RyggTheme.dimens.commonContentPadding12,

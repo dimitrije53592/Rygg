@@ -1,7 +1,6 @@
 package com.example.rygg.feature.settings.ui.screen
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -10,6 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,20 +25,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.RyggCard
 import com.example.rygg.core.ui.components.RyggRadioRow
+import com.example.rygg.core.ui.components.RyggSegmentedControl
 import com.example.rygg.core.ui.components.RyggSwitchRow
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.ui.utils.rememberRyggHaptics
 import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.domain.AppLanguage
 import com.example.rygg.feature.settings.domain.PermissionStatus
 import com.example.rygg.feature.settings.ui.components.SettingsStatusRow
 
+// Short choices (theme, language, units) are segmented controls, so each setting is one row
+// instead of a stack of radio buttons; only resolution keeps radios, because each option needs
+// a line of explanation.
 @Composable
 fun SettingsScreen(params: SettingsScreenParams) {
     Scaffold(
+        containerColor = RyggTheme.getColor(RyggColor.SurfaceDim),
         topBar = {
             RyggTopAppBar(
                 title = stringResource(R.string.settings_title),
@@ -45,7 +55,6 @@ fun SettingsScreen(params: SettingsScreenParams) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(RyggTheme.getColor(RyggColor.SurfaceDim))
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(RyggTheme.dimens.commonContentPadding16),
@@ -64,90 +73,111 @@ fun SettingsScreen(params: SettingsScreenParams) {
 @Composable
 private fun AppearanceSection(params: SettingsScreenParams) {
     SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
-        SubsectionLabel(text = stringResource(R.string.settings_theme_title))
-        ThemeMode.entries.forEach { mode ->
-            RyggRadioRow(
-                label = stringResource(themeModeLabel(mode)),
-                selected = params.uiState.themeMode == mode,
-                onSelect = { params.onThemeModeSelected(mode) }
-            )
-        }
+        SettingLabel(text = stringResource(R.string.settings_theme_title))
+        RyggSegmentedControl(
+            options = ThemeMode.entries,
+            selected = params.uiState.themeMode,
+            onSelect = params.onThemeModeSelected,
+            label = { stringResource(themeModeLabel(it)) }
+        )
     }
 }
 
 @Composable
 private fun LanguageRegionSection(params: SettingsScreenParams) {
     SettingsSection(title = stringResource(R.string.settings_section_language_region)) {
-        SubsectionLabel(text = stringResource(R.string.settings_language_title))
-        AppLanguage.entries.forEach { language ->
-            RyggRadioRow(
-                label = stringResource(language.labelRes),
-                selected = params.uiState.selectedLanguage == language,
-                onSelect = { params.onLanguageSelected(language) }
-            )
-        }
+        SettingLabel(text = stringResource(R.string.settings_language_title))
+        RyggSegmentedControl(
+            options = AppLanguage.entries,
+            selected = params.uiState.selectedLanguage,
+            onSelect = params.onLanguageSelected,
+            label = { stringResource(it.labelRes) }
+        )
         SectionDivider()
-        SubsectionLabel(text = stringResource(R.string.settings_units_title))
-        MeasurementSystem.entries.forEach { system ->
-            RyggRadioRow(
-                label = stringResource(system.labelRes),
-                selected = params.uiState.measurementSystem == system,
-                onSelect = { params.onMeasurementSystemSelected(system) }
-            )
-        }
+        SettingLabel(text = stringResource(R.string.settings_units_title))
+        RyggSegmentedControl(
+            options = MeasurementSystem.entries,
+            selected = params.uiState.measurementSystem,
+            onSelect = params.onMeasurementSystemSelected,
+            label = { stringResource(unitsLabel(it)) }
+        )
     }
 }
 
 @Composable
 private fun RecordingSection(params: SettingsScreenParams) {
-    SettingsSection(title = stringResource(R.string.settings_recording_title)) {
+    val haptics = rememberRyggHaptics()
+    SettingsSection(
+        title = stringResource(R.string.settings_recording_title),
+        footer = stringResource(R.string.settings_recording_description)
+    ) {
         RecordingResolution.entries.forEach { resolution ->
             RyggRadioRow(
                 label = stringResource(resolution.labelRes),
+                description = stringResource(resolution.descriptionRes),
                 selected = params.uiState.recordingResolution == resolution,
-                onSelect = { params.onRecordingResolutionSelected(resolution) }
+                onSelect = {
+                    if (params.uiState.recordingResolution != resolution) haptics.tick()
+                    params.onRecordingResolutionSelected(resolution)
+                }
             )
         }
-        SectionDescription(text = stringResource(R.string.settings_recording_description))
     }
 }
 
 @Composable
 private fun SyncSection(params: SettingsScreenParams) {
-    SettingsSection(title = stringResource(R.string.settings_sync_title)) {
+    val haptics = rememberRyggHaptics()
+    SettingsSection(
+        title = stringResource(R.string.settings_sync_title),
+        footer = stringResource(R.string.settings_sync_description)
+    ) {
         RyggSwitchRow(
             label = stringResource(R.string.settings_sync_enabled),
             checked = params.uiState.syncEnabled,
-            onCheckedChange = params.onSyncEnabledChanged
+            leadingIcon = Icons.Outlined.CloudUpload,
+            onCheckedChange = {
+                haptics.toggle(it)
+                params.onSyncEnabledChanged(it)
+            }
         )
+        SectionDivider(inset = true)
         RyggSwitchRow(
             label = stringResource(R.string.settings_sync_wifi_only),
             checked = params.uiState.syncWifiOnly,
-            onCheckedChange = params.onSyncWifiOnlyChanged,
+            leadingIcon = Icons.Outlined.Wifi,
+            onCheckedChange = {
+                haptics.toggle(it)
+                params.onSyncWifiOnlyChanged(it)
+            },
             enabled = params.uiState.syncEnabled
         )
-        SectionDescription(text = stringResource(R.string.settings_sync_description))
     }
 }
 
 @Composable
 private fun PermissionsSection(params: SettingsScreenParams) {
-    SettingsSection(title = stringResource(R.string.settings_permissions_title)) {
+    SettingsSection(
+        title = stringResource(R.string.settings_permissions_title),
+        footer = stringResource(R.string.settings_permissions_description)
+    ) {
         SettingsStatusRow(
             label = stringResource(R.string.settings_permission_location),
             status = stringResource(permissionStatusLabel(params.uiState.locationPermission)),
             isOk = params.uiState.locationPermission == PermissionStatus.ALLOWED,
             actionLabel = stringResource(R.string.settings_permission_manage),
-            onAction = params.onManageLocationPermission
+            onAction = params.onManageLocationPermission,
+            leadingIcon = Icons.Outlined.LocationOn
         )
+        SectionDivider(inset = true)
         SettingsStatusRow(
             label = stringResource(R.string.settings_permission_notifications),
             status = stringResource(permissionStatusLabel(params.uiState.notificationPermission)),
             isOk = params.uiState.notificationPermission == PermissionStatus.ALLOWED,
             actionLabel = stringResource(R.string.settings_permission_manage),
-            onAction = params.onManageNotificationPermission
+            onAction = params.onManageNotificationPermission,
+            leadingIcon = Icons.Outlined.Notifications
         )
-        SectionDescription(text = stringResource(R.string.settings_permissions_description))
     }
 }
 
@@ -163,54 +193,70 @@ private fun AboutFooter(versionName: String) {
     )
 }
 
+// Grouped-list section: tracked header above the card, explanatory footer below it.
 @Composable
 private fun SettingsSection(
     title: String,
+    footer: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
         Text(
-            text = title,
-            style = RyggTheme.typography.titleMedium,
-            color = RyggTheme.getColor(RyggColor.TextPrimary),
+            text = title.uppercase(),
+            style = RyggTheme.textStyles.trackedLabel,
+            color = RyggTheme.getColor(RyggColor.TextSecondary),
             modifier = Modifier.padding(start = RyggTheme.dimens.commonContentPadding4)
         )
-        RyggCard(content = content)
+        RyggCard {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8),
+                content = content
+            )
+        }
+        footer?.let {
+            Text(
+                text = it,
+                style = RyggTheme.typography.bodySmall,
+                color = RyggTheme.getColor(RyggColor.TextSecondary),
+                modifier = Modifier.padding(horizontal = RyggTheme.dimens.commonContentPadding4)
+            )
+        }
     }
 }
 
 @Composable
-private fun SubsectionLabel(text: String) {
+private fun SettingLabel(text: String) {
     Text(
         text = text,
-        style = RyggTheme.typography.labelLarge,
-        color = RyggTheme.getColor(RyggColor.TextSecondary)
+        style = RyggTheme.typography.titleSmall,
+        color = RyggTheme.getColor(RyggColor.TextPrimary)
     )
 }
 
+// Inset dividers start where row text starts, past the icon badge.
 @Composable
-private fun SectionDescription(text: String) {
-    Text(
-        text = text,
-        style = RyggTheme.typography.bodySmall,
-        color = RyggTheme.getColor(RyggColor.TextSecondary),
-        modifier = Modifier.padding(top = RyggTheme.dimens.commonContentPadding4)
-    )
-}
-
-@Composable
-private fun SectionDivider() {
+private fun SectionDivider(inset: Boolean = false) {
     HorizontalDivider(
-        color = RyggTheme.getColor(RyggColor.MutedGray),
-        modifier = Modifier.padding(vertical = RyggTheme.dimens.commonContentPadding8)
+        color = RyggTheme.getColor(RyggColor.Outline),
+        modifier = Modifier.padding(
+            start = if (inset) RyggTheme.dimens.listDividerInset else RyggTheme.dimens.zeroPadding,
+            top = RyggTheme.dimens.commonContentPadding4,
+            bottom = RyggTheme.dimens.commonContentPadding4
+        )
     )
 }
 
 @StringRes
 private fun themeModeLabel(mode: ThemeMode): Int = when (mode) {
-    ThemeMode.SYSTEM -> R.string.settings_theme_system
+    ThemeMode.SYSTEM -> R.string.settings_theme_system_short
     ThemeMode.LIGHT -> R.string.settings_theme_light
     ThemeMode.DARK -> R.string.settings_theme_dark
+}
+
+@StringRes
+private fun unitsLabel(system: MeasurementSystem): Int = when (system) {
+    MeasurementSystem.METRIC -> R.string.settings_units_metric_short
+    MeasurementSystem.IMPERIAL -> R.string.settings_units_imperial_short
 }
 
 @StringRes

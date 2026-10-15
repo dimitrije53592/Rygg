@@ -292,4 +292,27 @@
     <string name="record_location_paused">Location is off, so your track is paused. The timer keeps running.</string>
     <string name="record_notification_location_paused">Location off · track paused</string>
     <string name="record_notifications_off">Notifications are off, so recording progress won\'t show in the status bar.</string>
+    <string name="discipline_hike">Hike</string>
+    <string name="discipline_ride">Ride</string>
+    <string name="discipline_ski">Ski</string>
+    <string name="discipline_paddle">Paddle</string>
+    <string name="unit_symbol_km" translatable="false">km</string>
+    <string name="unit_symbol_mi" translatable="false">mi</string>
+    <string name="unit_symbol_m" translatable="false">m</string>
+    <string name="unit_symbol_ft" translatable="false">ft</string>
+    <string name="unit_symbol_kmh" translatable="false">km/h</string>
+    <string name="unit_symbol_mph" translatable="false">mph</string>
+    <string name="nav_record_live">Recording in progress, %1$s</string>
+    <string name="record_hold_to_stop">Hold to stop</string>
+    <string name="record_counts">%1$s · %2$s</string>
+    <string name="library_summary_activities">Activities</string>
+    <string name="settings_theme_system_short">System</string>
+    <string name="settings_units_metric_short">Metric</string>
+    <string name="settings_units_imperial_short">Imperial</string>
+    <string name="settings_recording_detailed_desc">A point every 5 m · largest files</string>
+    <string name="settings_recording_balanced_desc">A point every 10 m · recommended</string>
+    <string name="settings_recording_compact_desc">A point every 25 m · smallest files</string>
+    <string name="profile_lifetime">All time</string>
+    <string name="profile_sign_out_confirm_title">Sign out of Rygg?</string>
+    <string name="profile_sign_out_cancel">Cancel</string>
 </resources>

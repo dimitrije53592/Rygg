@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Timeline
@@ -23,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.library.domain.GpxFileEntry
@@ -37,7 +37,7 @@ fun DetailsContentsCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
+            .clip(RyggShapes.large)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .padding(horizontal = RyggTheme.dimens.commonContentPadding16)
     ) {
@@ -76,7 +76,7 @@ private fun ContentRow(
         Box(
             modifier = Modifier
                 .size(RyggTheme.dimens.iconSize32)
-                .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+                .clip(RyggShapes.small)
                 .background(RyggTheme.getColor(RyggColor.MossSurface)),
             contentAlignment = Alignment.Center
         ) {

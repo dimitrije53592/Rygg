@@ -27,3 +27,7 @@ fun Context.openAppNotificationSettings() {
 }
 
 fun Context.notificationsEnabled(): Boolean = NotificationManagerCompat.from(this).areNotificationsEnabled()
+
+// "Remove animations" in developer/accessibility settings zeroes the animator scale.
+fun Context.animationsDisabled(): Boolean =
+    Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f

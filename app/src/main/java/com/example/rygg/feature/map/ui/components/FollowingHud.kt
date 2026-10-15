@@ -7,9 +7,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.WrongLocation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -20,100 +21,99 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggStat
+import com.example.rygg.core.ui.components.RyggStatSize
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.formatPercent
-import com.example.rygg.feature.map.ui.util.absorbTouches
+import com.example.rygg.core.units.Quantity
 import com.example.rygg.core.units.rememberUnitFormatter
+import com.example.rygg.feature.map.ui.util.absorbTouches
 
 @Composable
 internal fun FollowingHud(
     fractionComplete: () -> Float,
     distanceRemainingMeters: Double,
-    speedText: String,
-    elevationText: String,
+    speed: Quantity,
+    elevation: Quantity,
     offRoute: Boolean,
     isPreview: Boolean,
     modifier: Modifier = Modifier
 ) {
     val units = rememberUnitFormatter()
+    val percentText by remember {
+        derivedStateOf { formatPercent(fractionComplete().toDouble()) }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(
-                RoundedCornerShape(
-                    topStart = RyggTheme.dimens.radius24,
-                    topEnd = RyggTheme.dimens.radius24
-                )
-            )
+            .clip(RyggShapes.sheetTop)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .absorbTouches()
             .padding(RyggTheme.dimens.commonContentPadding20),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
     ) {
         if (offRoute) {
-            BadgeRow(
+            Badge(
                 text = stringResource(R.string.follow_off_route),
+                icon = Icons.Outlined.WrongLocation,
                 color = RyggTheme.getColor(RyggColor.Error)
             )
         } else if (isPreview) {
-            BadgeRow(
+            Badge(
                 text = stringResource(R.string.follow_preview_badge),
+                icon = Icons.Outlined.Visibility,
                 color = RyggTheme.getColor(RyggColor.BrandGreen)
             )
         }
-
-        val percentText by remember {
-            derivedStateOf { formatPercent(fractionComplete().toDouble()) }
-        }
-
-        LinearProgressIndicator(
-            progress = fractionComplete,
-            color = RyggTheme.getColor(RyggColor.BrandGreen),
-            trackColor = RyggTheme.getColor(RyggColor.SurfaceDim),
-            modifier = Modifier.fillMaxWidth()
-        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
-            Column {
-                Text(
-                    text = stringResource(R.string.follow_distance_left),
-                    style = RyggTheme.typography.labelSmall,
-                    color = RyggTheme.getColor(RyggColor.TextSecondary)
-                )
-                Text(
-                    text = units.distance(distanceRemainingMeters),
-                    style = RyggTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = RyggTheme.getColor(RyggColor.TextPrimary)
-                )
-            }
+            RyggStat(
+                quantity = units.distanceParts(distanceRemainingMeters),
+                label = stringResource(R.string.follow_distance_left),
+                size = RyggStatSize.Hero
+            )
             Text(
                 text = percentText,
-                style = RyggTheme.typography.titleMedium,
-                color = RyggTheme.getColor(RyggColor.BrandGreen)
+                style = RyggTheme.textStyles.statValue,
+                color = RyggTheme.getColor(RyggColor.BrandGreen),
+                modifier = Modifier.padding(bottom = RyggTheme.dimens.commonSpacing20)
             )
         }
+
+        LinearProgressIndicator(
+            progress = fractionComplete,
+            color = RyggTheme.getColor(RyggColor.BrandGreen),
+            trackColor = RyggTheme.getColor(RyggColor.Outline),
+            strokeCap = StrokeCap.Round,
+            gapSize = RyggTheme.dimens.zeroPadding,
+            drawStopIndicator = {},
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+            horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24)
         ) {
-            StatCell(
+            RyggStat(
+                quantity = speed,
                 label = stringResource(R.string.follow_speed),
-                value = speedText,
                 modifier = Modifier.weight(1f)
             )
-            StatCell(
+            RyggStat(
+                quantity = elevation,
                 label = stringResource(R.string.follow_elevation),
-                value = elevationText,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -121,49 +121,34 @@ internal fun FollowingHud(
 }
 
 @Composable
-private fun StatCell(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
-            .background(RyggTheme.getColor(RyggColor.SurfaceDim))
-            .padding(RyggTheme.dimens.commonContentPadding12)
-    ) {
-        Text(
-            text = label,
-            style = RyggTheme.typography.labelSmall,
-            color = RyggTheme.getColor(RyggColor.TextSecondary)
-        )
-        Text(
-            text = value,
-            style = RyggTheme.textStyles.statValue,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
-        )
-    }
-}
-
-@Composable
-private fun BadgeRow(
+private fun Badge(
     text: String,
-    color: androidx.compose.ui.graphics.Color
+    icon: ImageVector,
+    color: Color
 ) {
     Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(color.copy(alpha = BADGE_ALPHA))
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding12,
+                vertical = RyggTheme.dimens.commonContentPadding4
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
     ) {
         Icon(
-            imageVector = Icons.Outlined.Warning,
+            imageVector = icon,
             contentDescription = null,
             tint = color,
             modifier = Modifier.size(RyggTheme.dimens.iconSize16)
         )
         Text(
-            text = text,
-            style = RyggTheme.typography.labelMedium,
+            text = text.uppercase(),
+            style = RyggTheme.textStyles.trackedLabel,
             color = color
         )
     }
 }
+
+private const val BADGE_ALPHA = 0.14f

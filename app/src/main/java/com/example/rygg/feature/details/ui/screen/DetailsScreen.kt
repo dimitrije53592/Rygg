@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,16 +20,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.example.rygg.R
 import com.example.rygg.core.gpx.model.ElevationSample
-import com.example.rygg.core.ui.components.LoadingIndicator
 import com.example.rygg.core.ui.components.RyggPrimaryButton
+import com.example.rygg.core.ui.components.RyggSecondaryButton
+import com.example.rygg.core.ui.components.shimmer
 import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.details.ui.components.DetailsContentsCard
 import com.example.rygg.feature.details.ui.components.DetailsHeroMap
@@ -51,10 +54,7 @@ fun DetailsScreen(params: DetailsScreenParams) {
             .background(RyggTheme.getColor(RyggColor.SurfaceDim))
     ) {
         when (val state = params.uiState.loadingState) {
-            is DetailsLoadingState.Loading ->
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    LoadingIndicator(text = stringResource(R.string.follow_locating))
-                }
+            is DetailsLoadingState.Loading -> DetailsSkeleton()
 
             is DetailsLoadingState.Error ->
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -194,6 +194,38 @@ private fun LoadedContent(
     }
 }
 
+// Shaped like the hero and stat card that are coming, so nothing jumps when they land.
+@Composable
+private fun DetailsSkeleton() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(RyggTheme.dimens.detailsHeroHeight)
+                .shimmer()
+        )
+        Column(
+            modifier = Modifier.padding(RyggTheme.dimens.commonContentPadding16),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(RyggTheme.dimens.detailsSkeletonStats)
+                    .clip(RyggShapes.card)
+                    .shimmer()
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(RyggTheme.dimens.elevationProfileHeight)
+                    .clip(RyggShapes.card)
+                    .shimmer()
+            )
+        }
+    }
+}
+
 @Composable
 private fun Section(
     title: String,
@@ -237,16 +269,12 @@ private fun BottomActionBar(
                         onClick = mode.onSave,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    TextButton(
+                    RyggSecondaryButton(
+                        text = stringResource(R.string.details_discard),
                         onClick = onNavigateBack,
+                        textColor = RyggTheme.getColor(RyggColor.TextSecondary),
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.details_discard),
-                            style = RyggTheme.typography.titleMedium,
-                            color = RyggTheme.getColor(RyggColor.BrandGreen)
-                        )
-                    }
+                    )
                 }
 
                 is DetailsMode.SharedPreview -> {

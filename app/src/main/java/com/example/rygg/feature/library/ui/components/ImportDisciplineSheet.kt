@@ -25,7 +25,6 @@ import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +95,7 @@ private fun DisciplineRow(
             )
         }
         Text(
-            text = discipline.name.capitalize(),
+            text = stringResource(discipline.labelRes),
             style = RyggTheme.typography.bodyLarge,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )

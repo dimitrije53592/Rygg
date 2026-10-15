@@ -293,4 +293,21 @@
     <string name="record_location_paused">Lokacija je isključena, pa je snimanje rute pauzirano. Tajmer nastavlja da radi.</string>
     <string name="record_notification_location_paused">Lokacija isključena · ruta pauzirana</string>
     <string name="record_notifications_off">Obaveštenja su isključena, pa se napredak snimanja neće prikazivati u statusnoj traci.</string>
+    <string name="discipline_hike">Planinarenje</string>
+    <string name="discipline_ride">Biciklizam</string>
+    <string name="discipline_ski">Skijanje</string>
+    <string name="discipline_paddle">Veslanje</string>
+    <string name="nav_record_live">Snimanje u toku, %1$s</string>
+    <string name="record_hold_to_stop">Držite za zaustavljanje</string>
+    <string name="record_counts">%1$s · %2$s</string>
+    <string name="library_summary_activities">Aktivnosti</string>
+    <string name="settings_theme_system_short">Sistem</string>
+    <string name="settings_units_metric_short">Metrički</string>
+    <string name="settings_units_imperial_short">Imperijalni</string>
+    <string name="settings_recording_detailed_desc">Tačka na svakih 5 m · najveće datoteke</string>
+    <string name="settings_recording_balanced_desc">Tačka na svakih 10 m · preporučeno</string>
+    <string name="settings_recording_compact_desc">Tačka na svakih 25 m · najmanje datoteke</string>
+    <string name="profile_lifetime">Ukupno</string>
+    <string name="profile_sign_out_confirm_title">Odjaviti se iz Rygg-a?</string>
+    <string name="profile_sign_out_cancel">Otkaži</string>
 </resources>

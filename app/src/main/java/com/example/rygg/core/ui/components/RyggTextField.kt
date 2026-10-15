@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
 @Composable
@@ -41,7 +41,7 @@ fun RyggTextField(
     labelText: String? = null,
     labelTextColor: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     placeholderText: String? = null,
-    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.MutedGray),
+    placeholderTextColor: Color = RyggTheme.getColor(RyggColor.TextSecondary),
     leadingIcon: Painter? = null,
     leadingIconTint: Color = RyggTheme.getColor(RyggColor.TextSecondary)
 ) {
@@ -120,12 +120,12 @@ fun RyggTextField(
                 unfocusedTextColor = RyggTheme.getColor(RyggColor.TextPrimary),
                 focusedContainerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
                 unfocusedContainerColor = RyggTheme.getColor(RyggColor.Surface),
-                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
-                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.MutedGray),
+                focusedPlaceholderColor = RyggTheme.getColor(RyggColor.TextSecondary),
+                unfocusedPlaceholderColor = RyggTheme.getColor(RyggColor.TextSecondary),
                 focusedBorderColor = RyggTheme.getColor(RyggColor.BrandGreen),
                 unfocusedBorderColor = Color.Transparent
             ),
-            shape = RoundedCornerShape(RyggTheme.dimens.radius12),
+            shape = RyggShapes.medium,
             modifier = modifier.onFocusChanged {
                 isFocused.value = it.isFocused
             }

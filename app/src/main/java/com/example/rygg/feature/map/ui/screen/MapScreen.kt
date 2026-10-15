@@ -36,7 +36,6 @@ import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.core.ui.utils.rememberLocationGate
 import com.example.rygg.core.units.UnitFormatter
@@ -190,7 +189,7 @@ private fun TrackingModeCard(
                         modifier = Modifier.basicMarquee()
                     )
                     Text(
-                        text = route.discipline.name.capitalize(),
+                        text = stringResource(route.discipline.labelRes),
                         style = RyggTheme.typography.bodySmall,
                         color = RyggTheme.getColor(RyggColor.TextSecondary)
                     )

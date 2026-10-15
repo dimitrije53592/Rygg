@@ -24,7 +24,9 @@ object Dimensions {
 
     val detailsHeroHeight: Dp = 260.dp
     val elevationProfileHeight: Dp = 120.dp
+    val detailsSkeletonStats: Dp = 168.dp
 
+    val commonSpacing2: Dp = 2.dp
     val commonSpacing4: Dp = 4.dp
     val commonSpacing8: Dp = 8.dp
     val commonSpacing12: Dp = 12.dp
@@ -37,6 +39,7 @@ object Dimensions {
     val commonSpacing64: Dp = 64.dp
 
     val iconSize16: Dp = 16.dp
+    val iconSize18: Dp = 18.dp
     val iconSize24: Dp = 24.dp
     val iconSize32: Dp = 32.dp
     val iconSize40: Dp = 40.dp
@@ -45,15 +48,29 @@ object Dimensions {
     val iconSize80: Dp = 80.dp
     val iconSize92: Dp = 92.dp
     val iconSize100: Dp = 100.dp
+    val emptyStateArt: Dp = 120.dp
 
     val recordButtonSize: Dp = 132.dp
+    val recordSecondaryButtonSize: Dp = 72.dp
+    val holdButtonSize: Dp = 96.dp
+    val holdRingStroke: Dp = 4.dp
+    val holdRingGap: Dp = 4.dp
+    val gpsRingStroke: Dp = 3.dp
+    val gpsRingGap: Dp = 8.dp
+
+    val segmentedHeight: Dp = 48.dp
+    val segmentedHeightTall: Dp = 76.dp
 
     val thumbnailSize66: Dp = 66.dp
+    val avatarSize: Dp = 64.dp
+    val listRowHeight: Dp = 56.dp
     val badgeSize24: Dp = 24.dp
     val bulletSize6: Dp = 6.dp
     val chartMarker5: Dp = 5.dp
+    val statusDotSize8: Dp = 8.dp
     val statusDotSize10: Dp = 10.dp
 
+    val radius0: Dp = 0.dp
     val radius4: Dp = 4.dp
     val radius8: Dp = 8.dp
     val radius12: Dp = 12.dp
@@ -65,6 +82,7 @@ object Dimensions {
     val border0: Dp = 0.dp
     val border1: Dp = 1.dp
     val border2: Dp = 2.dp
+    val border3: Dp = 3.dp
 
     val elevation0: Dp = 0.dp
     val elevation2: Dp = 2.dp
@@ -82,6 +100,11 @@ object Dimensions {
     val actionSize44: Dp = 44.dp
 
     val bottomBarHeight64: Dp = 64.dp
+
+    // Badge (32) + gap (12): dividers line up with row text.
+    val listDividerInset: Dp = 44.dp
+    val navIndicatorWidth: Dp = 56.dp
+    val navIndicatorHeight: Dp = 32.dp
 
     val fabSize72: Dp = 72.dp
     val fabRaise24: Dp = 24.dp

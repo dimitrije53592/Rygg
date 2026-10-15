@@ -1,15 +1,16 @@
 package com.example.rygg.feature.details.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.common.Outcome
 import com.example.rygg.core.gpx.model.ElevationSample
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.core.ui.utils.formatDate
 import com.example.rygg.feature.library.data.GpxFileEntryRepository
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.record.data.RecordingController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RecordingPreviewViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
-    private val recordingController: RecordingController
+    private val recordingController: RecordingController,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private var stagedEntry: GpxFileEntry? = null
     private var elevationProfile: List<ElevationSample> = emptyList()
@@ -53,7 +55,7 @@ class RecordingPreviewViewModel @Inject constructor(
                 return@launch
             }
             val discipline = recordingController.currentDiscipline()
-            _name.value = "${discipline.name.capitalize()} · ${formatDate(System.currentTimeMillis())}"
+            _name.value = "${context.getString(discipline.labelRes)} · ${formatDate(System.currentTimeMillis())}"
 
             when (val staged = gpxFileEntryRepository.stageRecordedTrack(document, discipline)) {
                 is Outcome.Success -> {

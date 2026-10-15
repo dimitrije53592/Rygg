@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.map.ui.util.absorbTouches
 import com.example.rygg.core.units.rememberUnitFormatter
@@ -30,7 +30,7 @@ fun FarAwayCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
+            .clip(RyggShapes.extraLarge)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .absorbTouches()
             .padding(RyggTheme.dimens.commonContentPadding20),
