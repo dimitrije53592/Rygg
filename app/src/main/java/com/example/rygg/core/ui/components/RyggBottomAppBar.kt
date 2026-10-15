@@ -43,11 +43,7 @@ fun RyggBottomAppBar(
     currentDestination: NavDestination?
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            // Room for the raised button to overhang without leaving the Box, which would stop it
-            // receiving touches.
-            .padding(top = RyggTheme.dimens.fabRaise24)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
