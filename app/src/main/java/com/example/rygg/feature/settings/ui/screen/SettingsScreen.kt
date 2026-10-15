@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.domain.AppLanguage
 import com.example.rygg.feature.settings.domain.PermissionStatus
@@ -82,6 +84,15 @@ private fun LanguageRegionSection(params: SettingsScreenParams) {
                 label = stringResource(language.labelRes),
                 selected = params.uiState.selectedLanguage == language,
                 onSelect = { params.onLanguageSelected(language) }
+            )
+        }
+        SectionDivider()
+        SubsectionLabel(text = stringResource(R.string.settings_units_title))
+        MeasurementSystem.entries.forEach { system ->
+            RyggRadioRow(
+                label = stringResource(system.labelRes),
+                selected = params.uiState.measurementSystem == system,
+                onSelect = { params.onMeasurementSystemSelected(system) }
             )
         }
     }
@@ -187,6 +198,14 @@ private fun SectionDescription(text: String) {
     )
 }
 
+@Composable
+private fun SectionDivider() {
+    HorizontalDivider(
+        color = RyggTheme.getColor(RyggColor.MutedGray),
+        modifier = Modifier.padding(vertical = RyggTheme.dimens.commonContentPadding8)
+    )
+}
+
 @StringRes
 private fun themeModeLabel(mode: ThemeMode): Int = when (mode) {
     ThemeMode.SYSTEM -> R.string.settings_theme_system
@@ -208,6 +227,7 @@ private fun SettingsScreenPreview() {
         SettingsScreen(
             params = SettingsScreenParams(
                 uiState = SettingsUiState(
+                    measurementSystem = MeasurementSystem.IMPERIAL,
                     locationPermission = PermissionStatus.APPROXIMATE,
                     notificationPermission = PermissionStatus.DENIED,
                     appVersion = "1.0"
@@ -215,6 +235,7 @@ private fun SettingsScreenPreview() {
                 onNavigateBack = {},
                 onThemeModeSelected = {},
                 onLanguageSelected = {},
+                onMeasurementSystemSelected = {},
                 onSyncEnabledChanged = {},
                 onSyncWifiOnlyChanged = {},
                 onRecordingResolutionSelected = {},
@@ -228,6 +249,7 @@ private fun SettingsScreenPreview() {
 data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val selectedLanguage: AppLanguage = AppLanguage.ENGLISH,
+    val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC,
     val syncEnabled: Boolean = true,
     val syncWifiOnly: Boolean = true,
     val recordingResolution: RecordingResolution = RecordingResolution.BALANCED,
@@ -241,6 +263,7 @@ data class SettingsScreenParams(
     val onNavigateBack: () -> Unit,
     val onThemeModeSelected: (ThemeMode) -> Unit,
     val onLanguageSelected: (AppLanguage) -> Unit,
+    val onMeasurementSystemSelected: (MeasurementSystem) -> Unit,
     val onSyncEnabledChanged: (Boolean) -> Unit,
     val onSyncWifiOnlyChanged: (Boolean) -> Unit,
     val onRecordingResolutionSelected: (RecordingResolution) -> Unit,

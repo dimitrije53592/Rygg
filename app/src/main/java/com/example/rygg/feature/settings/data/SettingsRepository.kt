@@ -1,6 +1,7 @@
 package com.example.rygg.feature.settings.data
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -8,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.rygg.core.locale.AppLocaleStore
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.domain.AppLanguage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,6 +30,18 @@ class SettingsRepository @Inject constructor(
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[THEME_MODE_KEY] = mode.name }
     }
+
+    // System locale: the in-app language override drops the region from Locale.getDefault().
+    val measurementSystem: Flow<MeasurementSystem> = dataStore.data.map { prefs ->
+        prefs[MEASUREMENT_SYSTEM_KEY]?.let { name -> MeasurementSystem.entries.firstOrNull { it.name == name } }
+            ?: MeasurementSystem.defaultFor(Resources.getSystem().configuration.locales[0])
+    }
+
+    suspend fun setMeasurementSystem(system: MeasurementSystem) {
+        dataStore.edit { it[MEASUREMENT_SYSTEM_KEY] = system.name }
+    }
+
+    suspend fun currentMeasurementSystem(): MeasurementSystem = measurementSystem.first()
 
     // How densely recordings store track points; GPS polling is unaffected.
     val recordingResolution: Flow<RecordingResolution> = dataStore.data.map { prefs ->
@@ -69,6 +83,7 @@ class SettingsRepository @Inject constructor(
 }
 
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+private val MEASUREMENT_SYSTEM_KEY = stringPreferencesKey("measurement_system")
 private val RECORDING_RESOLUTION_KEY = stringPreferencesKey("recording_resolution")
 private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")

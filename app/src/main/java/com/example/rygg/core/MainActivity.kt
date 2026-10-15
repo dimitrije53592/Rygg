@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -17,7 +18,9 @@ import com.example.rygg.core.locale.AppLocaleStore
 import com.example.rygg.core.navigation.AppNavigation
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.units.LocalMeasurementSystem
 import com.example.rygg.feature.settings.ui.viewmodel.ThemeViewModel
+import com.example.rygg.feature.settings.ui.viewmodel.UnitsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,6 +37,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeViewModel: ThemeViewModel = hiltViewModel()
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
+            val unitsViewModel: UnitsViewModel = hiltViewModel()
+            val measurementSystem by unitsViewModel.measurementSystem.collectAsStateWithLifecycle()
 
             val darkTheme = when (themeMode) {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -54,7 +59,9 @@ class MainActivity : ComponentActivity() {
             }
 
             RyggTheme(darkTheme = darkTheme) {
-                AppNavigation()
+                CompositionLocalProvider(LocalMeasurementSystem provides measurementSystem) {
+                    AppNavigation()
+                }
             }
         }
     }

@@ -63,10 +63,8 @@ import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
-import com.example.rygg.core.ui.utils.formatDistanceKm
-import com.example.rygg.core.ui.utils.formatElevationMeters
-import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.core.ui.utils.formatStopwatch
+import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.record.domain.RecordingState
 import com.example.rygg.feature.record.ui.viewmodel.RecordUiState
@@ -266,12 +264,13 @@ private fun ActiveContent(
 
 @Composable
 private fun MetricGrid(uiState: RecordUiState) {
+    val units = rememberUnitFormatter()
     val emptyValue = stringResource(R.string.follow_stat_empty)
     val stats = listOf(
-        stringResource(R.string.record_metric_distance) to formatDistanceKm(uiState.distanceMeters),
-        stringResource(R.string.record_metric_speed) to formatSpeedKmh(uiState.currentSpeedMps),
-        stringResource(R.string.record_metric_ascent) to formatElevationMeters(uiState.ascentMeters),
-        stringResource(R.string.record_metric_elevation) to (uiState.elevationMeters?.let { formatElevationMeters(it) } ?: emptyValue),
+        stringResource(R.string.record_metric_distance) to units.distance(uiState.distanceMeters),
+        stringResource(R.string.record_metric_speed) to units.speed(uiState.currentSpeedMps),
+        stringResource(R.string.record_metric_ascent) to units.elevation(uiState.ascentMeters),
+        stringResource(R.string.record_metric_elevation) to (uiState.elevationMeters?.let { units.elevation(it) } ?: emptyValue),
         stringResource(R.string.record_metric_points) to uiState.pointCount.toString(),
         stringResource(R.string.record_metric_waypoints) to uiState.waypointCount.toString()
     )

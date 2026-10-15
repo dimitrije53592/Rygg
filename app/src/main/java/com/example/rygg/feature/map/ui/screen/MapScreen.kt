@@ -37,14 +37,14 @@ import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
-import com.example.rygg.core.ui.utils.formatAscent
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.core.ui.utils.rememberLocationState
+import com.example.rygg.core.units.UnitFormatter
+import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.map.domain.RouteOverlay
 import com.example.rygg.feature.map.ui.components.MapToolbar
-import com.example.rygg.feature.map.ui.components.MetricScaleBar
 import com.example.rygg.feature.map.ui.components.RouteMapCanvas
+import com.example.rygg.feature.map.ui.components.ScaleBar
 import com.example.rygg.feature.map.ui.util.toPuckLocation
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
@@ -119,7 +119,7 @@ fun MapScreen(params: MapScreenParams) {
                 }
             )
 
-            MetricScaleBar(
+            ScaleBar(
                 cameraState = cameraState,
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -208,7 +208,7 @@ private fun TrackingModeCard(
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)) {
-                routeStats(route).forEach { stat ->
+                routeStats(route, rememberUnitFormatter()).forEach { stat ->
                     Text(
                         text = stat,
                         style = RyggTheme.typography.labelMedium,
@@ -238,9 +238,9 @@ private fun TrackingModeCard(
     }
 }
 
-private fun routeStats(route: RouteOverlay): List<String> = buildList {
-    if (route.distanceMeters > 0.0) add(formatDistanceKm(route.distanceMeters))
-    if (route.ascentMeters > 0.0) add(formatAscent(route.ascentMeters))
+private fun routeStats(route: RouteOverlay, units: UnitFormatter): List<String> = buildList {
+    if (route.distanceMeters > 0.0) add(units.distance(route.distanceMeters))
+    if (route.ascentMeters > 0.0) add(units.ascent(route.ascentMeters))
     add(formatPointCount(route.pointCount))
 }
 

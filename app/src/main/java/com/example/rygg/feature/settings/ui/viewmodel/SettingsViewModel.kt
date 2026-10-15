@@ -3,6 +3,7 @@ package com.example.rygg.feature.settings.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.data.SettingsRepository
 import com.example.rygg.feature.settings.domain.AppLanguage
@@ -28,9 +29,10 @@ class SettingsViewModel @Inject constructor(
 
     private val appearanceAndRegion = combine(
         settingsRepository.themeMode,
-        _selectedLanguage
-    ) { themeMode, language ->
-        AppearanceAndRegion(themeMode, language)
+        _selectedLanguage,
+        settingsRepository.measurementSystem
+    ) { themeMode, language, measurementSystem ->
+        AppearanceAndRegion(themeMode, language, measurementSystem)
     }
 
     private val recordingAndSync = combine(
@@ -49,6 +51,7 @@ class SettingsViewModel @Inject constructor(
         SettingsUiState(
             themeMode = region.themeMode,
             selectedLanguage = region.language,
+            measurementSystem = region.measurementSystem,
             syncEnabled = recording.syncEnabled,
             syncWifiOnly = recording.syncWifiOnly,
             recordingResolution = recording.recordingResolution,
@@ -71,6 +74,10 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.setLanguage(language)
     }
 
+    fun setMeasurementSystem(system: MeasurementSystem) {
+        viewModelScope.launch { settingsRepository.setMeasurementSystem(system) }
+    }
+
     fun setSyncEnabled(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.setSyncEnabled(enabled) }
     }
@@ -90,7 +97,8 @@ class SettingsViewModel @Inject constructor(
 
 private data class AppearanceAndRegion(
     val themeMode: ThemeMode,
-    val language: AppLanguage
+    val language: AppLanguage,
+    val measurementSystem: MeasurementSystem
 )
 
 private data class RecordingAndSync(

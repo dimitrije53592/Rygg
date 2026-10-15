@@ -1,5 +1,6 @@
 package com.example.rygg.feature.map.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,24 +13,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
+import com.example.rygg.core.units.FEET_PER_METER
+import com.example.rygg.core.units.LocalMeasurementSystem
+import com.example.rygg.core.units.METERS_PER_KM
+import com.example.rygg.core.units.METERS_PER_MILE
+import com.example.rygg.core.units.MeasurementSystem
 import org.maplibre.compose.camera.CameraState
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
 
 @Composable
-internal fun MetricScaleBar(
+internal fun ScaleBar(
     cameraState: CameraState,
     modifier: Modifier = Modifier
 ) {
     val metersPerDp = cameraState.metersPerDpAtTarget
     if (metersPerDp.isNaN() || metersPerDp <= 0.0) return
 
-    val distanceMeters = niceRoundDistance(metersPerDp * SCALE_BAR_MAX_WIDTH_DP)
-    val barWidth = (distanceMeters / metersPerDp).dp
+    val system = LocalMeasurementSystem.current
+    val scale = niceScale(metersPerDp * SCALE_BAR_MAX_WIDTH_DP, system)
+    val barWidth = (scale.meters / metersPerDp).dp
 
     Column(
         modifier = modifier
@@ -42,7 +51,7 @@ internal fun MetricScaleBar(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = formatScaleDistance(distanceMeters),
+            text = stringResource(scale.labelRes, scale.amountText),
             style = RyggTheme.typography.labelSmall,
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
@@ -56,9 +65,27 @@ internal fun MetricScaleBar(
     }
 }
 
-private fun niceRoundDistance(maxMeters: Double): Double {
-    val magnitude = 10.0.pow(floor(log10(maxMeters)))
-    val normalized = maxMeters / magnitude
+private fun niceScale(maxMeters: Double, system: MeasurementSystem): Scale = when (system) {
+    MeasurementSystem.METRIC -> if (maxMeters >= METERS_PER_KM) {
+        val km = niceRound(maxMeters / METERS_PER_KM)
+        Scale(km * METERS_PER_KM, km.toAmountText(), R.string.unit_distance_km)
+    } else {
+        val meters = niceRound(maxMeters)
+        Scale(meters, meters.toAmountText(), R.string.unit_elevation_m)
+    }
+
+    MeasurementSystem.IMPERIAL -> if (maxMeters >= METERS_PER_MILE) {
+        val miles = niceRound(maxMeters / METERS_PER_MILE)
+        Scale(miles * METERS_PER_MILE, miles.toAmountText(), R.string.unit_distance_mi)
+    } else {
+        val feet = niceRound(maxMeters * FEET_PER_METER)
+        Scale(feet / FEET_PER_METER, feet.toAmountText(), R.string.unit_elevation_ft)
+    }
+}
+
+private fun niceRound(max: Double): Double {
+    val magnitude = 10.0.pow(floor(log10(max)))
+    val normalized = max / magnitude
     val nice = when {
         normalized >= 5.0 -> 5.0
         normalized >= 2.0 -> 2.0
@@ -67,14 +94,9 @@ private fun niceRoundDistance(maxMeters: Double): Double {
     return nice * magnitude
 }
 
-private fun formatScaleDistance(meters: Double): String =
-    if (meters >= METERS_PER_KM) {
-        val km = meters / METERS_PER_KM
-        if (km % 1.0 == 0.0) "${km.toInt()} km" else "$km km"
-    } else {
-        "${meters.toInt()} m"
-    }
+private fun Double.toAmountText(): String = if (this % 1.0 == 0.0) toLong().toString() else toString()
 
 private const val SCALE_BAR_MAX_WIDTH_DP = 96.0
 private const val SCALE_BAR_BACKGROUND_ALPHA = 0.8f
-private const val METERS_PER_KM = 1000.0
+
+private class Scale(val meters: Double, val amountText: String, @StringRes val labelRes: Int)

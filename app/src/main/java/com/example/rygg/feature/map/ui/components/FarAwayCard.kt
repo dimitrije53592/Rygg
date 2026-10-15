@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.feature.map.ui.util.absorbTouches
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 fun FarAwayCard(
@@ -26,6 +26,7 @@ fun FarAwayCard(
     onPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val units = rememberUnitFormatter()
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -41,7 +42,7 @@ fun FarAwayCard(
             color = RyggTheme.getColor(RyggColor.TextPrimary)
         )
         Text(
-            text = stringResource(R.string.follow_far_body, formatDistanceKm(distanceMeters)),
+            text = stringResource(R.string.follow_far_body, units.distance(distanceMeters)),
             style = RyggTheme.typography.bodyMedium,
             color = RyggTheme.getColor(RyggColor.TextSecondary)
         )

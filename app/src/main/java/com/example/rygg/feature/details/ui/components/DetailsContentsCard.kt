@@ -24,15 +24,16 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 fun DetailsContentsCard(
     entry: GpxFileEntry,
     modifier: Modifier = Modifier
 ) {
+    val units = rememberUnitFormatter()
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -45,7 +46,7 @@ fun DetailsContentsCard(
             title = stringResource(R.string.details_main_track),
             subtitle = stringResource(
                 R.string.details_track_summary,
-                formatDistanceKm(entry.distanceMeters),
+                units.distance(entry.distanceMeters),
                 formatPointCount(entry.pointCount)
             )
         )

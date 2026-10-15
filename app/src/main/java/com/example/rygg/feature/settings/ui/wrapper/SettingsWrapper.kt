@@ -47,6 +47,7 @@ fun SettingsWrapper(
                 viewModel.setLanguage(language)
                 activity?.recreate()
             },
+            onMeasurementSystemSelected = viewModel::setMeasurementSystem,
             onSyncEnabledChanged = viewModel::setSyncEnabled,
             onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly,
             onRecordingResolutionSelected = viewModel::setRecordingResolution,

@@ -245,6 +245,9 @@
     <!-- Settings: categories, units, permissions, about -->
     <string name="settings_section_appearance">Izgled</string>
     <string name="settings_section_language_region">Jezik i region</string>
+    <string name="settings_units_title">Merne jedinice</string>
+    <string name="settings_units_metric">Metrički (km, m)</string>
+    <string name="settings_units_imperial">Imperijalni (mi, ft)</string>
     <string name="settings_permissions_title">Dozvole</string>
     <string name="settings_permissions_description">Lokacija se koristi samo dok gledate svoj položaj, pratite rutu ili snimate.</string>
     <string name="settings_permission_location">Lokacija</string>
@@ -255,4 +258,12 @@
     <string name="settings_permission_manage">Upravljaj</string>
     <string name="settings_about_version">Rygg %1$s</string>
 
+    <!-- Units -->
+    <string name="unit_distance_km">%1$s km</string>
+    <string name="unit_distance_mi">%1$s mi</string>
+    <string name="unit_elevation_m">%1$s m</string>
+    <string name="unit_elevation_ft">%1$s ft</string>
+    <string name="unit_speed_kmh">%1$s km/h</string>
+    <string name="unit_speed_mph">%1$s mph</string>
+    <string name="unit_ascent">↑ %1$s</string>
 </resources>

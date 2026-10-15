@@ -38,9 +38,8 @@ import com.example.rygg.core.ui.components.KeepScreenOn
 import com.example.rygg.core.ui.components.LoadingIndicator
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatElevationMeters
-import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.core.ui.utils.rememberLocationState
+import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.map.domain.TourSample
 import com.example.rygg.feature.map.ui.components.FarAwayCard
 import com.example.rygg.feature.map.ui.components.FollowingHud
@@ -64,6 +63,7 @@ fun RouteFollowingScreen(
     params: RouteFollowingScreenParams
 ) {
     val cameraState = rememberCameraState()
+    val units = rememberUnitFormatter()
     val locationState = rememberLocationState()
     val location = locationState.location
     var initialPositioning by remember { mutableStateOf(true) }
@@ -231,12 +231,12 @@ fun RouteFollowingScreen(
                             isOnRoute = params.uiState.isOnRoute,
                             distanceToRouteMeters = params.uiState.progress?.distanceToRouteMeters ?: 0.0,
                             speedText = if (location?.hasSpeed() == true) {
-                                formatSpeedKmh(location.speed.toDouble())
+                                units.speed(location.speed.toDouble())
                             } else {
                                 stringResource(R.string.follow_stat_empty)
                             },
                             elevationText = if (location?.hasAltitude() == true) {
-                                formatElevationMeters(location.altitude)
+                                units.elevation(location.altitude)
                             } else {
                                 stringResource(R.string.follow_stat_empty)
                             },

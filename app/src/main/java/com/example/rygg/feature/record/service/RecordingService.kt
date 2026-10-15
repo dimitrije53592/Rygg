@@ -14,15 +14,18 @@ import com.example.rygg.core.MainActivity
 import com.example.rygg.core.navigation.InternalDeepLinks
 import com.example.rygg.core.notification.DEFAULT_NOTIFICATION_ID
 import com.example.rygg.core.notification.NotificationHelper
+import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.record.data.RecordingController
 import com.example.rygg.feature.record.domain.RecordingSnapshot
 import com.example.rygg.feature.record.domain.RecordingState
+import com.example.rygg.feature.settings.data.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,13 +39,20 @@ class RecordingService : Service() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
+
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var isForeground = false
+    private var measurementSystem = MeasurementSystem.METRIC
 
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            controller.snapshot.collect { snapshot ->
+            combine(controller.snapshot, settingsRepository.measurementSystem) { snapshot, system ->
+                measurementSystem = system
+                snapshot
+            }.collect { snapshot ->
                 if (isForeground) {
                     notificationHelper.notify(notificationFor(snapshot), DEFAULT_NOTIFICATION_ID)
                 }
@@ -95,6 +105,7 @@ class RecordingService : Service() {
     private fun notificationFor(snapshot: RecordingSnapshot): RecordingNotificationBuilder =
         RecordingNotificationBuilder(
             snapshot = snapshot,
+            measurementSystem = measurementSystem,
             contentPendingIntent = getContentPendingIntent(),
             pausePendingIntent = getPauseOrResumePendingIntent(
                 snapshot.state == RecordingState.PAUSED || snapshot.state == RecordingState.AUTO_PAUSED

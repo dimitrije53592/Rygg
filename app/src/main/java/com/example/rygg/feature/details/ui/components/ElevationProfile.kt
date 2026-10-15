@@ -31,8 +31,7 @@ import com.example.rygg.core.gpx.model.ElevationSample
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
-import com.example.rygg.core.ui.utils.formatElevationMeters
+import com.example.rygg.core.units.rememberUnitFormatter
 import kotlin.math.abs
 
 @Composable
@@ -43,6 +42,7 @@ fun ElevationProfile(
 ) {
     if (samples.size < 2) return
 
+    val units = rememberUnitFormatter()
     val accentColor = RyggTheme.getColor(RyggColor.AccentBright)
     val moderate = RyggTheme.getColor(RyggColor.GradeModerate)
     val steep = RyggTheme.getColor(RyggColor.GradeSteep)
@@ -88,13 +88,13 @@ fun ElevationProfile(
                 val sample = samples.sampleAt(fraction)
                 stringResource(
                     R.string.details_elevation_readout,
-                    formatDistanceKm(sample.distanceMeters),
-                    formatElevationMeters(sample.elevationMeters)
+                    units.distance(sample.distanceMeters),
+                    units.elevation(sample.elevationMeters)
                 )
             } ?: stringResource(
                 R.string.details_elevation_high_low,
-                formatElevationMeters(high),
-                formatElevationMeters(low)
+                units.elevation(high),
+                units.elevation(low)
             )
             Text(
                 text = readout,
@@ -210,7 +210,7 @@ fun ElevationProfile(
         ) {
             listOf(0.0, totalMeters / 2.0, totalMeters).forEach { meters ->
                 Text(
-                    text = formatDistanceKm(meters),
+                    text = units.distance(meters),
                     style = RyggTheme.textStyles.trackedLabel,
                     color = RyggTheme.getColor(RyggColor.TextSecondary)
                 )
