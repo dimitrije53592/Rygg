@@ -241,4 +241,17 @@
     <string name="feedback_sent_message">We\'ve got it. We read everything that comes through here.</string>
     <string name="feedback_queued_message">You\'re offline, so it\'s saved on your phone and will send itself as soon as you have a connection.</string>
     <string name="feedback_failed">Couldn\'t send that. Check your connection and try again.</string>
+    <!-- Settings: categories, units, permissions, about -->
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_language_region">Language &amp; region</string>
+    <string name="settings_permissions_title">Permissions</string>
+    <string name="settings_permissions_description">Location is only used while you look at your position, follow a route or record.</string>
+    <string name="settings_permission_location">Location</string>
+    <string name="settings_permission_notifications">Notifications</string>
+    <string name="settings_permission_allowed">Allowed</string>
+    <string name="settings_permission_approximate">Approximate only</string>
+    <string name="settings_permission_denied">Not allowed</string>
+    <string name="settings_permission_manage">Manage</string>
+    <string name="settings_about_version">Rygg %1$s</string>
+
 </resources>

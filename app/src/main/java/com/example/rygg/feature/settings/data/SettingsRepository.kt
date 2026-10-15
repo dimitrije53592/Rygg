@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+// Future account sync: units, language, theme, resolution are per account; the rest per device.
 class SettingsRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dataStore: DataStore<Preferences>
@@ -62,6 +63,9 @@ class SettingsRepository @Inject constructor(
     fun setLanguage(language: AppLanguage) {
         AppLocaleStore.setLanguageTag(context, language.tag)
     }
+
+    fun appVersionName(): String =
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty()
 }
 
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")

@@ -242,4 +242,17 @@
     <string name="feedback_sent_message">Primili smo je. Čitamo sve što stigne ovim putem.</string>
     <string name="feedback_queued_message">Trenutno ste offline, pa je poruka sačuvana na telefonu i biće poslata čim dobijete vezu.</string>
     <string name="feedback_failed">Slanje nije uspelo. Proverite vezu i pokušajte ponovo.</string>
+    <!-- Settings: categories, units, permissions, about -->
+    <string name="settings_section_appearance">Izgled</string>
+    <string name="settings_section_language_region">Jezik i region</string>
+    <string name="settings_permissions_title">Dozvole</string>
+    <string name="settings_permissions_description">Lokacija se koristi samo dok gledate svoj položaj, pratite rutu ili snimate.</string>
+    <string name="settings_permission_location">Lokacija</string>
+    <string name="settings_permission_notifications">Obaveštenja</string>
+    <string name="settings_permission_allowed">Dozvoljeno</string>
+    <string name="settings_permission_approximate">Samo približna</string>
+    <string name="settings_permission_denied">Nije dozvoljeno</string>
+    <string name="settings_permission_manage">Upravljaj</string>
+    <string name="settings_about_version">Rygg %1$s</string>
+
 </resources>
