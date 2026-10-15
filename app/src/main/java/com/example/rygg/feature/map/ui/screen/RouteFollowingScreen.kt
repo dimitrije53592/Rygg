@@ -32,21 +32,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import com.example.rygg.R
+import com.example.rygg.core.location.LocationPurpose
+import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.KeepScreenOn
 import com.example.rygg.core.ui.components.LoadingIndicator
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatElevationMeters
-import com.example.rygg.core.ui.utils.formatSpeedKmh
-import com.example.rygg.core.ui.utils.rememberLocationState
+import com.example.rygg.core.ui.utils.rememberLocationGate
+import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.map.domain.TourSample
 import com.example.rygg.feature.map.ui.components.FarAwayCard
 import com.example.rygg.feature.map.ui.components.FollowingHud
 import com.example.rygg.feature.map.ui.components.FollowingStatusBar
 import com.example.rygg.feature.map.ui.components.MapToolbar
 import com.example.rygg.feature.map.ui.components.RouteMapCanvas
+import com.example.rygg.feature.map.ui.components.SignalLostStrip
 import com.example.rygg.feature.map.ui.util.toPuckLocation
 import com.example.rygg.feature.map.ui.viewmodel.PREVIEW_SPEED_METERS_PER_SECOND
 import com.example.rygg.feature.map.ui.viewmodel.RouteFollowingPhase
@@ -64,16 +65,14 @@ fun RouteFollowingScreen(
     params: RouteFollowingScreenParams
 ) {
     val cameraState = rememberCameraState()
-    val locationState = rememberLocationState()
-    val location = locationState.location
+    val units = rememberUnitFormatter()
+    val locationGate = rememberLocationGate()
+    val location = locationGate.location
     var initialPositioning by remember { mutableStateOf(true) }
+    val onTurnOnLocation = { locationGate.requestAccess(LocationPurpose.FOLLOW_ROUTE) }
 
-    LaunchedEffect(Unit) {
-        locationState.request()
-    }
-
-    LaunchedEffect(locationState.location, locationState.isUnavailable) {
-        params.onLocationChange(locationState.location, locationState.isUnavailable)
+    LaunchedEffect(locationGate.location, locationGate.hasSignal) {
+        params.onLocationChange(locationGate.location, locationGate.hasSignal)
 
         if (initialPositioning) {
             location?.let {
@@ -93,28 +92,22 @@ fun RouteFollowingScreen(
     }
 
     KeepScreenOn()
+    LocationGatePrompt(gate = locationGate)
 
     when (params.uiState.routeFollowingPhase) {
         RouteFollowingPhase.InitialLoading -> {
             CenteredOverlay {
-                LoadingIndicator(stringResource(R.string.follow_locating))
-            }
-        }
-
-        RouteFollowingPhase.LocationUnavailable -> {
-            CenteredOverlay {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
+                    verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16),
+                    modifier = Modifier.padding(horizontal = RyggTheme.dimens.commonContentPadding24)
                 ) {
-                    Text(
-                        text = stringResource(R.string.map_location_off),
-                        style = RyggTheme.typography.titleMedium,
-                        color = RyggTheme.getColor(RyggColor.TextPrimary),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = RyggTheme.dimens.commonContentPadding24)
-                    )
-                    StopButton(onClick = params.onExit)
+                    if (params.uiState.signalLost) {
+                        SignalLostStrip(onTurnOn = onTurnOnLocation)
+                        StopButton(onClick = params.onExit)
+                    } else {
+                        LoadingIndicator(stringResource(R.string.follow_locating))
+                    }
                 }
             }
         }
@@ -183,13 +176,19 @@ fun RouteFollowingScreen(
                     showPins = false
                 )
 
-                StopButton(
-                    onClick = params.onExit,
+                Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .statusBarsPadding()
-                        .padding(RyggTheme.dimens.commonContentPadding12)
-                )
+                        .padding(RyggTheme.dimens.commonContentPadding12),
+                    verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+                ) {
+                    StopButton(onClick = params.onExit)
+                    val isPreview = params.uiState.routeFollowingPhase == RouteFollowingPhase.PreviewActive
+                    if (params.uiState.signalLost && !isPreview) {
+                        SignalLostStrip(onTurnOn = onTurnOnLocation)
+                    }
+                }
 
                 when (params.uiState.routeFollowingPhase) {
                     RouteFollowingPhase.UserFarAway -> {
@@ -231,12 +230,12 @@ fun RouteFollowingScreen(
                             isOnRoute = params.uiState.isOnRoute,
                             distanceToRouteMeters = params.uiState.progress?.distanceToRouteMeters ?: 0.0,
                             speedText = if (location?.hasSpeed() == true) {
-                                formatSpeedKmh(location.speed.toDouble())
+                                units.speed(location.speed.toDouble())
                             } else {
                                 stringResource(R.string.follow_stat_empty)
                             },
                             elevationText = if (location?.hasAltitude() == true) {
-                                formatElevationMeters(location.altitude)
+                                units.elevation(location.altitude)
                             } else {
                                 stringResource(R.string.follow_stat_empty)
                             },

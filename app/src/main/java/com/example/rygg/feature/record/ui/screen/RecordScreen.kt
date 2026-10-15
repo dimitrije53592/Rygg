@@ -52,6 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.example.rygg.R
+import com.example.rygg.core.location.LocationPurpose
+import com.example.rygg.core.location.LocationReadiness
+import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.KeepScreenOn
 import com.example.rygg.core.ui.components.RyggPrimaryButton
 import com.example.rygg.core.ui.components.RyggTextField
@@ -63,40 +66,44 @@ import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.capitalize
-import com.example.rygg.core.ui.utils.formatDistanceKm
-import com.example.rygg.core.ui.utils.formatElevationMeters
-import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.core.ui.utils.formatStopwatch
+import com.example.rygg.core.ui.utils.notificationsEnabled
+import com.example.rygg.core.ui.utils.rememberLocationGate
+import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.record.domain.RecordingState
+import com.example.rygg.feature.record.ui.components.GpsStatusChip
+import com.example.rygg.feature.record.ui.components.LocationPausedBanner
 import com.example.rygg.feature.record.ui.viewmodel.RecordUiState
 
 @Composable
 fun RecordScreen(params: RecordScreenParams) {
     val context = LocalContext.current
+    val locationGate = rememberLocationGate()
     var pendingStart by remember { mutableStateOf<Discipline?>(null) }
     var showWaypointDialog by remember { mutableStateOf(false) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { grants ->
-        val granted = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-            grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-        val discipline = pendingStart
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        pendingStart?.let(params.onStart)
         pendingStart = null
-        if (granted && discipline != null) params.onStart(discipline)
     }
 
-    fun requestStart(discipline: Discipline) {
-        // Also gate on POST_NOTIFICATIONS: without it the foreground-service notification is
-        // silently suppressed on Android 13+, so the recording would run with no status-bar entry.
-        if (context.hasLocationPermission() && context.hasNotificationPermission()) {
+    fun startWithNotificationCheck(discipline: Discipline) {
+        if (context.hasNotificationPermission()) {
             params.onStart(discipline)
         } else {
             pendingStart = discipline
-            permissionLauncher.launch(recordPermissions())
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
+
+    fun requestStart(discipline: Discipline) {
+        locationGate.requestAccess(LocationPurpose.RECORD) { startWithNotificationCheck(discipline) }
+    }
+
+    val onTurnOnLocation = { locationGate.requestAccess(LocationPurpose.RECORD) }
 
     if (params.uiState.state != RecordingState.IDLE) KeepScreenOn()
 
@@ -116,6 +123,11 @@ fun RecordScreen(params: RecordScreenParams) {
                 RecordingState.IDLE ->
                     IdleContent(
                         uiState = params.uiState,
+                        gpsStatus = if (locationGate.readinessFor(LocationPurpose.RECORD) == LocationReadiness.Ready) {
+                            locationGate.location != null
+                        } else {
+                            null
+                        },
                         onSelectDiscipline = params.onSelectDiscipline,
                         onStart = { requestStart(params.uiState.discipline) }
                     )
@@ -123,6 +135,8 @@ fun RecordScreen(params: RecordScreenParams) {
                 else ->
                     ActiveContent(
                         uiState = params.uiState,
+                        notificationsOff = !context.notificationsEnabled(),
+                        onTurnOnLocation = onTurnOnLocation,
                         onPause = params.onPause,
                         onResume = params.onResume,
                         onStop = params.onStop,
@@ -131,6 +145,8 @@ fun RecordScreen(params: RecordScreenParams) {
             }
         }
     }
+
+    LocationGatePrompt(gate = locationGate)
 
     if (showWaypointDialog) {
         WaypointNameDialog(
@@ -147,6 +163,7 @@ fun RecordScreen(params: RecordScreenParams) {
 @Composable
 private fun IdleContent(
     uiState: RecordUiState,
+    gpsStatus: Boolean?,
     onSelectDiscipline: (Discipline) -> Unit,
     onStart: () -> Unit
 ) {
@@ -184,17 +201,23 @@ private fun IdleContent(
             contentDescription = stringResource(R.string.record_start),
             onClick = onStart
         )
-        Text(
-            text = stringResource(R.string.record_gps_hint),
-            style = RyggTheme.typography.bodySmall,
-            color = RyggTheme.getColor(RyggColor.TextSecondary)
-        )
+        if (gpsStatus != null) {
+            GpsStatusChip(isReady = gpsStatus)
+        } else {
+            Text(
+                text = stringResource(R.string.record_gps_hint),
+                style = RyggTheme.typography.bodySmall,
+                color = RyggTheme.getColor(RyggColor.TextSecondary)
+            )
+        }
     }
 }
 
 @Composable
 private fun ActiveContent(
     uiState: RecordUiState,
+    notificationsOff: Boolean,
+    onTurnOnLocation: () -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
     onStop: () -> Unit,
@@ -216,6 +239,10 @@ private fun ActiveContent(
     ) {
         Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
         RecordingStatus(statusText = statusText, isPaused = isPaused)
+        when {
+            uiState.locationOff -> LocationPausedBanner(onTurnOn = onTurnOnLocation)
+            !uiState.gpsReady && uiState.state == RecordingState.RECORDING -> GpsStatusChip(isReady = false)
+        }
         Text(
             text = formatStopwatch(uiState.elapsedMillis),
             style = RyggTheme.typography.displayLarge,
@@ -227,6 +254,14 @@ private fun ActiveContent(
         )
 
         MetricGrid(uiState)
+
+        if (notificationsOff) {
+            Text(
+                text = stringResource(R.string.record_notifications_off),
+                style = RyggTheme.typography.bodySmall,
+                color = RyggTheme.getColor(RyggColor.TextSecondary)
+            )
+        }
 
         RyggPrimaryButton(
             text = stringResource(R.string.record_add_waypoint),
@@ -266,12 +301,13 @@ private fun ActiveContent(
 
 @Composable
 private fun MetricGrid(uiState: RecordUiState) {
+    val units = rememberUnitFormatter()
     val emptyValue = stringResource(R.string.follow_stat_empty)
     val stats = listOf(
-        stringResource(R.string.record_metric_distance) to formatDistanceKm(uiState.distanceMeters),
-        stringResource(R.string.record_metric_speed) to formatSpeedKmh(uiState.currentSpeedMps),
-        stringResource(R.string.record_metric_ascent) to formatElevationMeters(uiState.ascentMeters),
-        stringResource(R.string.record_metric_elevation) to (uiState.elevationMeters?.let { formatElevationMeters(it) } ?: emptyValue),
+        stringResource(R.string.record_metric_distance) to units.distance(uiState.distanceMeters),
+        stringResource(R.string.record_metric_speed) to units.speed(uiState.currentSpeedMps),
+        stringResource(R.string.record_metric_ascent) to units.elevation(uiState.ascentMeters),
+        stringResource(R.string.record_metric_elevation) to (uiState.elevationMeters?.let { units.elevation(it) } ?: emptyValue),
         stringResource(R.string.record_metric_points) to uiState.pointCount.toString(),
         stringResource(R.string.record_metric_waypoints) to uiState.waypointCount.toString()
     )
@@ -446,23 +482,11 @@ private fun WaypointNameDialog(
     )
 }
 
-private fun Context.hasLocationPermission(): Boolean =
-    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
 // Below API 33 the notification is shown without a runtime grant; from 33+ it must be granted
 // or the foreground-service notification never reaches the status bar.
 private fun Context.hasNotificationPermission(): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
         ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-
-private fun recordPermissions(): Array<String> = buildList {
-    add(Manifest.permission.ACCESS_FINE_LOCATION)
-    add(Manifest.permission.ACCESS_COARSE_LOCATION)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        add(Manifest.permission.POST_NOTIFICATIONS)
-    }
-}.toTypedArray()
 
 @Preview(showBackground = true)
 @Composable

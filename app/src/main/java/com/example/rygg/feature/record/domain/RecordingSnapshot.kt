@@ -13,5 +13,6 @@ data class RecordingSnapshot(
     val elevationMeters: Double? = null,
     val pointCount: Int = 0,
     val waypointCount: Int = 0,
-    val gpsReady: Boolean = false
+    val gpsReady: Boolean = false,
+    val locationOff: Boolean = false
 )

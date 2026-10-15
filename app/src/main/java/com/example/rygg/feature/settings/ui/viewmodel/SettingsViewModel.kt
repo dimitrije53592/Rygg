@@ -3,9 +3,11 @@ package com.example.rygg.feature.settings.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rygg.core.ui.theme.ThemeMode
+import com.example.rygg.core.units.MeasurementSystem
 import com.example.rygg.feature.record.domain.RecordingResolution
 import com.example.rygg.feature.settings.data.SettingsRepository
 import com.example.rygg.feature.settings.domain.AppLanguage
+import com.example.rygg.feature.settings.domain.PermissionStatus
 import com.example.rygg.feature.settings.ui.screen.SettingsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,26 +23,46 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    private val selectedLanguage = MutableStateFlow(settingsRepository.currentLanguage())
+    private val _selectedLanguage = MutableStateFlow(settingsRepository.currentLanguage())
+    private val permissions = MutableStateFlow(Permissions())
+    private val appVersion = settingsRepository.appVersionName()
+
+    private val appearanceAndRegion = combine(
+        settingsRepository.themeMode,
+        _selectedLanguage,
+        settingsRepository.measurementSystem
+    ) { themeMode, language, measurementSystem ->
+        AppearanceAndRegion(themeMode, language, measurementSystem)
+    }
+
+    private val recordingAndSync = combine(
+        settingsRepository.recordingResolution,
+        settingsRepository.syncEnabled,
+        settingsRepository.syncWifiOnly
+    ) { recordingResolution, syncEnabled, syncWifiOnly ->
+        RecordingAndSync(recordingResolution, syncEnabled, syncWifiOnly)
+    }
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        settingsRepository.themeMode,
-        selectedLanguage,
-        settingsRepository.syncEnabled,
-        settingsRepository.syncWifiOnly,
-        settingsRepository.recordingResolution
-    ) { themeMode, language, syncEnabled, syncWifiOnly, recordingResolution ->
+        appearanceAndRegion,
+        recordingAndSync,
+        permissions
+    ) { region, recording, permissions ->
         SettingsUiState(
-            themeMode = themeMode,
-            selectedLanguage = language,
-            syncEnabled = syncEnabled,
-            syncWifiOnly = syncWifiOnly,
-            recordingResolution = recordingResolution
+            themeMode = region.themeMode,
+            selectedLanguage = region.language,
+            measurementSystem = region.measurementSystem,
+            syncEnabled = recording.syncEnabled,
+            syncWifiOnly = recording.syncWifiOnly,
+            recordingResolution = recording.recordingResolution,
+            locationPermission = permissions.location,
+            notificationPermission = permissions.notifications,
+            appVersion = appVersion
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = SettingsUiState(selectedLanguage = selectedLanguage.value)
+        initialValue = SettingsUiState(selectedLanguage = _selectedLanguage.value, appVersion = appVersion)
     )
 
     fun setThemeMode(mode: ThemeMode) {
@@ -47,8 +70,12 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setLanguage(language: AppLanguage) {
-        selectedLanguage.value = language
+        _selectedLanguage.value = language
         settingsRepository.setLanguage(language)
+    }
+
+    fun setMeasurementSystem(system: MeasurementSystem) {
+        viewModelScope.launch { settingsRepository.setMeasurementSystem(system) }
     }
 
     fun setSyncEnabled(enabled: Boolean) {
@@ -62,4 +89,25 @@ class SettingsViewModel @Inject constructor(
     fun setRecordingResolution(resolution: RecordingResolution) {
         viewModelScope.launch { settingsRepository.setRecordingResolution(resolution) }
     }
+
+    fun onPermissionsChecked(location: PermissionStatus, notifications: PermissionStatus) {
+        permissions.update { it.copy(location = location, notifications = notifications) }
+    }
 }
+
+private data class AppearanceAndRegion(
+    val themeMode: ThemeMode,
+    val language: AppLanguage,
+    val measurementSystem: MeasurementSystem
+)
+
+private data class RecordingAndSync(
+    val recordingResolution: RecordingResolution,
+    val syncEnabled: Boolean,
+    val syncWifiOnly: Boolean
+)
+
+private data class Permissions(
+    val location: PermissionStatus = PermissionStatus.DENIED,
+    val notifications: PermissionStatus = PermissionStatus.DENIED
+)

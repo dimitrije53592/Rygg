@@ -15,42 +15,41 @@ import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatDurationHoursMinutes
-import com.example.rygg.core.ui.utils.formatElevationMeters
 import com.example.rygg.core.ui.utils.formatPointCount
-import com.example.rygg.core.ui.utils.formatSpeedKmh
 import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 fun DetailsStatsGrid(
     entry: GpxFileEntry,
     modifier: Modifier = Modifier
 ) {
+    val units = rememberUnitFormatter()
     val emptyValue = stringResource(R.string.follow_stat_empty)
     val stats = listOf(
         // Row 1: general
-        DetailsStat(stringResource(R.string.details_stat_distance), formatDistanceKm(entry.distanceMeters)),
+        DetailsStat(stringResource(R.string.details_stat_distance), units.distance(entry.distanceMeters)),
         DetailsStat(
             stringResource(R.string.details_stat_moving_time),
             entry.movingTimeMillis?.let { formatDurationHoursMinutes(it) } ?: emptyValue
         ),
         DetailsStat(stringResource(R.string.details_stat_points), formatPointCount(entry.pointCount)),
         // Row 2: elevation
-        DetailsStat(stringResource(R.string.details_stat_ascent), formatElevationMeters(entry.ascentMeters)),
-        DetailsStat(stringResource(R.string.details_stat_descent), formatElevationMeters(entry.descentMeters)),
+        DetailsStat(stringResource(R.string.details_stat_ascent), units.elevation(entry.ascentMeters)),
+        DetailsStat(stringResource(R.string.details_stat_descent), units.elevation(entry.descentMeters)),
         DetailsStat(
             stringResource(R.string.details_stat_high_point),
-            entry.elevationMeters?.let { formatElevationMeters(it) } ?: emptyValue
+            entry.elevationMeters?.let { units.elevation(it) } ?: emptyValue
         ),
         // Row 3: speed & time
         DetailsStat(
             stringResource(R.string.details_stat_avg_speed),
-            entry.avgSpeedMps?.let { formatSpeedKmh(it) } ?: emptyValue
+            entry.avgSpeedMps?.let { units.speed(it) } ?: emptyValue
         ),
         DetailsStat(
             stringResource(R.string.details_stat_max_speed),
-            entry.maxSpeedMps?.let { formatSpeedKmh(it) } ?: emptyValue
+            entry.maxSpeedMps?.let { units.speed(it) } ?: emptyValue
         ),
         DetailsStat(
             stringResource(R.string.details_stat_total_time),

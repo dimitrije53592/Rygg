@@ -42,6 +42,7 @@ class RecordingController @Inject constructor(
 
     private val session = MutableStateFlow(Session())
     private var locationJob: Job? = null
+    private var locationSwitchJob: Job? = null
 
     // Previous accepted fix, kept to derive a speed when a fix carries none and to flush the
     // true stop position when recording ends.
@@ -62,7 +63,8 @@ class RecordingController @Inject constructor(
                 elevationMeters = m.elevationMeters,
                 pointCount = m.pointCount,
                 waypointCount = m.waypointCount,
-                gpsReady = s.gpsReady
+                gpsReady = s.gpsReady,
+                locationOff = s.locationOff
             )
         }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), RecordingSnapshot())
 
@@ -103,7 +105,7 @@ class RecordingController @Inject constructor(
         stopLocation()
         flushFinalFix()
         resetContinuity()
-        session.update { it.copy(state = RecordingState.IDLE) }
+        session.update { it.copy(state = RecordingState.IDLE, locationOff = false) }
     }
 
     fun addWaypoint(name: String) = route.addWaypoint(name)
@@ -127,6 +129,18 @@ class RecordingController @Inject constructor(
                 if (!session.value.gpsReady) session.update { it.copy(gpsReady = true) }
                 onLocationFix(location)
             }
+        }
+        locationSwitchJob = scope.launch {
+            locationManager.observeLocationEnabled().collect(::onLocationSwitchChanged)
+        }
+    }
+
+    private fun onLocationSwitchChanged(enabled: Boolean) {
+        val wasOff = session.value.locationOff
+        session.update { it.copy(locationOff = !enabled, gpsReady = it.gpsReady && enabled) }
+        if (enabled && wasOff) {
+            route.breakContinuity()
+            resetContinuity()
         }
     }
 
@@ -195,12 +209,15 @@ class RecordingController @Inject constructor(
     private fun stopLocation() {
         locationJob?.cancel()
         locationJob = null
+        locationSwitchJob?.cancel()
+        locationSwitchJob = null
     }
 
     private data class Session(
         val state: RecordingState = RecordingState.IDLE,
         val discipline: Discipline = Discipline.HIKE,
         val gpsReady: Boolean = false,
+        val locationOff: Boolean = false,
         val startInstant: Instant? = null
     )
 

@@ -41,7 +41,6 @@ class RouteFollowingViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var lastKnownLocation: Location? = null
-    private var isLocationUnavailable: Boolean = false
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -87,9 +86,9 @@ class RouteFollowingViewModel @Inject constructor(
         }
     }
 
-    fun onLocationChange(location: Location?, isUnavailable: Boolean) {
+    fun onLocationChange(location: Location?, hasSignal: Boolean) {
         lastKnownLocation = location
-        isLocationUnavailable = isUnavailable
+        _uiState.update { it.copy(signalLost = !hasSignal) }
         evaluateState()
     }
 
@@ -98,11 +97,6 @@ class RouteFollowingViewModel @Inject constructor(
             val currentState = _uiState.value
             val geometry = currentState.geometry
             val location = lastKnownLocation
-
-            if (isLocationUnavailable) {
-                _uiState.update { it.copy(routeFollowingPhase = RouteFollowingPhase.LocationUnavailable) }
-                return@launch
-            }
 
             if (location == null || geometry == null) {
                 if (currentState.routeFollowingPhase == RouteFollowingPhase.InitialLoading) {
@@ -162,8 +156,6 @@ class RouteFollowingViewModel @Inject constructor(
 }
 
 sealed interface RouteFollowingPhase {
-    object LocationUnavailable : RouteFollowingPhase
-
     object InitialLoading : RouteFollowingPhase
 
     object UserFarAway : RouteFollowingPhase
@@ -182,7 +174,8 @@ data class RouteFollowingUiState(
     val isOnRoute: Boolean = false,
     val freeLook: Boolean = false,
     val pendingRebearing: Boolean = false,
-    val routeFollowingPhase: RouteFollowingPhase = RouteFollowingPhase.InitialLoading
+    val routeFollowingPhase: RouteFollowingPhase = RouteFollowingPhase.InitialLoading,
+    val signalLost: Boolean = false
 )
 
 const val PREVIEW_SPEED_METERS_PER_SECOND = 800.0

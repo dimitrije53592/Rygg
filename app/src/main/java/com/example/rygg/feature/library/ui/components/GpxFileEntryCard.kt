@@ -46,9 +46,7 @@ import com.example.rygg.core.ui.theme.RyggElevation
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.theme.ryggElevation
-import com.example.rygg.core.ui.utils.formatAscent
 import com.example.rygg.core.ui.utils.formatDate
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatDurationHoursMinutes
 import com.example.rygg.core.ui.utils.formatPointCount
 import com.example.rygg.feature.auth.domain.Discipline
@@ -56,6 +54,7 @@ import com.example.rygg.feature.library.domain.EntrySource
 import com.example.rygg.feature.library.domain.GpxFileEntry
 import com.example.rygg.feature.library.domain.SyncStatus
 import com.example.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 fun GpxFileEntryCard(
@@ -168,6 +167,7 @@ fun GpxFileEntryCard(
 
 @Composable
 private fun StatStrip(entry: GpxFileEntry) {
+    val units = rememberUnitFormatter()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,13 +180,13 @@ private fun StatStrip(entry: GpxFileEntry) {
         if (entry.distanceMeters > 0.0) {
             StatCell(
                 label = stringResource(R.string.details_stat_distance),
-                value = formatDistanceKm(entry.distanceMeters)
+                value = units.distance(entry.distanceMeters)
             )
         }
         if (entry.elevationMeters != null) {
             StatCell(
                 label = stringResource(R.string.details_stat_ascent),
-                value = formatAscent(entry.ascentMeters)
+                value = units.ascent(entry.ascentMeters)
             )
         }
         val movingTime = entry.movingTimeMillis

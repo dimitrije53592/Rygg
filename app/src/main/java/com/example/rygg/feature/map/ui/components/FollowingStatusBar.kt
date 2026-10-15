@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.feature.map.ui.util.absorbTouches
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 internal fun FollowingStatusBar(
@@ -73,6 +73,7 @@ private fun StatusIndicator(
     isOnRoute: Boolean,
     distanceToRouteMeters: Double
 ) {
+    val units = rememberUnitFormatter()
     val color = if (isOnRoute) {
         RyggTheme.getColor(RyggColor.BrandGreen)
     } else {
@@ -81,7 +82,7 @@ private fun StatusIndicator(
     val text = if (isOnRoute) {
         stringResource(R.string.follow_on_route)
     } else {
-        stringResource(R.string.follow_off_route_distance, formatDistanceKm(distanceToRouteMeters))
+        stringResource(R.string.follow_off_route_distance, units.distance(distanceToRouteMeters))
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,

@@ -25,9 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.R
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.formatDistanceKm
 import com.example.rygg.core.ui.utils.formatPercent
 import com.example.rygg.feature.map.ui.util.absorbTouches
+import com.example.rygg.core.units.rememberUnitFormatter
 
 @Composable
 internal fun FollowingHud(
@@ -39,6 +39,7 @@ internal fun FollowingHud(
     isPreview: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val units = rememberUnitFormatter()
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -88,7 +89,7 @@ internal fun FollowingHud(
                     color = RyggTheme.getColor(RyggColor.TextSecondary)
                 )
                 Text(
-                    text = formatDistanceKm(distanceRemainingMeters),
+                    text = units.distance(distanceRemainingMeters),
                     style = RyggTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = RyggTheme.getColor(RyggColor.TextPrimary)

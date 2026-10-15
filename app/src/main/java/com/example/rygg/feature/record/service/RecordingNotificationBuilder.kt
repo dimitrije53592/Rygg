@@ -6,7 +6,8 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.example.rygg.R
 import com.example.rygg.core.notification.NotificationBuilder
-import com.example.rygg.core.ui.utils.formatDistanceKm
+import com.example.rygg.core.units.MeasurementSystem
+import com.example.rygg.core.units.UnitFormatter
 import com.example.rygg.core.ui.utils.formatStopwatch
 import com.example.rygg.feature.record.domain.RecordingSnapshot
 import com.example.rygg.feature.record.domain.RecordingState
@@ -15,6 +16,7 @@ import com.example.rygg.feature.record.domain.RecordingState
 // channel + small icon come from NotificationHelper's seeded base.
 class RecordingNotificationBuilder(
     private val snapshot: RecordingSnapshot,
+    private val measurementSystem: MeasurementSystem,
     private val contentPendingIntent: PendingIntent?,
     private val pausePendingIntent: PendingIntent?,
     private val stopPendingIntent: PendingIntent?
@@ -24,11 +26,15 @@ class RecordingNotificationBuilder(
             .setContentText(
                 context.getString(
                     R.string.record_notification_text,
-                    formatDistanceKm(snapshot.distanceMeters),
+                    UnitFormatter(context.resources, measurementSystem).distance(snapshot.distanceMeters),
                     formatStopwatch(snapshot.elapsedMillis)
                 )
             )
-            .setSubText(context.getString(statusLabelRes(snapshot.state)))
+            .setSubText(
+                context.getString(
+                    if (snapshot.locationOff) R.string.record_notification_location_paused else statusLabelRes(snapshot.state)
+                )
+            )
             .setContentIntent(contentPendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
