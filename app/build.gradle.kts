@@ -16,13 +16,20 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
-// Release signing from keystore.properties (git-ignored). Absent -> release is signed with the
-// debug key so assembleRelease works locally; supply a real keystore before publishing.
+// Release signing from keystore.properties (git-ignored). Never fall back to the debug key: a
+// debug-signed bundle would be rejected by Play or, worse, ship with the wrong certificate.
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
 val hasReleaseKeystore = keystoreProperties.containsKey("storeFile")
+val isReleaseTaskRequested = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+if (isReleaseTaskRequested && !hasReleaseKeystore) {
+    throw GradleException(
+        "Release build needs keystore.properties in the project root with storeFile, " +
+            "storePassword, keyAlias and keyPassword (the upload key)."
+    )
+}
 
 android {
     namespace = "com.example.rygg"
@@ -59,11 +66,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = if (hasReleaseKeystore) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            if (hasReleaseKeystore) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
