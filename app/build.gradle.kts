@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.aboutlibraries)
 }
 
 val localProperties = Properties().apply {
@@ -145,4 +146,5 @@ dependencies {
     }
     implementation(libs.maplibre.android.opengl)
     implementation(libs.play.services.location)
+    implementation(libs.aboutlibraries.core)
 }

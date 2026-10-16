@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -36,6 +40,7 @@ import com.dimitrijeilic.rygg.core.units.MeasurementSystem
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingResolution
 import com.dimitrijeilic.rygg.feature.settings.domain.AppLanguage
 import com.dimitrijeilic.rygg.feature.settings.domain.PermissionStatus
+import com.dimitrijeilic.rygg.feature.settings.ui.components.SettingsLinkRow
 import com.dimitrijeilic.rygg.feature.settings.ui.components.SettingsStatusRow
 
 // Short choices (theme, language, units) are segmented controls, so each setting is one row
@@ -65,6 +70,7 @@ fun SettingsScreen(params: SettingsScreenParams) {
             RecordingSection(params)
             SyncSection(params)
             PermissionsSection(params)
+            AboutSection(params)
             AboutFooter(versionName = params.uiState.appVersion)
         }
     }
@@ -181,6 +187,32 @@ private fun PermissionsSection(params: SettingsScreenParams) {
     }
 }
 
+// Privacy and terms live on the website so Play Console and the app link to the same page.
+@Composable
+private fun AboutSection(params: SettingsScreenParams) {
+    SettingsSection(title = stringResource(R.string.settings_section_about)) {
+        SettingsLinkRow(
+            label = stringResource(R.string.settings_privacy_policy),
+            leadingIcon = Icons.Outlined.Policy,
+            trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew,
+            onClick = params.onOpenPrivacyPolicy
+        )
+        SectionDivider(inset = true)
+        SettingsLinkRow(
+            label = stringResource(R.string.settings_terms),
+            leadingIcon = Icons.Outlined.Gavel,
+            trailingIcon = Icons.AutoMirrored.Outlined.OpenInNew,
+            onClick = params.onOpenTerms
+        )
+        SectionDivider(inset = true)
+        SettingsLinkRow(
+            label = stringResource(R.string.settings_licenses),
+            leadingIcon = Icons.Outlined.Description,
+            onClick = params.onOpenLicenses
+        )
+    }
+}
+
 @Composable
 private fun AboutFooter(versionName: String) {
     if (versionName.isEmpty()) return
@@ -286,7 +318,10 @@ private fun SettingsScreenPreview() {
                 onSyncWifiOnlyChanged = {},
                 onRecordingResolutionSelected = {},
                 onManageLocationPermission = {},
-                onManageNotificationPermission = {}
+                onManageNotificationPermission = {},
+                onOpenPrivacyPolicy = {},
+                onOpenTerms = {},
+                onOpenLicenses = {}
             )
         )
     }
@@ -314,5 +349,8 @@ data class SettingsScreenParams(
     val onSyncWifiOnlyChanged: (Boolean) -> Unit,
     val onRecordingResolutionSelected: (RecordingResolution) -> Unit,
     val onManageLocationPermission: () -> Unit,
-    val onManageNotificationPermission: () -> Unit
+    val onManageNotificationPermission: () -> Unit,
+    val onOpenPrivacyPolicy: () -> Unit,
+    val onOpenTerms: () -> Unit,
+    val onOpenLicenses: () -> Unit
 )

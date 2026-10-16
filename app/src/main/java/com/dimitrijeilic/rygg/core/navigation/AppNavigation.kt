@@ -58,6 +58,7 @@ import com.dimitrijeilic.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
 import com.dimitrijeilic.rygg.feature.profile.ui.wrapper.ProfileWrapper
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
 import com.dimitrijeilic.rygg.feature.record.ui.wrapper.RecordWrapper
+import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.LicensesWrapper
 import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.SettingsWrapper
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -259,7 +260,13 @@ fun AppNavigation() {
                         )
                     }
                     composable<Settings> {
-                        SettingsWrapper(onNavigateBack = { navController.navigateUp() })
+                        SettingsWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onOpenLicenses = { navController.navigate(Licenses) }
+                        )
+                    }
+                    composable<Licenses> {
+                        LicensesWrapper(onNavigateBack = { navController.navigateUp() })
                     }
                     composable<Feedback> {
                         FeedbackWrapper(onNavigateBack = { navController.navigateUp() })

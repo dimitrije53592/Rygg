@@ -254,6 +254,22 @@
     <string name="settings_permission_denied">Not allowed</string>
     <string name="settings_permission_manage">Manage</string>
     <string name="settings_about_version">Rygg %1$s</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_terms">Terms of use</string>
+    <string name="settings_licenses">Licenses</string>
+    <string name="licenses_title">Licenses</string>
+    <string name="licenses_loading">Loading licenses…</string>
+    <string name="licenses_error">Couldn\'t load the license list.</string>
+    <string name="licenses_section_map_data">Map data</string>
+    <string name="licenses_section_fonts">Fonts</string>
+    <string name="licenses_section_libraries">Open-source libraries (%1$d)</string>
+    <string name="licenses_osm_title">© OpenStreetMap contributors</string>
+    <string name="licenses_osm_detail">Map data, Open Database License (ODbL)</string>
+    <string name="licenses_maptiler_title">© MapTiler</string>
+    <string name="licenses_maptiler_detail">Map tiles and styles</string>
+    <string name="licenses_manrope_title">Manrope</string>
+    <string name="licenses_manrope_detail">SIL Open Font License 1.1</string>
 
     <!-- Units -->
     <string name="unit_distance_km">%1$s km</string>

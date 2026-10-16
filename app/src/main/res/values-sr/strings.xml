@@ -255,6 +255,22 @@
     <string name="settings_permission_denied">Nije dozvoljeno</string>
     <string name="settings_permission_manage">Upravljaj</string>
     <string name="settings_about_version">Rygg %1$s</string>
+    <string name="settings_section_about">O aplikaciji</string>
+    <string name="settings_privacy_policy">Politika privatnosti</string>
+    <string name="settings_terms">Uslovi korišćenja</string>
+    <string name="settings_licenses">Licence</string>
+    <string name="licenses_title">Licence</string>
+    <string name="licenses_loading">Učitavanje licenci…</string>
+    <string name="licenses_error">Spisak licenci nije moguće učitati.</string>
+    <string name="licenses_section_map_data">Podaci mapa</string>
+    <string name="licenses_section_fonts">Fontovi</string>
+    <string name="licenses_section_libraries">Biblioteke otvorenog koda (%1$d)</string>
+    <string name="licenses_osm_title">© OpenStreetMap saradnici</string>
+    <string name="licenses_osm_detail">Podaci mapa, Open Database License (ODbL)</string>
+    <string name="licenses_maptiler_title">© MapTiler</string>
+    <string name="licenses_maptiler_detail">Pločice i stilovi mapa</string>
+    <string name="licenses_manrope_title">Manrope</string>
+    <string name="licenses_manrope_detail">SIL Open Font License 1.1</string>
 
     <!-- Units -->
     <string name="unit_distance_km">%1$s km</string>

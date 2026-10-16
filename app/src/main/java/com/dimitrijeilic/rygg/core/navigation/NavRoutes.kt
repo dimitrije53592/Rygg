@@ -43,3 +43,6 @@ data object Settings
 
 @Serializable
 data object Feedback
+
+@Serializable
+data object Licenses
