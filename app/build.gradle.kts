@@ -32,13 +32,13 @@ if (isReleaseTaskRequested && !hasReleaseKeystore) {
 }
 
 android {
-    namespace = "com.example.rygg"
+    namespace = "com.dimitrijeilic.rygg"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.rygg"
+        applicationId = "com.dimitrijeilic.rygg"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

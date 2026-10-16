@@ -15,7 +15,7 @@
       var fallback = "https://" + host + "/";
       if (/android/i.test(navigator.userAgent)) {
         var intentUrl = "intent://" + host + path +
-          "#Intent;scheme=https;package=com.example.rygg;" +
+          "#Intent;scheme=https;package=com.dimitrijeilic.rygg;" +
           "S.browser_fallback_url=" + encodeURIComponent(fallback) + ";end";
         window.location.replace(intentUrl);
       }
@@ -44,7 +44,7 @@
       e.preventDefault();
       var host = window.location.host, path = window.location.pathname;
       window.location.replace(
-        "intent://" + host + path + "#Intent;scheme=https;package=com.example.rygg;" +
+        "intent://" + host + path + "#Intent;scheme=https;package=com.dimitrijeilic.rygg;" +
         "S.browser_fallback_url=" + encodeURIComponent("https://" + host + "/") + ";end"
       );
     });

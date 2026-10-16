@@ -10,7 +10,7 @@ Navigation Compose, Firebase (auth).
 
 ## Architecture & package layout
 
-Root package `com.example.rygg`, split into two top-level areas:
+Root package `com.dimitrijeilic.rygg`, split into two top-level areas:
 
 - `core/` — cross-cutting: `common/`, `database/`, `di/`, `gpx/`, `navigation/`,
   `notification/`, `locale/`, `ui/{components,theme,utils}`.
