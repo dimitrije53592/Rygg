@@ -2,7 +2,9 @@ package com.dimitrijeilic.rygg.feature.auth.data
 
 import com.dimitrijeilic.rygg.core.common.Outcome
 import com.dimitrijeilic.rygg.core.common.outcomeCatching
+import com.dimitrijeilic.rygg.feature.auth.domain.SignInMethod
 import com.dimitrijeilic.rygg.feature.auth.domain.User
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -28,6 +30,16 @@ class AuthRepository @Inject constructor(
     fun isLoggedIn(): Boolean = firebaseAuth.signedInUser() != null
 
     fun currentUser(): User? = firebaseAuth.signedInUser()?.toUser()
+
+    // Google wins when both are linked: re-authenticating is then one tap instead of typing.
+    fun currentSignInMethod(): SignInMethod? {
+        val providers = firebaseAuth.signedInUser()?.providerData?.map { it.providerId } ?: return null
+        return when {
+            GoogleAuthProvider.PROVIDER_ID in providers -> SignInMethod.GOOGLE
+            EmailAuthProvider.PROVIDER_ID in providers -> SignInMethod.PASSWORD
+            else -> null
+        }
+    }
 
     suspend fun login(email: String, password: String): Outcome<Unit> = outcomeCatching {
         firebaseAuth.signInWithEmailAndPassword(email, password).await()

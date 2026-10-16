@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
@@ -69,7 +70,9 @@ fun LoginScreen(params: LoginScreenParams) {
             Text(
                 text = message,
                 style = RyggTheme.typography.bodyMedium,
-                color = RyggTheme.getColor(RyggColor.Error)
+                color = RyggTheme.getColor(RyggColor.Error),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         RyggPrimaryButton(

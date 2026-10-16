@@ -19,8 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -51,6 +53,8 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
+import com.dimitrijeilic.rygg.feature.auth.domain.SignInMethod
+import com.dimitrijeilic.rygg.feature.profile.ui.components.DeleteAccountDialog
 
 @Composable
 fun ProfileScreen(params: ProfileScreenParams) {
@@ -103,6 +107,16 @@ fun ProfileScreen(params: ProfileScreenParams) {
                         onClick = { confirmSignOut = true },
                         showChevron = false
                     )
+                    RowDivider()
+                    LinkRow(
+                        label = stringResource(R.string.profile_delete_account),
+                        icon = Icons.Outlined.PersonRemove,
+                        onClick = params.onDeleteAccountClick,
+                        showChevron = false,
+                        labelColor = RyggTheme.getColor(RyggColor.Error),
+                        iconTint = RyggTheme.getColor(RyggColor.Error),
+                        iconContainerColor = RyggTheme.getColor(RyggColor.ErrorSurface)
+                    )
                 }
             }
         }
@@ -129,6 +143,32 @@ fun ProfileScreen(params: ProfileScreenParams) {
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+
+    when (val deleteAccount = params.uiState.deleteAccount) {
+        is DeleteAccountState.Confirming -> DeleteAccountDialog(
+            state = deleteAccount,
+            onPasswordChange = params.onDeletePasswordChange,
+            onConfirm = params.onConfirmDeleteAccount,
+            onDismiss = params.onDeleteAccountDismiss
+        )
+
+        // Confirm on the spot: the screen behind already shows the guest profile, which on its
+        // own could read as "signed out" rather than "deleted".
+        DeleteAccountState.Deleted -> RyggDialog(
+            title = stringResource(R.string.profile_deleted_title),
+            onDismissRequest = params.onDeleteAccountDismiss,
+            icon = Icons.Outlined.CheckCircle,
+            message = stringResource(R.string.profile_deleted_message)
+        ) {
+            RyggPrimaryButton(
+                text = stringResource(R.string.profile_deleted_ok),
+                onClick = params.onDeleteAccountDismiss,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        DeleteAccountState.Hidden -> Unit
     }
 }
 
@@ -285,7 +325,9 @@ private fun ColumnScope.LinkRow(
     icon: ImageVector,
     onClick: () -> Unit,
     showChevron: Boolean = true,
-    labelColor: Color = RyggTheme.getColor(RyggColor.TextPrimary)
+    labelColor: Color = RyggTheme.getColor(RyggColor.TextPrimary),
+    iconTint: Color = RyggTheme.getColor(RyggColor.BrandGreen),
+    iconContainerColor: Color = RyggTheme.getColor(RyggColor.MossSurface)
 ) {
     Row(
         modifier = Modifier
@@ -296,7 +338,7 @@ private fun ColumnScope.LinkRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
     ) {
-        RyggIconBadge(icon = icon)
+        RyggIconBadge(icon = icon, tint = iconTint, containerColor = iconContainerColor)
         Text(
             text = label,
             style = RyggTheme.typography.bodyLarge,
@@ -344,7 +386,11 @@ private fun ProfileScreenPreview() {
                 onSignOut = {},
                 onSignIn = {},
                 onOpenSettings = {},
-                onSendFeedback = {}
+                onSendFeedback = {},
+                onDeleteAccountClick = {},
+                onDeleteAccountDismiss = {},
+                onDeletePasswordChange = {},
+                onConfirmDeleteAccount = {}
             )
         )
     }
@@ -356,8 +402,30 @@ data class ProfileUiState(
     val email: String = "",
     val activityCount: Int = 0,
     val totalDistanceMeters: Double = 0.0,
-    val totalAscentMeters: Double = 0.0
+    val totalAscentMeters: Double = 0.0,
+    val deleteAccount: DeleteAccountState = DeleteAccountState.Hidden
 )
+
+sealed interface DeleteAccountState {
+    data object Hidden : DeleteAccountState
+
+    data class Confirming(
+        val method: SignInMethod,
+        val password: String = "",
+        val isDeleting: Boolean = false,
+        val error: DeleteAccountError? = null,
+        val errorCause: String? = null
+    ) : DeleteAccountState
+
+    data object Deleted : DeleteAccountState
+}
+
+enum class DeleteAccountError {
+    WrongPassword,
+    WrongAccount,
+    Offline,
+    Generic,
+}
 
 data class ProfileScreenParams(
     val uiState: ProfileUiState,
@@ -365,5 +433,9 @@ data class ProfileScreenParams(
     val onSignOut: () -> Unit,
     val onSignIn: () -> Unit,
     val onOpenSettings: () -> Unit,
-    val onSendFeedback: () -> Unit
+    val onSendFeedback: () -> Unit,
+    val onDeleteAccountClick: () -> Unit,
+    val onDeleteAccountDismiss: () -> Unit,
+    val onDeletePasswordChange: (String) -> Unit,
+    val onConfirmDeleteAccount: () -> Unit
 )

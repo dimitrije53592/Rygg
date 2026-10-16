@@ -330,4 +330,18 @@
     <string name="profile_lifetime">All time</string>
     <string name="profile_sign_out_confirm_title">Sign out of Rygg?</string>
     <string name="profile_sign_out_cancel">Cancel</string>
+    <string name="profile_delete_account">Delete account</string>
+    <string name="profile_delete_title">Delete your account?</string>
+    <string name="profile_delete_message">This permanently deletes your Rygg account, your backed-up routes and every link you\'ve shared. Routes on this phone stay here, offline only. This can\'t be undone.</string>
+    <string name="profile_delete_password_label">Password to confirm</string>
+    <string name="profile_delete_google_hint">You\'ll confirm with your Google account next.</string>
+    <string name="profile_delete_confirm">Delete account</string>
+    <string name="profile_delete_cancel">Keep my account</string>
+    <string name="profile_delete_error_password">That password isn\'t right.</string>
+    <string name="profile_delete_error_account">Choose the same Google account you\'re signed in with.</string>
+    <string name="profile_delete_error_offline">You\'re offline. Connect to the internet and try again.</string>
+    <string name="profile_delete_error_generic">Couldn\'t delete your account. Please try again.</string>
+    <string name="profile_deleted_title">Account deleted</string>
+    <string name="profile_deleted_message">Your account, cloud backups and shared links are gone. Your routes are still on this phone.</string>
+    <string name="profile_deleted_ok">OK</string>
 </resources>

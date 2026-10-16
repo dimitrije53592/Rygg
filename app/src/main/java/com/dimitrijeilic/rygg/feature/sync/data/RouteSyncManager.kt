@@ -26,7 +26,10 @@ import com.dimitrijeilic.rygg.feature.sync.data.remote.toUpdatedEntity
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Source
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,6 +90,53 @@ class RouteSyncManager @Inject constructor(
     private fun stopPull() {
         pullRegistration?.remove()
         pullRegistration = null
+    }
+
+    // --- Account deletion ---
+
+    // Wipes everything the account owns in the cloud, then keeps its routes on this device as
+    // guest rows. Runs before the auth user is deleted, since the rules need the uid signed in.
+    // Every step reads from / waits on the server, so an offline or half-finished wipe surfaces
+    // as an error instead of looking done.
+    suspend fun deleteAccountData(uid: String) {
+        stopPull()
+        val owned = dao.getOwned(uid)
+        owned.mapNotNull { it.remoteId }.forEach { remoteId ->
+            workManager.cancelUniqueWork("upload-$remoteId")
+            workManager.cancelUniqueWork("download-$remoteId")
+        }
+
+        // Blob before snapshot: storage.rules checks the snapshot's ownerUid to allow the delete.
+        sharedRoutes.whereEqualTo("ownerUid", uid).get(Source.SERVER).await().documents.forEach { doc ->
+            doc.getString("sharedStoragePath")?.let { storage.reference.child(it).deleteIfExists() }
+            doc.reference.delete().await()
+        }
+
+        // Include local remoteIds: a queued, not-yet-acked write would otherwise recreate its doc.
+        val remoteIds = userRoutes(uid).get(Source.SERVER).await().documents.map { it.id } +
+            owned.mapNotNull { it.remoteId }
+        remoteIds.distinct().chunked(MAX_BATCH_WRITES).forEach { chunk ->
+            val batch = firestore.batch()
+            chunk.forEach { batch.delete(userRoutes(uid).document(it)) }
+            batch.commit().await()
+        }
+
+        storage.reference.child("users/$uid").listAll().await().items.forEach { it.deleteIfExists() }
+
+        // Ghost rows (no local file) and pending tombstones have nothing left to keep.
+        owned.filter { !it.fileDownloaded || it.syncStatus == "PENDING_DELETE" }.forEach { entity ->
+            if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
+            dao.deleteById(entity.id)
+        }
+        dao.revertOwnedToGuest(uid)
+    }
+
+    private suspend fun StorageReference.deleteIfExists() {
+        try {
+            delete().await()
+        } catch (e: StorageException) {
+            if (e.errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) throw e
+        }
     }
 
     // Claim guest (ownerUid == null) routes: drop local dupes, link cloud dupes (no re-upload),
@@ -381,5 +431,8 @@ class RouteSyncManager @Inject constructor(
         const val ERR_NOT_FOUND = "NOT_FOUND"
 
         private const val MAX_FILE_BYTES = 20L * 1024 * 1024
+
+        // Firestore caps a write batch at 500 operations.
+        private const val MAX_BATCH_WRITES = 500
     }
 }
