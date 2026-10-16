@@ -1,0 +1,110 @@
+package com.dimitrijeilic.rygg.feature.details.ui.viewmodel
+
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dimitrijeilic.rygg.core.common.Outcome
+import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
+import com.dimitrijeilic.rygg.core.ui.utils.formatDate
+import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
+import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
+import com.dimitrijeilic.rygg.feature.record.data.RecordingController
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class RecordingPreviewViewModel @Inject constructor(
+    private val gpxFileEntryRepository: GpxFileEntryRepository,
+    private val recordingController: RecordingController,
+    @ApplicationContext private val context: Context
+) : ViewModel() {
+    private var stagedEntry: GpxFileEntry? = null
+    private var elevationProfile: List<ElevationSample> = emptyList()
+
+    private val _uiState = MutableStateFlow(DetailsUiState(DetailsLoadingState.Loading))
+    val uiState = _uiState.asStateFlow()
+
+    private val _name = MutableStateFlow("")
+    val name = _name.asStateFlow()
+
+    private val _finished = MutableSharedFlow<Unit>()
+    val finished = _finished.asSharedFlow()
+
+    // One-shot signal that a save failed; the screen stays put and surfaces the error.
+    private val _error = MutableSharedFlow<Unit>()
+    val error = _error.asSharedFlow()
+
+    init {
+        // Guarantee the recording is stopped before we read it — race-free regardless of entry path
+        // (in-app Stop, or the notification's Stop deep link). stop() is idempotent, so this is a
+        // no-op when the controller is already IDLE. Keeps buildDocument() from reading a live track.
+        recordingController.stop()
+
+        viewModelScope.launch {
+            val document = recordingController.buildDocument()
+            if (document == null) {
+                // Nothing meaningful was recorded (< 2 points) — show the graceful empty state
+                // with a discard confirmation rather than a generic error.
+                _uiState.value = DetailsUiState(DetailsLoadingState.Empty)
+                return@launch
+            }
+            val discipline = recordingController.currentDiscipline()
+            _name.value = "${context.getString(discipline.labelRes)} · ${formatDate(System.currentTimeMillis())}"
+
+            when (val staged = gpxFileEntryRepository.stageRecordedTrack(document, discipline)) {
+                is Outcome.Success -> {
+                    stagedEntry = staged.data
+                    elevationProfile = gpxFileEntryRepository.loadElevationProfile(staged.data)
+                    emitLoaded()
+                }
+
+                is Outcome.Error -> _uiState.value = DetailsUiState(DetailsLoadingState.Error(staged.cause.message))
+                Outcome.Loading -> Unit
+            }
+        }
+    }
+
+    fun onNameChange(value: String) {
+        _name.value = value
+        emitLoaded()
+    }
+
+    fun onSave() {
+        viewModelScope.launch {
+            val entry = stagedEntry ?: return@launch
+            when (gpxFileEntryRepository.persistRecordedTrack(entry, _name.value)) {
+                is Outcome.Success -> {
+                    recordingController.reset()
+                    _finished.emit(Unit)
+                }
+
+                is Outcome.Error -> _error.emit(Unit)
+                Outcome.Loading -> Unit
+            }
+        }
+    }
+
+    fun onDiscard() {
+        viewModelScope.launch {
+            stagedEntry?.let { gpxFileEntryRepository.discardStagedFile(it) }
+            recordingController.reset()
+            _finished.emit(Unit)
+        }
+    }
+
+    private fun emitLoaded() {
+        val entry = stagedEntry ?: return
+        _uiState.value = DetailsUiState(
+            DetailsLoadingState.Loaded(
+                entry = entry.copy(name = _name.value),
+                elevationProfile = elevationProfile
+            )
+        )
+    }
+}

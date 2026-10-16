@@ -1,0 +1,34 @@
+package com.dimitrijeilic.rygg.feature.profile.ui.wrapper
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dimitrijeilic.rygg.feature.profile.ui.screen.ProfileScreen
+import com.dimitrijeilic.rygg.feature.profile.ui.screen.ProfileScreenParams
+import com.dimitrijeilic.rygg.feature.profile.ui.viewmodel.ProfileViewModel
+
+@Composable
+fun ProfileWrapper(
+    onNavigateBack: () -> Unit,
+    onAuthEntry: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onSendFeedback: () -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ProfileScreen(
+        params = ProfileScreenParams(
+            uiState = uiState,
+            onNavigateBack = onNavigateBack,
+            onSignOut = {
+                viewModel.signOut()
+                onAuthEntry()
+            },
+            onSignIn = onAuthEntry,
+            onOpenSettings = onOpenSettings,
+            onSendFeedback = onSendFeedback
+        )
+    )
+}

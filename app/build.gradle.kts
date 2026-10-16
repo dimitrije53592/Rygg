@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.aboutlibraries)
 }
 
 val localProperties = Properties().apply {
@@ -16,30 +17,34 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use { load(it) }
 }
 
-// Release signing from keystore.properties (git-ignored). Absent -> release is signed with the
-// debug key so assembleRelease works locally; supply a real keystore before publishing.
+// Release signing from keystore.properties (git-ignored). Never fall back to the debug key: a
+// debug-signed bundle would be rejected by Play or, worse, ship with the wrong certificate.
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
 val hasReleaseKeystore = keystoreProperties.containsKey("storeFile")
+val isReleaseTaskRequested = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+if (isReleaseTaskRequested && !hasReleaseKeystore) {
+    throw GradleException(
+        "Release build needs keystore.properties in the project root with storeFile, " +
+            "storePassword, keyAlias and keyPassword (the upload key)."
+    )
+}
 
 android {
-    namespace = "com.example.rygg"
+    namespace = "com.dimitrijeilic.rygg"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.rygg"
+        applicationId = "com.dimitrijeilic.rygg"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "EXAMPLE_API_KEY", "\"${localProperties.getProperty("EXAMPLE_API_KEY", "")}\"")
         buildConfigField("String", "MAPTILER_API_KEY", "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\"")
     }
 
@@ -62,11 +67,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = if (hasReleaseKeystore) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            if (hasReleaseKeystore) signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -122,7 +123,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
@@ -131,15 +131,9 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.kotlinx.coroutines.play.services)
 
-    implementation(libs.bundles.networking)
-
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
@@ -152,4 +146,5 @@ dependencies {
     }
     implementation(libs.maplibre.android.opengl)
     implementation(libs.play.services.location)
+    implementation(libs.aboutlibraries.core)
 }

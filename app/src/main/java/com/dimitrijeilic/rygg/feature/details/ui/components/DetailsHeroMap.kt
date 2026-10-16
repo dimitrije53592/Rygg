@@ -1,0 +1,374 @@
+package com.dimitrijeilic.rygg.feature.details.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import com.dimitrijeilic.rygg.R
+import com.dimitrijeilic.rygg.core.ui.components.RouteCanvas
+import com.dimitrijeilic.rygg.core.ui.components.RouteCanvasScale
+import com.dimitrijeilic.rygg.core.ui.components.RyggTextField
+import com.dimitrijeilic.rygg.core.ui.components.sharedRouteCanvas
+import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
+import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
+import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
+import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
+import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
+
+@Composable
+fun DetailsHeroMap(
+    entry: GpxFileEntry,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    highlightFraction: Float? = null,
+    sourceLabel: String? = null,
+    onToggleFavorite: (() -> Unit)? = null,
+    onRename: ((String) -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
+    onShareLink: (() -> Unit)? = null,
+    onShareFile: (() -> Unit)? = null
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(RyggTheme.dimens.detailsHeroHeight)
+    ) {
+        RouteCanvas(
+            points = entry.pathPoints,
+            scale = RouteCanvasScale.Hero,
+            highlightFraction = highlightFraction,
+            modifier = Modifier
+                .fillMaxSize()
+                .sharedRouteCanvas(entry.id)
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.28f),
+                            Color.Transparent,
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.55f)
+                        )
+                    )
+                )
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(RyggTheme.dimens.commonContentPadding12),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            GlassIconButton(
+                onClick = onNavigateBack,
+                content = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.nav_back),
+                        tint = Color.White,
+                        modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+                    )
+                }
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
+                if (onShareLink != null && onShareFile != null) {
+                    HeroShareButton(
+                        onShareLink = onShareLink,
+                        onShareFile = onShareFile
+                    )
+                }
+                if (onToggleFavorite != null && onRename != null && onDelete != null) {
+                    HeroOverflowMenu(
+                        isFavorite = entry.isFavorite,
+                        currentName = entry.name,
+                        onToggleFavorite = onToggleFavorite,
+                        onRename = onRename,
+                        onDelete = onDelete
+                    )
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(RyggTheme.dimens.commonContentPadding16),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
+                DisciplineChip(entry.discipline)
+                sourceLabel?.let { SourceChip(label = it) }
+            }
+            Text(
+                text = entry.name,
+                style = RyggTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroShareButton(
+    onShareLink: () -> Unit,
+    onShareFile: () -> Unit
+) {
+    var showSheet by remember { mutableStateOf(false) }
+
+    GlassIconButton(
+        onClick = { showSheet = true },
+        content = {
+            Icon(
+                imageVector = Icons.Outlined.Share,
+                contentDescription = stringResource(R.string.details_share),
+                tint = Color.White,
+                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+            )
+        }
+    )
+    if (showSheet) {
+        DetailsShareSheet(
+            onShareLink = {
+                showSheet = false
+                onShareLink()
+            },
+            onShareFile = {
+                showSheet = false
+                onShareFile()
+            },
+            onDismiss = { showSheet = false }
+        )
+    }
+}
+
+@Composable
+private fun HeroOverflowMenu(
+    isFavorite: Boolean,
+    currentName: String,
+    onToggleFavorite: () -> Unit,
+    onRename: (String) -> Unit,
+    onDelete: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+
+    Box {
+        GlassIconButton(
+            onClick = { expanded = true },
+            content = {
+                Icon(
+                    imageVector = Icons.Outlined.MoreVert,
+                    contentDescription = stringResource(R.string.details_more_actions),
+                    tint = Color.White,
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+                )
+            }
+        )
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(
+                            if (isFavorite) R.string.details_unfavorite else R.string.details_favorite
+                        )
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Star else Icons.Outlined.StarBorder,
+                        contentDescription = null,
+                        tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                    )
+                },
+                onClick = {
+                    expanded = false
+                    onToggleFavorite()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.details_rename)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = null,
+                        tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                    )
+                },
+                onClick = {
+                    expanded = false
+                    showRenameDialog = true
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.details_delete)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = null,
+                        tint = RyggTheme.getColor(RyggColor.Error)
+                    )
+                },
+                onClick = {
+                    expanded = false
+                    onDelete()
+                }
+            )
+        }
+    }
+
+    if (showRenameDialog) {
+        RenameRouteDialog(
+            currentName = currentName,
+            onConfirm = {
+                showRenameDialog = false
+                onRename(it)
+            },
+            onDismiss = { showRenameDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun RenameRouteDialog(
+    currentName: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.details_rename_title)) },
+        text = {
+            RyggTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholderText = stringResource(R.string.details_rename_hint)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(name) },
+                enabled = name.isNotBlank()
+            ) {
+                Text(
+                    text = stringResource(R.string.details_rename_save),
+                    color = RyggTheme.getColor(RyggColor.BrandGreen)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = stringResource(R.string.details_rename_cancel),
+                    color = RyggTheme.getColor(RyggColor.TextSecondary)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun GlassIconButton(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(RyggTheme.dimens.buttonSize40)
+            .clip(RyggShapes.medium)
+            .background(Color.Black.copy(alpha = 0.32f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun SourceChip(label: String) {
+    Text(
+        text = label,
+        style = RyggTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = Color.White,
+        modifier = Modifier
+            .clip(RyggShapes.small)
+            .background(Color.Black.copy(alpha = 0.32f))
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding8,
+                vertical = RyggTheme.dimens.commonContentPadding4
+            )
+    )
+}
+
+@Composable
+private fun DisciplineChip(discipline: Discipline) {
+    Row(
+        modifier = Modifier
+            .clip(RyggShapes.small)
+            .background(RyggTheme.getColor(RyggColor.BrandGreen))
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding8,
+                vertical = RyggTheme.dimens.commonContentPadding4
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
+    ) {
+        Icon(
+            painter = painterResource(discipline.iconRes),
+            contentDescription = null,
+            tint = RyggTheme.getColor(RyggColor.OnBrand),
+            modifier = Modifier.size(RyggTheme.dimens.iconSize16)
+        )
+        Text(
+            text = stringResource(discipline.labelRes),
+            style = RyggTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = RyggTheme.getColor(RyggColor.OnBrand)
+        )
+    }
+}
