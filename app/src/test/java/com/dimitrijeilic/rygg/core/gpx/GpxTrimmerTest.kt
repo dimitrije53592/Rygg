@@ -30,11 +30,15 @@ class GpxTrimmerTest {
     )
 
     @Test
-    fun trim_keepsOnlyPointsInsideTheRange() {
+    fun trim_keepsPointsInsideTheRangeAndInterpolatesTheCuts() {
         val trimmed = trimmer.trim(document, startFraction = 0.25, endFraction = 0.75)
 
         val kept = trimmed.trackSegments().flatten()
-        assertEquals(listOf(0.003, 0.004, 0.005, 0.006, 0.007), kept.map { it.lon })
+        val expected = listOf(0.0025, 0.003, 0.004, 0.005, 0.006, 0.007, 0.0075)
+        assertEquals(expected.size, kept.size)
+        expected.zip(kept).forEach { (lon, point) -> assertEquals(lon, point.lon, 1e-9) }
+        assertEquals(102.5, kept.first().ele!!, 1e-6)
+        assertEquals(Extras(), kept.first().extras)
     }
 
     @Test
@@ -53,9 +57,16 @@ class GpxTrimmerTest {
     }
 
     @Test
-    fun trim_rejectsARangeThatKeepsTooLittle() {
+    fun trim_rangeBetweenTwoPointsKeepsBothCuts() {
+        val trimmed = trimmer.trim(document, startFraction = 0.51, endFraction = 0.52)
+
+        assertEquals(2, trimmed.trackSegments().flatten().size)
+    }
+
+    @Test
+    fun trim_rejectsAnEmptyRange() {
         assertThrows(IllegalArgumentException::class.java) {
-            trimmer.trim(document, startFraction = 0.51, endFraction = 0.52)
+            trimmer.trim(document, startFraction = 0.5, endFraction = 0.5)
         }
     }
 }

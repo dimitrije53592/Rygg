@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -125,6 +126,7 @@ fun ElevationProfile(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(RyggTheme.dimens.elevationProfileHeight)
+                .then(if (trimRange != null) Modifier.systemGestureExclusion() else Modifier)
                 .pointerInput(samples, trimRange != null) {
                     if (currentTrimRange != null) {
                         awaitEachGesture {

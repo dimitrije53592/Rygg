@@ -17,7 +17,13 @@ class GpxTrimmer @Inject constructor() {
             points.forEachIndexed { index, point ->
                 if (index > 0) {
                     val previous = points[index - 1]
+                    val stepStart = travelled
                     travelled += haversineMeters(previous.lat, previous.lon, point.lat, point.lon)
+                    listOf(fromMeters, toMeters)
+                        .filter { cut -> cut > stepStart && cut < travelled }
+                        .forEach { cut ->
+                            kept += interpolate(previous, point, (cut - stepStart) / (travelled - stepStart))
+                        }
                 }
                 if (travelled in fromMeters..toMeters) kept += point
             }
@@ -45,6 +51,17 @@ class GpxTrimmer @Inject constructor() {
             routes = routes,
             waypoints = document.waypoints.filter { it.isNear(keptPoints) }
         )
+    }
+
+    private fun interpolate(a: GpxPoint, b: GpxPoint, fraction: Double): GpxPoint {
+        fun lerp(from: Double, to: Double) = from + (to - from) * fraction
+        val ele = if (a.ele != null && b.ele != null) lerp(a.ele, b.ele) else null
+        val time = if (a.time != null && b.time != null) {
+            a.time.plusMillis(((b.time.toEpochMilli() - a.time.toEpochMilli()) * fraction).toLong())
+        } else {
+            null
+        }
+        return GpxPoint(lat = lerp(a.lat, b.lat), lon = lerp(a.lon, b.lon), ele = ele, time = time)
     }
 
     private fun List<GpxPoint>.lengthMeters(): Double =
