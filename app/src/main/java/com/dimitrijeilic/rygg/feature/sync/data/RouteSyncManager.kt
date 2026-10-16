@@ -346,8 +346,8 @@ class RouteSyncManager @Inject constructor(
         val sharedPath = "shared/$token.gpx"
         val file = gpxStorage.resolve(local.fileName)
         // Await these two: the returned link must resolve for a recipient immediately.
-        storage.reference.child(sharedPath).putFile(Uri.fromFile(file)).await()
-        sharedRoutes.document(token).set(
+        val snapshot = sharedRoutes.document(token)
+        snapshot.set(
             SharedRoute(
                 token = token,
                 ownerUid = uid,
@@ -355,6 +355,12 @@ class RouteSyncManager @Inject constructor(
                 route = local.toRemote(remoteId, "users/$uid/$remoteId.gpx")
             )
         ).await()
+        try {
+            storage.reference.child(sharedPath).putFile(Uri.fromFile(file)).await()
+        } catch (e: Exception) {
+            runCatching { snapshot.delete().await() }
+            throw e
+        }
         dao.setSharedToken(entry.id, token)
         RouteShareLinks.buildShareUrl(token)
     }
