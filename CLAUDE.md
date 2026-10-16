@@ -89,7 +89,12 @@ Every screen is built from three files. Do not collapse them.
 - For spacing/sizing use `RyggTheme.dimens.*` tokens — **no raw `.dp` literals** in UI.
   Tokens are semantic-with-scale (`commonContentPadding16`, `commonSpacing8`, `iconSize24`,
   `radius12`, `elevation2`); add a new token to `Dimensions` rather than inlining a value.
-- Refs: `core/ui/theme/Theme.kt`, `core/ui/theme/Dimensions.kt`, `.../Color.kt`.
+- Shapes go through `RyggShapes` (squircle `SmoothCornerShape`) — never a plain
+  `RoundedCornerShape`. Text styles come from `RyggTheme.typography` / `RyggTheme.textStyles`
+  (Manrope, bundled); don't override `fontWeight` ad hoc.
+- Looping or decorative motion checks `RyggTheme.reduceMotion`; haptics go through
+  `rememberRyggHaptics()` and only at meaningful state changes.
+- Refs: `core/ui/theme/Theme.kt`, `core/ui/theme/Dimensions.kt`, `.../Color.kt`, `.../Shape.kt`.
 
 ## Navigation
 
@@ -104,6 +109,10 @@ Every screen is built from three files. Do not collapse them.
 - Reusable Compose components live in `core/ui/components/` and take the `Rygg` prefix
   (`RyggTopAppBar`, `RyggPrimaryButton`, `RyggTextField`, `RyggBottomAppBar`). Feature-only
   components stay in that feature's `ui/components/`.
+- Every number shown to the user goes through `RyggStat` (value, smaller unit, tracked label),
+  fed by `UnitFormatter.*Parts()` so the unit is styled separately.
+- Two-to-four short options are a `RyggSegmentedControl`; irreversible actions in the field use
+  `RyggHoldButton`; each screen has one `RyggPrimaryButton`, alternatives use `RyggSecondaryButton`.
 - Naming: `on*` = user intent lambdas, `observe*` = repository Flows, `remember*` = Compose
   factory helpers (`rememberFilePicker`).
 - All user-facing text via `stringResource(R.string.…)` — never hardcode UI strings.

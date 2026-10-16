@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
@@ -46,8 +45,8 @@ import com.example.rygg.core.ui.components.RouteCanvasScale
 import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.components.sharedRouteCanvas
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.library.domain.GpxFileEntry
 
@@ -320,7 +319,7 @@ private fun GlassIconButton(
     Box(
         modifier = Modifier
             .size(RyggTheme.dimens.buttonSize40)
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
+            .clip(RyggShapes.medium)
             .background(Color.Black.copy(alpha = 0.32f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -337,7 +336,7 @@ private fun SourceChip(label: String) {
         fontWeight = FontWeight.SemiBold,
         color = Color.White,
         modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+            .clip(RyggShapes.small)
             .background(Color.Black.copy(alpha = 0.32f))
             .padding(
                 horizontal = RyggTheme.dimens.commonContentPadding8,
@@ -350,7 +349,7 @@ private fun SourceChip(label: String) {
 private fun DisciplineChip(discipline: Discipline) {
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+            .clip(RyggShapes.small)
             .background(RyggTheme.getColor(RyggColor.BrandGreen))
             .padding(
                 horizontal = RyggTheme.dimens.commonContentPadding8,
@@ -366,7 +365,7 @@ private fun DisciplineChip(discipline: Discipline) {
             modifier = Modifier.size(RyggTheme.dimens.iconSize16)
         )
         Text(
-            text = discipline.name.capitalize(),
+            text = stringResource(discipline.labelRes),
             style = RyggTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = RyggTheme.getColor(RyggColor.OnBrand)

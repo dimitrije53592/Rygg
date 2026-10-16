@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
 import com.example.rygg.core.ui.components.screenContourLines
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
 /**
@@ -63,26 +64,33 @@ fun AuthScaffold(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (showSkip) {
-                Text(
-                    text = stringResource(R.string.login_skip),
-                    style = RyggTheme.typography.labelLarge,
-                    color = RyggTheme.getColor(RyggColor.OnBrand),
+                Box(
                     modifier = Modifier
+                        .defaultMinSize(minHeight = RyggTheme.dimens.iconSize48)
                         .clip(CircleShape)
-                        .background(RyggTheme.getColor(RyggColor.OnBrand).copy(alpha = 0.12f))
-                        .clickable { onSkipClick() }
-                        .padding(
-                            horizontal = RyggTheme.dimens.commonContentPadding16,
-                            vertical = RyggTheme.dimens.commonContentPadding8
-                        )
-                )
+                        .clickable { onSkipClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.login_skip),
+                        style = RyggTheme.typography.labelLarge,
+                        color = RyggTheme.getColor(RyggColor.OnBrand),
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(RyggTheme.getColor(RyggColor.OnBrand).copy(alpha = GLASS_CHIP_ALPHA))
+                            .padding(
+                                horizontal = RyggTheme.dimens.commonContentPadding16,
+                                vertical = RyggTheme.dimens.commonContentPadding8
+                            )
+                    )
+                }
             }
         }
         Spacer(Modifier.size(RyggTheme.dimens.commonSpacing24))
         Box(
             modifier = Modifier
                 .size(RyggTheme.dimens.iconSize100)
-                .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
+                .clip(RyggShapes.extraLarge)
                 .background(RyggTheme.getColor(RyggColor.BrandDarkGreen)),
             contentAlignment = Alignment.Center
         ) {
@@ -103,7 +111,7 @@ fun AuthScaffold(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
+                .clip(RyggShapes.dialog)
                 .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
                 .padding(RyggTheme.dimens.commonContentPadding24),
             verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16),
@@ -113,3 +121,5 @@ fun AuthScaffold(
         Spacer(Modifier.size(RyggTheme.dimens.commonSpacing32))
     }
 }
+
+private const val GLASS_CHIP_ALPHA = 0.12f

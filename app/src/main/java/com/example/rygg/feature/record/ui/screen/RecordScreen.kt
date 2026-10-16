@@ -6,19 +6,21 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,16 +29,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,37 +45,51 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import com.example.rygg.R
 import com.example.rygg.core.location.LocationPurpose
 import com.example.rygg.core.location.LocationReadiness
-import com.example.rygg.core.ui.components.LocationGatePrompt
 import com.example.rygg.core.ui.components.KeepScreenOn
+import com.example.rygg.core.ui.components.LocationGatePrompt
+import com.example.rygg.core.ui.components.RyggDialog
+import com.example.rygg.core.ui.components.RyggHoldButton
 import com.example.rygg.core.ui.components.RyggPrimaryButton
+import com.example.rygg.core.ui.components.RyggSecondaryButton
+import com.example.rygg.core.ui.components.RyggSegmentedControl
+import com.example.rygg.core.ui.components.RyggStat
+import com.example.rygg.core.ui.components.RyggStatSize
 import com.example.rygg.core.ui.components.RyggTextField
 import com.example.rygg.core.ui.components.RyggTopAppBar
 import com.example.rygg.core.ui.components.pressScale
 import com.example.rygg.core.ui.components.screenContourLines
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggElevation
 import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
+import com.example.rygg.core.ui.theme.ryggElevation
 import com.example.rygg.core.ui.utils.formatStopwatch
 import com.example.rygg.core.ui.utils.notificationsEnabled
 import com.example.rygg.core.ui.utils.rememberLocationGate
+import com.example.rygg.core.ui.utils.rememberRyggHaptics
+import com.example.rygg.core.units.Quantity
 import com.example.rygg.core.units.rememberUnitFormatter
 import com.example.rygg.feature.auth.domain.Discipline
 import com.example.rygg.feature.record.domain.RecordingState
 import com.example.rygg.feature.record.ui.components.GpsStatusChip
 import com.example.rygg.feature.record.ui.components.LocationPausedBanner
+import com.example.rygg.feature.record.ui.components.RecordStartButton
 import com.example.rygg.feature.record.ui.viewmodel.RecordUiState
+import kotlinx.coroutines.delay
 
 @Composable
 fun RecordScreen(params: RecordScreenParams) {
@@ -123,7 +138,7 @@ fun RecordScreen(params: RecordScreenParams) {
                 RecordingState.IDLE ->
                     IdleContent(
                         uiState = params.uiState,
-                        gpsStatus = if (locationGate.readinessFor(LocationPurpose.RECORD) == LocationReadiness.Ready) {
+                        gpsReady = if (locationGate.readinessFor(LocationPurpose.RECORD) == LocationReadiness.Ready) {
                             locationGate.location != null
                         } else {
                             null
@@ -163,7 +178,7 @@ fun RecordScreen(params: RecordScreenParams) {
 @Composable
 private fun IdleContent(
     uiState: RecordUiState,
-    gpsStatus: Boolean?,
+    gpsReady: Boolean?,
     onSelectDiscipline: (Discipline) -> Unit,
     onStart: () -> Unit
 ) {
@@ -171,46 +186,53 @@ private fun IdleContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(RyggTheme.dimens.commonContentPadding24),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24, Alignment.CenterVertically)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.record_choose_activity),
             style = RyggTheme.typography.titleMedium,
-            color = RyggTheme.getColor(RyggColor.TextSecondary)
+            color = RyggTheme.getColor(RyggColor.TextSecondary),
+            modifier = Modifier.fillMaxWidth()
         )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(
-                RyggTheme.dimens.commonSpacing12,
-                Alignment.CenterHorizontally
-            ),
-            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
-        ) {
-            Discipline.entries.forEach { discipline ->
-                DisciplineChip(
-                    discipline = discipline,
-                    selected = uiState.discipline == discipline,
-                    onClick = { onSelectDiscipline(discipline) }
-                )
-            }
-        }
-        BigCircleButton(
-            containerColor = RyggTheme.getColor(RyggColor.BrandGreen),
-            icon = Icons.Default.FiberManualRecord,
-            contentDescription = stringResource(R.string.record_start),
-            onClick = onStart
+        Spacer(Modifier.size(RyggTheme.dimens.commonSpacing16))
+        RyggSegmentedControl(
+            options = Discipline.entries,
+            selected = uiState.discipline,
+            onSelect = onSelectDiscipline,
+            label = { stringResource(it.labelRes) },
+            icon = { it.iconRes }
         )
-        if (gpsStatus != null) {
-            GpsStatusChip(isReady = gpsStatus)
-        } else {
-            Text(
-                text = stringResource(R.string.record_gps_hint),
-                style = RyggTheme.typography.bodySmall,
-                color = RyggTheme.getColor(RyggColor.TextSecondary)
-            )
-        }
+        Spacer(Modifier.weight(1f))
+        RecordStartButton(gpsReady = gpsReady, onClick = onStart)
+        Spacer(Modifier.size(RyggTheme.dimens.commonSpacing16))
+        GpsStatusText(gpsReady = gpsReady)
+        Spacer(Modifier.weight(1f))
     }
+}
+
+@Composable
+private fun GpsStatusText(gpsReady: Boolean?) {
+    val color by animateColorAsState(
+        targetValue = if (gpsReady == true) {
+            RyggTheme.getColor(RyggColor.BrandGreen)
+        } else {
+            RyggTheme.getColor(RyggColor.TextSecondary)
+        },
+        animationSpec = RyggMotion.effects(),
+        label = "gpsStatusColor"
+    )
+    Text(
+        text = stringResource(
+            when (gpsReady) {
+                null -> R.string.record_gps_hint
+                false -> R.string.record_gps_waiting
+                true -> R.string.record_gps_ready
+            }
+        ),
+        style = RyggTheme.typography.labelLarge,
+        color = color,
+        textAlign = TextAlign.Center
+    )
 }
 
 @Composable
@@ -223,11 +245,20 @@ private fun ActiveContent(
     onStop: () -> Unit,
     onAddWaypoint: () -> Unit
 ) {
+    val haptics = rememberRyggHaptics()
+    val units = rememberUnitFormatter()
     val isPaused = uiState.state == RecordingState.PAUSED || uiState.state == RecordingState.AUTO_PAUSED
     val statusText = when (uiState.state) {
         RecordingState.AUTO_PAUSED -> stringResource(R.string.record_auto_paused)
         RecordingState.PAUSED -> stringResource(R.string.record_paused)
         else -> stringResource(R.string.record_recording)
+    }
+    var showHoldHint by remember { mutableStateOf(false) }
+    LaunchedEffect(showHoldHint) {
+        if (showHoldHint) {
+            delay(HOLD_HINT_MILLIS)
+            showHoldHint = false
+        }
     }
 
     Column(
@@ -235,14 +266,17 @@ private fun ActiveContent(
             .fillMaxSize()
             .padding(RyggTheme.dimens.commonContentPadding24),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24)
+        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
     ) {
-        Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
         RecordingStatus(statusText = statusText, isPaused = isPaused)
         when {
             uiState.locationOff -> LocationPausedBanner(onTurnOn = onTurnOnLocation)
             !uiState.gpsReady && uiState.state == RecordingState.RECORDING -> GpsStatusChip(isReady = false)
         }
+
+        Spacer(Modifier.weight(1f))
+
+        // Time and distance lead; everything else is supporting detail.
         Text(
             text = formatStopwatch(uiState.elapsedMillis),
             style = RyggTheme.typography.displayLarge,
@@ -252,148 +286,119 @@ private fun ActiveContent(
                 RyggTheme.getColor(RyggColor.TextPrimary)
             }
         )
-
-        MetricGrid(uiState)
-
+        RyggStat(
+            quantity = units.distanceParts(uiState.distanceMeters),
+            label = stringResource(R.string.record_metric_distance),
+            size = RyggStatSize.Large,
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        SecondaryMetrics(uiState)
+        Text(
+            text = stringResource(
+                R.string.record_counts,
+                "${uiState.pointCount} ${stringResource(R.string.record_metric_points)}",
+                "${uiState.waypointCount} ${stringResource(R.string.record_metric_waypoints)}"
+            ).uppercase(),
+            style = RyggTheme.textStyles.trackedLabel,
+            color = RyggTheme.getColor(RyggColor.TextSecondary)
+        )
         if (notificationsOff) {
             Text(
                 text = stringResource(R.string.record_notifications_off),
                 style = RyggTheme.typography.bodySmall,
-                color = RyggTheme.getColor(RyggColor.TextSecondary)
+                color = RyggTheme.getColor(RyggColor.TextSecondary),
+                textAlign = TextAlign.Center
             )
         }
 
-        RyggPrimaryButton(
-            text = stringResource(R.string.record_add_waypoint),
-            onClick = onAddWaypoint,
-            backgroundColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-            textColor = RyggTheme.getColor(RyggColor.BrandGreen),
-            modifier = Modifier.fillMaxWidth()
-        )
-
         Spacer(Modifier.weight(1f))
 
+        AnimatedVisibility(
+            visible = showHoldHint,
+            enter = fadeIn(RyggMotion.effects()),
+            exit = fadeOut(RyggMotion.effectsFast())
+        ) {
+            Text(
+                text = stringResource(R.string.record_hold_to_stop),
+                style = RyggTheme.typography.labelLarge,
+                color = RyggTheme.getColor(RyggColor.Error)
+            )
+        }
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            MediumCircleButton(
-                containerColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-                iconTint = RyggTheme.getColor(RyggColor.BrandGreen),
+            ControlButton(
+                icon = Icons.Outlined.AddLocationAlt,
+                contentDescription = stringResource(R.string.record_add_waypoint),
+                onClick = onAddWaypoint
+            )
+            RyggHoldButton(
+                icon = Icons.Default.Stop,
+                contentDescription = stringResource(R.string.record_stop),
+                onHoldComplete = onStop,
+                onTap = {
+                    haptics.reject()
+                    showHoldHint = true
+                }
+            )
+            ControlButton(
                 icon = if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
                 contentDescription = if (isPaused) {
                     stringResource(R.string.record_resume)
                 } else {
                     stringResource(R.string.record_pause)
                 },
-                onClick = if (isPaused) onResume else onPause
-            )
-            BigCircleButton(
-                containerColor = RyggTheme.getColor(RyggColor.Error),
-                icon = Icons.Default.Stop,
-                contentDescription = stringResource(R.string.record_stop),
-                onClick = onStop
+                onClick = {
+                    haptics.confirm()
+                    if (isPaused) onResume() else onPause()
+                }
             )
         }
     }
 }
 
 @Composable
-private fun MetricGrid(uiState: RecordUiState) {
+private fun SecondaryMetrics(uiState: RecordUiState) {
     val units = rememberUnitFormatter()
     val emptyValue = stringResource(R.string.follow_stat_empty)
-    val stats = listOf(
-        stringResource(R.string.record_metric_distance) to units.distance(uiState.distanceMeters),
-        stringResource(R.string.record_metric_speed) to units.speed(uiState.currentSpeedMps),
-        stringResource(R.string.record_metric_ascent) to units.elevation(uiState.ascentMeters),
-        stringResource(R.string.record_metric_elevation) to (uiState.elevationMeters?.let { units.elevation(it) } ?: emptyValue),
-        stringResource(R.string.record_metric_points) to uiState.pointCount.toString(),
-        stringResource(R.string.record_metric_waypoints) to uiState.waypointCount.toString()
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RyggShapes.card)
-            .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
-            .padding(RyggTheme.dimens.commonContentPadding8),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
-    ) {
-        stats.chunked(3).forEach { row ->
-            Row(modifier = Modifier.fillMaxWidth()) {
-                row.forEach { (label, value) ->
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(RyggTheme.dimens.commonContentPadding8),
-                        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
-                    ) {
-                        Text(
-                            text = value,
-                            style = RyggTheme.textStyles.statValue,
-                            color = RyggTheme.getColor(RyggColor.TextPrimary)
-                        )
-                        Text(
-                            text = label.uppercase(),
-                            style = RyggTheme.textStyles.trackedLabel,
-                            color = RyggTheme.getColor(RyggColor.TextSecondary)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DisciplineChip(
-    discipline: Discipline,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
     Row(
         modifier = Modifier
-            .clip(RyggShapes.chip)
-            .background(
-                if (selected) {
-                    RyggTheme.getColor(RyggColor.BrandGreen)
-                } else {
-                    RyggTheme.getColor(RyggColor.SurfaceElevated)
-                }
-            )
-            .clickable(onClick = onClick)
+            .fillMaxWidth()
+            .ryggElevation(level = RyggElevation.Card, shape = RyggShapes.card)
+            .clip(RyggShapes.card)
+            .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .padding(
-                horizontal = RyggTheme.dimens.commonContentPadding16,
-                vertical = RyggTheme.dimens.commonContentPadding12
+                horizontal = RyggTheme.dimens.commonContentPadding12,
+                vertical = RyggTheme.dimens.commonContentPadding16
             ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Icon(
-            painter = painterResource(discipline.iconRes),
-            contentDescription = null,
-            tint = if (selected) {
-                RyggTheme.getColor(RyggColor.OnBrand)
-            } else {
-                RyggTheme.getColor(RyggColor.TextPrimary)
-            },
-            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+        RyggStat(
+            quantity = units.speedParts(uiState.currentSpeedMps),
+            label = stringResource(R.string.record_metric_speed),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
         )
-        Text(
-            text = discipline.name.capitalize(),
-            style = RyggTheme.typography.labelLarge,
-            color = if (selected) {
-                RyggTheme.getColor(RyggColor.OnBrand)
-            } else {
-                RyggTheme.getColor(RyggColor.TextPrimary)
-            }
+        RyggStat(
+            quantity = units.elevationParts(uiState.ascentMeters),
+            label = stringResource(R.string.record_metric_ascent),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
+        )
+        RyggStat(
+            quantity = uiState.elevationMeters?.let { units.elevationParts(it) } ?: Quantity(emptyValue),
+            label = stringResource(R.string.record_metric_elevation),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-private fun BigCircleButton(
-    containerColor: Color,
+private fun ControlButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit
@@ -401,47 +406,24 @@ private fun BigCircleButton(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
-            .size(RyggTheme.dimens.recordButtonSize)
+            .size(RyggTheme.dimens.recordSecondaryButtonSize)
             .pressScale(interactionSource)
+            .ryggElevation(level = RyggElevation.Card, shape = CircleShape)
             .clip(CircleShape)
-            .background(containerColor)
+            .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
-            ),
+            )
+            .semantics { role = Role.Button },
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = RyggTheme.getColor(RyggColor.OnBrand),
-            modifier = Modifier.size(RyggTheme.dimens.iconSize48)
-        )
-    }
-}
-
-@Composable
-private fun MediumCircleButton(
-    containerColor: Color,
-    iconTint: Color,
-    icon: ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(RyggTheme.dimens.iconSize80)
-            .clip(CircleShape)
-            .background(containerColor)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = iconTint,
-            modifier = Modifier.size(RyggTheme.dimens.iconSize40)
+            tint = RyggTheme.getColor(RyggColor.BrandGreen),
+            modifier = Modifier.size(RyggTheme.dimens.iconSize32)
         )
     }
 }
@@ -452,34 +434,86 @@ private fun WaypointNameDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val haptics = rememberRyggHaptics()
     var name by remember { mutableStateOf(defaultName) }
-    AlertDialog(
+    RyggDialog(
+        title = stringResource(R.string.record_waypoint_title),
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.record_waypoint_title)) },
-        text = {
-            RyggTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholderText = stringResource(R.string.record_waypoint_hint)
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(name.ifBlank { defaultName }) }) {
-                Text(
-                    text = stringResource(R.string.record_waypoint_save),
-                    color = RyggTheme.getColor(RyggColor.BrandGreen)
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.record_waypoint_cancel),
-                    color = RyggTheme.getColor(RyggColor.TextSecondary)
-                )
-            }
-        }
+        icon = Icons.Outlined.AddLocationAlt
+    ) {
+        RyggTextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholderText = stringResource(R.string.record_waypoint_hint),
+            modifier = Modifier.fillMaxWidth()
+        )
+        RyggPrimaryButton(
+            text = stringResource(R.string.record_waypoint_save),
+            onClick = {
+                haptics.confirm()
+                onConfirm(name.ifBlank { defaultName })
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        RyggSecondaryButton(
+            text = stringResource(R.string.record_waypoint_cancel),
+            onClick = onDismiss,
+            textColor = RyggTheme.getColor(RyggColor.TextSecondary),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun RecordingStatus(
+    statusText: String,
+    isPaused: Boolean
+) {
+    val reduceMotion = RyggTheme.reduceMotion
+    val transition = rememberInfiniteTransition(label = "recordingPulse")
+    val pulse by transition.animateFloat(
+        initialValue = PULSE_MIN_ALPHA,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = PULSE_MILLIS),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "recordingPulseAlpha"
     )
+    val accent by animateColorAsState(
+        targetValue = if (isPaused) {
+            RyggTheme.getColor(RyggColor.Warning)
+        } else {
+            RyggTheme.getColor(RyggColor.AccentBright)
+        },
+        animationSpec = RyggMotion.effects(),
+        label = "recordingAccent"
+    )
+
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(accent.copy(alpha = STATUS_PILL_ALPHA))
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding12,
+                vertical = RyggTheme.dimens.commonContentPadding8
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(RyggTheme.dimens.statusDotSize8)
+                .graphicsLayer { alpha = if (isPaused || reduceMotion) 1f else pulse }
+                .clip(CircleShape)
+                .background(accent)
+        )
+        Text(
+            text = statusText.uppercase(),
+            style = RyggTheme.textStyles.trackedLabel,
+            color = RyggTheme.getColor(RyggColor.TextPrimary)
+        )
+    }
 }
 
 // Below API 33 the notification is shown without a runtime grant; from 33+ it must be granted
@@ -506,6 +540,34 @@ private fun RecordScreenIdlePreview() {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun RecordScreenActivePreview() {
+    RyggTheme {
+        RecordScreen(
+            params = RecordScreenParams(
+                uiState = RecordUiState(
+                    state = RecordingState.RECORDING,
+                    elapsedMillis = 5_025_000L,
+                    distanceMeters = 12_400.0,
+                    currentSpeedMps = 1.4,
+                    ascentMeters = 840.0,
+                    elevationMeters = 1_920.0,
+                    pointCount = 1_204,
+                    waypointCount = 3,
+                    gpsReady = true
+                ),
+                onSelectDiscipline = {},
+                onStart = {},
+                onPause = {},
+                onResume = {},
+                onStop = {},
+                onAddWaypoint = {}
+            )
+        )
+    }
+}
+
 data class RecordScreenParams(
     val uiState: RecordUiState,
     val onSelectDiscipline: (Discipline) -> Unit,
@@ -516,52 +578,7 @@ data class RecordScreenParams(
     val onAddWaypoint: (String) -> Unit
 )
 
-@Composable
-private fun RecordingStatus(
-    statusText: String,
-    isPaused: Boolean
-) {
-    val transition = rememberInfiniteTransition(label = "recordingPulse")
-    val pulse by transition.animateFloat(
-        initialValue = PULSE_MIN_ALPHA,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = PULSE_MILLIS),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "recordingPulseAlpha"
-    )
-    val dotColor by animateColorAsState(
-        targetValue = if (isPaused) {
-            RyggTheme.getColor(RyggColor.TextSecondary)
-        } else {
-            RyggTheme.getColor(RyggColor.AccentBright)
-        },
-        animationSpec = RyggMotion.effects(),
-        label = "recordingDot"
-    )
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(RyggTheme.dimens.statusDotSize10)
-                .clip(CircleShape)
-                .background(dotColor.copy(alpha = if (isPaused) 1f else pulse))
-        )
-        Text(
-            text = statusText.uppercase(),
-            style = RyggTheme.textStyles.trackedLabel,
-            color = if (isPaused) {
-                RyggTheme.getColor(RyggColor.TextSecondary)
-            } else {
-                RyggTheme.getColor(RyggColor.AccentBright)
-            }
-        )
-    }
-}
-
 private const val PULSE_MILLIS = 900
 private const val PULSE_MIN_ALPHA = 0.35f
+private const val STATUS_PILL_ALPHA = 0.16f
+private const val HOLD_HINT_MILLIS = 2_500L

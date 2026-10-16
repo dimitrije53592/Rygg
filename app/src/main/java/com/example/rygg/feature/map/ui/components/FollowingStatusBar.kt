@@ -1,89 +1,142 @@
 package com.example.rygg.feature.map.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WrongLocation
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggStat
+import com.example.rygg.core.ui.components.RyggStatSize
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggMotion
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.feature.map.ui.util.absorbTouches
+import com.example.rygg.core.ui.utils.rememberRyggHaptics
+import com.example.rygg.core.units.Quantity
 import com.example.rygg.core.units.rememberUnitFormatter
+import com.example.rygg.feature.map.ui.util.absorbTouches
 
+// Leaving the route is the one moment this bar must interrupt: a full-width error band, announced
+// to screen readers and felt as a haptic, rather than a small change of label colour.
 @Composable
 internal fun FollowingStatusBar(
     isOnRoute: Boolean,
     distanceToRouteMeters: Double,
-    speedText: String,
-    elevationText: String,
+    speed: Quantity,
+    elevation: Quantity,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    val haptics = rememberRyggHaptics()
+    var wasOnRoute by remember { mutableStateOf(isOnRoute) }
+    LaunchedEffect(isOnRoute) {
+        if (wasOnRoute && !isOnRoute) haptics.reject()
+        wasOnRoute = isOnRoute
+    }
+
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(
-                RoundedCornerShape(
-                    topStart = RyggTheme.dimens.radius24,
-                    topEnd = RyggTheme.dimens.radius24
-                )
-            )
+            .clip(RyggShapes.sheetTop)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .absorbTouches()
-            .padding(
-                horizontal = RyggTheme.dimens.commonContentPadding20,
-                vertical = RyggTheme.dimens.commonContentPadding16
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        StatusIndicator(
-            isOnRoute = isOnRoute,
-            distanceToRouteMeters = distanceToRouteMeters
-        )
+        AnimatedVisibility(
+            visible = !isOnRoute,
+            enter = expandVertically(RyggMotion.spatial()) + fadeIn(RyggMotion.effects()),
+            exit = shrinkVertically(RyggMotion.spatialFast()) + fadeOut(RyggMotion.effectsFast())
+        ) {
+            OffRouteBand(distanceToRouteMeters = distanceToRouteMeters)
+        }
         Row(
-            horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = RyggTheme.dimens.commonContentPadding20,
+                    vertical = RyggTheme.dimens.commonContentPadding16
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            InlineStat(
-                label = stringResource(R.string.follow_elevation),
-                value = elevationText
-            )
-            InlineStat(
-                label = stringResource(R.string.follow_speed),
-                value = speedText
-            )
+            if (isOnRoute) {
+                OnRouteIndicator()
+            } else {
+                Box(Modifier)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing24)) {
+                RyggStat(
+                    quantity = elevation,
+                    label = stringResource(R.string.follow_elevation),
+                    size = RyggStatSize.Medium
+                )
+                RyggStat(
+                    quantity = speed,
+                    label = stringResource(R.string.follow_speed),
+                    size = RyggStatSize.Medium
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun StatusIndicator(
-    isOnRoute: Boolean,
-    distanceToRouteMeters: Double
-) {
+private fun OffRouteBand(distanceToRouteMeters: Double) {
     val units = rememberUnitFormatter()
-    val color = if (isOnRoute) {
-        RyggTheme.getColor(RyggColor.BrandGreen)
-    } else {
-        RyggTheme.getColor(RyggColor.Error)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(RyggTheme.getColor(RyggColor.ErrorSurface))
+            .semantics { liveRegion = LiveRegionMode.Assertive }
+            .padding(
+                horizontal = RyggTheme.dimens.commonContentPadding20,
+                vertical = RyggTheme.dimens.commonContentPadding12
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.WrongLocation,
+            contentDescription = null,
+            tint = RyggTheme.getColor(RyggColor.Error),
+            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+        )
+        Text(
+            text = stringResource(R.string.follow_off_route_distance, units.distance(distanceToRouteMeters)),
+            style = RyggTheme.typography.titleSmall,
+            color = RyggTheme.getColor(RyggColor.Error)
+        )
     }
-    val text = if (isOnRoute) {
-        stringResource(R.string.follow_on_route)
-    } else {
-        stringResource(R.string.follow_off_route_distance, units.distance(distanceToRouteMeters))
-    }
+}
+
+@Composable
+private fun OnRouteIndicator() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
@@ -92,35 +145,25 @@ private fun StatusIndicator(
             modifier = Modifier
                 .size(RyggTheme.dimens.statusDotSize10)
                 .clip(CircleShape)
-                .background(color)
+                .background(RyggTheme.getColor(RyggColor.BrandGreen))
         )
         Text(
-            text = text,
+            text = stringResource(R.string.follow_on_route),
             style = RyggTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = color
+            color = RyggTheme.getColor(RyggColor.BrandGreen)
         )
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun InlineStat(
-    label: String,
-    value: String
-) {
-    Row(
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
-    ) {
-        Text(
-            text = label,
-            style = RyggTheme.typography.labelSmall,
-            color = RyggTheme.getColor(RyggColor.TextSecondary)
-        )
-        Text(
-            text = value,
-            style = RyggTheme.textStyles.statValue,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
+private fun FollowingStatusBarOffRoutePreview() {
+    RyggTheme {
+        FollowingStatusBar(
+            isOnRoute = false,
+            distanceToRouteMeters = 120.0,
+            speed = Quantity("4.2", "km/h"),
+            elevation = Quantity("1,820", "m")
         )
     }
 }

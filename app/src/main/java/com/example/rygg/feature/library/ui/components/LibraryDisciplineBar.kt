@@ -31,7 +31,6 @@ import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggMotion
 import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
-import com.example.rygg.core.ui.utils.capitalize
 import com.example.rygg.feature.auth.domain.Discipline
 
 @Composable
@@ -58,7 +57,7 @@ internal fun LibraryDisciplineBar(
         )
         disciplines.forEach { discipline ->
             DisciplineChip(
-                title = discipline.name,
+                title = stringResource(discipline.labelRes),
                 iconRes = discipline.iconRes,
                 selected = selectedDiscipline == discipline,
                 onClick = { onDisciplineSelected(discipline) }
@@ -129,7 +128,7 @@ private fun DisciplineChip(
             Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
         }
         Text(
-            text = title.capitalize(),
+            text = title,
             color = content,
             style = RyggTheme.typography.labelLarge
         )

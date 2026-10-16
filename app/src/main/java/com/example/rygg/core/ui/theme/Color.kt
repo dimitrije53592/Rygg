@@ -20,7 +20,9 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     MossSurfaceDim(lightColor = Color(0xFFD2EBDF), darkColor = Color(0xFF0E201C)),
     OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF2F6F9)),
     TextPrimary(lightColor = Color(0xFF1B2026), darkColor = Color(0xFFE8EDF2)),
-    TextSecondary(lightColor = Color(0xFF6B727A), darkColor = Color(0xFF94A1AD)),
+    TextSecondary(lightColor = Color(0xFF656C74), darkColor = Color(0xFF94A1AD)),
+    // Off-state of switches and other controls: needs 3:1 against the surface it sits on.
+    ControlOff(lightColor = Color(0xFF7E878F), darkColor = Color(0xFF6E7A85)),
     Outline(lightColor = Color(0xFFE6E8E7), darkColor = Color(0xFF2A343D)),
 
     // Content laid over map tiles or route imagery, so it does not flip with the theme.

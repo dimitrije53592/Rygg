@@ -9,11 +9,15 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.rygg.core.ui.utils.animationsDisabled
 
 val LocalRyggIsDarkMode = staticCompositionLocalOf { false }
+
+val LocalRyggReduceMotion = staticCompositionLocalOf { false }
 
 @Composable
 fun RyggTheme(
@@ -21,9 +25,9 @@ fun RyggTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
@@ -32,6 +36,7 @@ fun RyggTheme(
 
     CompositionLocalProvider(
         LocalRyggIsDarkMode provides darkTheme,
+        LocalRyggReduceMotion provides remember(context) { context.animationsDisabled() },
         LocalRyggDimensions provides Dimensions,
         LocalRyggTextStyles provides RyggTextStyles
     ) {
@@ -63,6 +68,12 @@ object RyggTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalRyggIsDarkMode.current
+
+    // Decorative and looping motion (pulses, staggers, rings) checks this and holds still.
+    val reduceMotion: Boolean
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalRyggReduceMotion.current
 
     @Composable
     @ReadOnlyComposable

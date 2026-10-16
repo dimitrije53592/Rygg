@@ -9,10 +9,11 @@ import com.example.rygg.R
 // analyzer's 60 s pause gap, so a thinned stretch is never misread as a pause.
 enum class RecordingResolution(
     @StringRes val labelRes: Int,
+    @StringRes val descriptionRes: Int,
     val minDistanceMeters: Double,
     val maxIntervalSeconds: Long
 ) {
-    DETAILED(R.string.settings_recording_detailed, 5.0, 10),
-    BALANCED(R.string.settings_recording_balanced, 10.0, 20),
-    COMPACT(R.string.settings_recording_compact, 25.0, 30)
+    DETAILED(R.string.settings_recording_detailed, R.string.settings_recording_detailed_desc, 5.0, 10),
+    BALANCED(R.string.settings_recording_balanced, R.string.settings_recording_balanced_desc, 10.0, 20),
+    COMPACT(R.string.settings_recording_compact, R.string.settings_recording_compact_desc, 25.0, 30)
 }

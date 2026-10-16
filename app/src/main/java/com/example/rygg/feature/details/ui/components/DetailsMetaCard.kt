@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.feature.library.domain.GpxFileEntry
 
@@ -26,7 +26,7 @@ fun DetailsMetaCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
+            .clip(RyggShapes.large)
             .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
             .padding(RyggTheme.dimens.commonContentPadding16),
         verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
@@ -57,7 +57,7 @@ private fun TagChip(tag: String) {
         fontWeight = FontWeight.SemiBold,
         color = RyggTheme.getColor(RyggColor.BrandGreen),
         modifier = Modifier
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius8))
+            .clip(RyggShapes.small)
             .background(RyggTheme.getColor(RyggColor.MossSurface))
             .padding(
                 horizontal = RyggTheme.dimens.commonContentPadding12,

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.rygg.core.ui.theme.RyggColor
+import com.example.rygg.core.ui.theme.RyggShapes
 import com.example.rygg.core.ui.theme.RyggTheme
 
 /**
@@ -49,7 +49,7 @@ fun RyggDialog(
             modifier = modifier
                 .padding(horizontal = RyggTheme.dimens.commonContentPadding24)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(RyggTheme.dimens.radius24))
+                .clip(RyggShapes.extraLarge)
                 .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
                 .verticalScroll(rememberScrollState())
                 .padding(RyggTheme.dimens.commonContentPadding24),
@@ -60,7 +60,7 @@ fun RyggDialog(
                 Box(
                     modifier = Modifier
                         .size(RyggTheme.dimens.iconSize48)
-                        .clip(RoundedCornerShape(RyggTheme.dimens.radius12))
+                        .clip(RyggShapes.medium)
                         .background(iconBackgroundColor),
                     contentAlignment = Alignment.Center
                 ) {

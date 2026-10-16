@@ -1,6 +1,7 @@
 package com.example.rygg.core.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,7 +22,8 @@ fun RyggRadioRow(
     label: String,
     selected: Boolean,
     onSelect: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    description: String? = null
 ) {
     Row(
         modifier = modifier
@@ -39,11 +41,20 @@ fun RyggRadioRow(
                 unselectedColor = RyggTheme.getColor(RyggColor.TextSecondary)
             )
         )
-        Text(
-            text = label,
-            style = RyggTheme.typography.bodyLarge,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
-        )
+        Column {
+            Text(
+                text = label,
+                style = RyggTheme.typography.bodyLarge,
+                color = RyggTheme.getColor(RyggColor.TextPrimary)
+            )
+            description?.let {
+                Text(
+                    text = it,
+                    style = RyggTheme.typography.bodySmall,
+                    color = RyggTheme.getColor(RyggColor.TextSecondary)
+                )
+            }
+        }
     }
 }
 

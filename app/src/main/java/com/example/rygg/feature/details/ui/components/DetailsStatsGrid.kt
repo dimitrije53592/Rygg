@@ -1,103 +1,100 @@
 package com.example.rygg.feature.details.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.example.rygg.R
+import com.example.rygg.core.ui.components.RyggCard
+import com.example.rygg.core.ui.components.RyggStat
+import com.example.rygg.core.ui.components.RyggStatSize
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
 import com.example.rygg.core.ui.utils.formatDurationHoursMinutes
 import com.example.rygg.core.ui.utils.formatPointCount
-import com.example.rygg.feature.library.domain.GpxFileEntry
+import com.example.rygg.core.units.Quantity
 import com.example.rygg.core.units.rememberUnitFormatter
+import com.example.rygg.feature.library.domain.GpxFileEntry
 
+// The three headline numbers lead, larger; the other six always follow in two full rows, with a
+// dash where the file has no data, so the grid keeps the same shape for every route.
 @Composable
 fun DetailsStatsGrid(
     entry: GpxFileEntry,
     modifier: Modifier = Modifier
 ) {
     val units = rememberUnitFormatter()
-    val emptyValue = stringResource(R.string.follow_stat_empty)
-    val stats = listOf(
-        // Row 1: general
-        DetailsStat(stringResource(R.string.details_stat_distance), units.distance(entry.distanceMeters)),
+    val empty = Quantity(stringResource(R.string.follow_stat_empty))
+
+    val headline = listOf(
+        DetailsStat(stringResource(R.string.details_stat_distance), units.distanceParts(entry.distanceMeters)),
         DetailsStat(
             stringResource(R.string.details_stat_moving_time),
-            entry.movingTimeMillis?.let { formatDurationHoursMinutes(it) } ?: emptyValue
+            entry.movingTimeMillis?.let { Quantity(formatDurationHoursMinutes(it)) } ?: empty
         ),
-        DetailsStat(stringResource(R.string.details_stat_points), formatPointCount(entry.pointCount)),
-        // Row 2: elevation
-        DetailsStat(stringResource(R.string.details_stat_ascent), units.elevation(entry.ascentMeters)),
-        DetailsStat(stringResource(R.string.details_stat_descent), units.elevation(entry.descentMeters)),
+        DetailsStat(stringResource(R.string.details_stat_ascent), units.elevationParts(entry.ascentMeters))
+    )
+
+    val secondary = listOf(
+        DetailsStat(stringResource(R.string.details_stat_descent), units.elevationParts(entry.descentMeters)),
         DetailsStat(
             stringResource(R.string.details_stat_high_point),
-            entry.elevationMeters?.let { units.elevation(it) } ?: emptyValue
-        ),
-        // Row 3: speed & time
-        DetailsStat(
-            stringResource(R.string.details_stat_avg_speed),
-            entry.avgSpeedMps?.let { units.speed(it) } ?: emptyValue
-        ),
-        DetailsStat(
-            stringResource(R.string.details_stat_max_speed),
-            entry.maxSpeedMps?.let { units.speed(it) } ?: emptyValue
+            entry.elevationMeters?.let { units.elevationParts(it) } ?: empty
         ),
         DetailsStat(
             stringResource(R.string.details_stat_total_time),
-            entry.totalTimeMillis?.let { formatDurationHoursMinutes(it) } ?: emptyValue
-        )
+            entry.totalTimeMillis?.let { Quantity(formatDurationHoursMinutes(it)) } ?: empty
+        ),
+        DetailsStat(
+            stringResource(R.string.details_stat_avg_speed),
+            entry.avgSpeedMps?.let { units.speedParts(it) } ?: empty
+        ),
+        DetailsStat(
+            stringResource(R.string.details_stat_max_speed),
+            entry.maxSpeedMps?.let { units.speedParts(it) } ?: empty
+        ),
+        DetailsStat(stringResource(R.string.details_stat_points), Quantity(formatPointCount(entry.pointCount)))
     )
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(RyggTheme.dimens.radius16))
-            .background(RyggTheme.getColor(RyggColor.SurfaceElevated))
-            .padding(RyggTheme.dimens.commonContentPadding4),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
-    ) {
-        stats.chunked(3).forEach { row ->
-            Row(modifier = Modifier.fillMaxWidth()) {
-                row.forEach { stat ->
-                    StatCell(stat = stat, modifier = Modifier.weight(1f))
-                }
+    RyggCard(modifier = modifier) {
+        StatRow(stats = headline, size = RyggStatSize.Large)
+        HorizontalDivider(
+            color = RyggTheme.getColor(RyggColor.Outline),
+            modifier = Modifier.padding(vertical = RyggTheme.dimens.commonContentPadding16)
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)) {
+            secondary.chunked(COLUMNS).forEach { row ->
+                StatRow(stats = row, size = RyggStatSize.Small)
             }
         }
     }
 }
 
 @Composable
-private fun StatCell(
-    stat: DetailsStat,
-    modifier: Modifier = Modifier
+private fun StatRow(
+    stats: List<DetailsStat>,
+    size: RyggStatSize
 ) {
-    Column(
-        modifier = modifier.padding(RyggTheme.dimens.commonContentPadding12),
-        verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing4)
-    ) {
-        Text(
-            text = stat.value,
-            style = RyggTheme.textStyles.statValue,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
-        )
-        Text(
-            text = stat.label.uppercase(),
-            style = RyggTheme.textStyles.trackedLabel,
-            color = RyggTheme.getColor(RyggColor.TextSecondary)
-        )
+    Row(modifier = Modifier.fillMaxWidth()) {
+        stats.forEach { stat ->
+            RyggStat(
+                quantity = stat.quantity,
+                label = stat.label,
+                size = size,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
 private data class DetailsStat(
     val label: String,
-    val value: String
+    val quantity: Quantity
 )
+
+private const val COLUMNS = 3

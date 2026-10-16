@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import com.example.rygg.core.ui.theme.RyggColor
 import com.example.rygg.core.ui.theme.RyggTheme
@@ -21,7 +22,8 @@ fun RyggSwitchRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    leadingIcon: ImageVector? = null
 ) {
     Row(
         modifier = modifier
@@ -36,11 +38,18 @@ fun RyggSwitchRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = label,
-            style = RyggTheme.typography.bodyLarge,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
-        )
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
+        ) {
+            leadingIcon?.let { RyggIconBadge(icon = it) }
+            Text(
+                text = label,
+                style = RyggTheme.typography.bodyLarge,
+                color = RyggTheme.getColor(RyggColor.TextPrimary)
+            )
+        }
         Switch(
             checked = checked,
             onCheckedChange = null,
@@ -50,8 +59,8 @@ fun RyggSwitchRow(
                 checkedTrackColor = RyggTheme.getColor(RyggColor.BrandGreen),
                 checkedBorderColor = RyggTheme.getColor(RyggColor.BrandGreen),
                 uncheckedThumbColor = RyggTheme.getColor(RyggColor.SurfaceElevated),
-                uncheckedTrackColor = RyggTheme.getColor(RyggColor.MutedGray),
-                uncheckedBorderColor = RyggTheme.getColor(RyggColor.MutedGray)
+                uncheckedTrackColor = RyggTheme.getColor(RyggColor.ControlOff),
+                uncheckedBorderColor = RyggTheme.getColor(RyggColor.ControlOff)
             )
         )
     }
