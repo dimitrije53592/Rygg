@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.dimitrijeilic.rygg.core.locale.AppLocaleStore
 import com.dimitrijeilic.rygg.core.ui.theme.ThemeMode
 import com.dimitrijeilic.rygg.core.units.MeasurementSystem
+import com.dimitrijeilic.rygg.feature.map.domain.OffRouteThreshold
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingResolution
 import com.dimitrijeilic.rygg.feature.settings.domain.AppLanguage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -53,6 +54,21 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[RECORDING_RESOLUTION_KEY] = resolution.name }
     }
 
+    val offRouteAlertsEnabled: Flow<Boolean> = dataStore.data.map { it[OFF_ROUTE_ALERTS_KEY] ?: true }
+
+    val offRouteThreshold: Flow<OffRouteThreshold> = dataStore.data.map { prefs ->
+        prefs[OFF_ROUTE_THRESHOLD_KEY]?.let { name -> OffRouteThreshold.entries.firstOrNull { it.name == name } }
+            ?: OffRouteThreshold.DEFAULT
+    }
+
+    suspend fun setOffRouteAlertsEnabled(enabled: Boolean) {
+        dataStore.edit { it[OFF_ROUTE_ALERTS_KEY] = enabled }
+    }
+
+    suspend fun setOffRouteThreshold(threshold: OffRouteThreshold) {
+        dataStore.edit { it[OFF_ROUTE_THRESHOLD_KEY] = threshold.name }
+    }
+
     // Cloud sync preferences. Sync is on by default; files transfer on Wi-Fi by default.
     val syncEnabled: Flow<Boolean> = dataStore.data.map { it[SYNC_ENABLED_KEY] ?: true }
     val syncWifiOnly: Flow<Boolean> = dataStore.data.map { it[SYNC_WIFI_ONLY_KEY] ?: true }
@@ -87,3 +103,5 @@ private val MEASUREMENT_SYSTEM_KEY = stringPreferencesKey("measurement_system")
 private val RECORDING_RESOLUTION_KEY = stringPreferencesKey("recording_resolution")
 private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")
+private val OFF_ROUTE_ALERTS_KEY = booleanPreferencesKey("off_route_alerts_enabled")
+private val OFF_ROUTE_THRESHOLD_KEY = stringPreferencesKey("off_route_threshold")

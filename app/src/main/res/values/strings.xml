@@ -344,4 +344,18 @@
     <string name="profile_deleted_title">Account deleted</string>
     <string name="profile_deleted_message">Your account, cloud backups and shared links are gone. Your routes are still on this phone.</string>
     <string name="profile_deleted_ok">OK</string>
+
+    <string name="follow_notification_title">Following %1$s</string>
+    <string name="follow_alert_channel_name">Off-route alerts</string>
+    <string name="follow_alert_channel_description">Sound and vibration when you leave the route you are following.</string>
+    <string name="follow_alert_title">You\'re off route</string>
+    <string name="follow_alert_text">%1$s from the route. Head back to the line.</string>
+    <string name="follow_alert_snooze">Snooze 10 min</string>
+    <string name="settings_navigation_title">Route following</string>
+    <string name="settings_off_route_alerts">Off-route alerts</string>
+    <string name="settings_off_route_threshold">Alert distance</string>
+    <string name="settings_off_route_near">Tight</string>
+    <string name="settings_off_route_default">Normal</string>
+    <string name="settings_off_route_far">Loose</string>
+    <string name="settings_off_route_description">Sound and vibration, even with the screen off, after about 10 seconds off the line. Tight alerts at 30 m, Normal at 60 m, Loose at 100 m, plus GPS accuracy.</string>
 </resources>

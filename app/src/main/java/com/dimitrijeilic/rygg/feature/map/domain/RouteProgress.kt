@@ -127,8 +127,8 @@ private fun segmentBearing(from: GeoPoint, to: GeoPoint): Double {
 data class RouteProgress(
     val distanceToRouteMeters: Double
 ) {
-    fun isOnRoute(accuracyMeters: Float): Boolean =
-        distanceToRouteMeters <= ON_ROUTE_THRESHOLD_M + accuracyMeters
+    fun isOnRoute(accuracyMeters: Float, thresholdMeters: Double = ON_ROUTE_THRESHOLD_M): Boolean =
+        distanceToRouteMeters <= thresholdMeters + accuracyMeters
 
     companion object {
         val EMPTY = RouteProgress(distanceToRouteMeters = Double.MAX_VALUE)

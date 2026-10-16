@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimitrijeilic.rygg.core.ui.theme.ThemeMode
 import com.dimitrijeilic.rygg.core.units.MeasurementSystem
+import com.dimitrijeilic.rygg.feature.map.domain.OffRouteThreshold
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingResolution
 import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
 import com.dimitrijeilic.rygg.feature.settings.domain.AppLanguage
@@ -43,11 +44,19 @@ class SettingsViewModel @Inject constructor(
         RecordingAndSync(recordingResolution, syncEnabled, syncWifiOnly)
     }
 
+    private val navigation = combine(
+        settingsRepository.offRouteAlertsEnabled,
+        settingsRepository.offRouteThreshold
+    ) { alertsEnabled, threshold ->
+        Navigation(alertsEnabled, threshold)
+    }
+
     val uiState: StateFlow<SettingsUiState> = combine(
         appearanceAndRegion,
         recordingAndSync,
+        navigation,
         permissions
-    ) { region, recording, permissions ->
+    ) { region, recording, navigation, permissions ->
         SettingsUiState(
             themeMode = region.themeMode,
             selectedLanguage = region.language,
@@ -55,6 +64,8 @@ class SettingsViewModel @Inject constructor(
             syncEnabled = recording.syncEnabled,
             syncWifiOnly = recording.syncWifiOnly,
             recordingResolution = recording.recordingResolution,
+            offRouteAlertsEnabled = navigation.offRouteAlertsEnabled,
+            offRouteThreshold = navigation.offRouteThreshold,
             locationPermission = permissions.location,
             notificationPermission = permissions.notifications,
             appVersion = appVersion
@@ -90,6 +101,14 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.setRecordingResolution(resolution) }
     }
 
+    fun setOffRouteAlertsEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setOffRouteAlertsEnabled(enabled) }
+    }
+
+    fun setOffRouteThreshold(threshold: OffRouteThreshold) {
+        viewModelScope.launch { settingsRepository.setOffRouteThreshold(threshold) }
+    }
+
     fun onPermissionsChecked(location: PermissionStatus, notifications: PermissionStatus) {
         permissions.update { it.copy(location = location, notifications = notifications) }
     }
@@ -105,6 +124,11 @@ private data class RecordingAndSync(
     val recordingResolution: RecordingResolution,
     val syncEnabled: Boolean,
     val syncWifiOnly: Boolean
+)
+
+private data class Navigation(
+    val offRouteAlertsEnabled: Boolean,
+    val offRouteThreshold: OffRouteThreshold
 )
 
 private data class Permissions(

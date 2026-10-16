@@ -55,6 +55,8 @@ fun SettingsWrapper(
             onSyncEnabledChanged = viewModel::setSyncEnabled,
             onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly,
             onRecordingResolutionSelected = viewModel::setRecordingResolution,
+            onOffRouteAlertsChanged = viewModel::setOffRouteAlertsEnabled,
+            onOffRouteThresholdSelected = viewModel::setOffRouteThreshold,
             onManageLocationPermission = context::openAppSettings,
             onManageNotificationPermission = context::openAppNotificationSettings,
             onOpenPrivacyPolicy = { uriHandler.openUri(LegalLinks.PRIVACY_POLICY) },

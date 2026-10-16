@@ -50,6 +50,14 @@ class RouteProgressTest {
     }
 
     @Test
+    fun customThreshold_widensOrNarrowsTheCorridor() {
+        val progress = geometry.progressFor(lat = 0.0005, lon = 0.0015)
+
+        assertTrue(!progress.isOnRoute(accuracyMeters = 0f, thresholdMeters = 30.0))
+        assertTrue(progress.isOnRoute(accuracyMeters = 0f, thresholdMeters = 100.0))
+    }
+
+    @Test
     fun emptyPaths_returnEmptyProgress() {
         val empty = RouteGeometry.from(emptyList())
 

@@ -96,6 +96,10 @@ fun RouteFollowingScreen(
         }
     }
 
+    LaunchedEffect(params.uiState.stoppedExternally) {
+        if (params.uiState.stoppedExternally) params.onExit()
+    }
+
     KeepScreenOn()
     LocationGatePrompt(gate = locationGate)
 
