@@ -23,6 +23,7 @@ import com.dimitrijeilic.rygg.feature.details.ui.viewmodel.DetailsViewModel
 fun DetailsWrapper(
     onNavigateBack: () -> Unit,
     onViewOnMap: (Long) -> Unit,
+    onOpenEntry: (Long) -> Unit,
     viewModel: DetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -31,6 +32,7 @@ fun DetailsWrapper(
     val fileNotReadyMessage = stringResource(R.string.details_share_file_not_ready)
     val fileSavedMessage = stringResource(R.string.details_save_file_done)
     val fileSaveFailedMessage = stringResource(R.string.details_save_file_failed)
+    val trimFailedMessage = stringResource(R.string.details_trim_failed)
     val launchSaveAs = rememberDocumentCreator(
         mimeType = GPX_MIME_TYPE,
         onCreated = viewModel::onSaveFileTo
@@ -54,6 +56,11 @@ fun DetailsWrapper(
 
                 DetailsEvent.FileSaveFailed ->
                     Toast.makeText(context, fileSaveFailedMessage, Toast.LENGTH_SHORT).show()
+
+                is DetailsEvent.TrimSaved -> onOpenEntry(event.entryId)
+
+                DetailsEvent.TrimFailed ->
+                    Toast.makeText(context, trimFailedMessage, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -66,6 +73,7 @@ fun DetailsWrapper(
                 onViewOnMap = onViewOnMap,
                 onToggleFavorite = { viewModel.onToggleFavorite() },
                 onRename = { viewModel.onRename(it) },
+                onSaveTrim = viewModel::onSaveTrim,
                 onDelete = {
                     viewModel.onDelete()
                     onNavigateBack()

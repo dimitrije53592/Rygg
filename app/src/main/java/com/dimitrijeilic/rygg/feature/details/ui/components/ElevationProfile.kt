@@ -14,11 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -38,7 +40,9 @@ import kotlin.math.abs
 fun ElevationProfile(
     samples: List<ElevationSample>,
     modifier: Modifier = Modifier,
-    onScrubChange: (Float?) -> Unit = {}
+    onScrubChange: (Float?) -> Unit = {},
+    trimRange: ClosedFloatingPointRange<Float>? = null,
+    onTrimRangeChange: (ClosedFloatingPointRange<Float>) -> Unit = {}
 ) {
     if (samples.size < 2) return
 
@@ -50,6 +54,10 @@ fun ElevationProfile(
     val extreme = RyggTheme.getColor(RyggColor.GradeExtreme)
     val gridColor = RyggTheme.getColor(RyggColor.TextSecondary).copy(alpha = GRID_ALPHA)
     val crosshairColor = RyggTheme.getColor(RyggColor.TextPrimary)
+    val handleColor = RyggTheme.getColor(RyggColor.BrandGreen)
+    val trimmedOverlay = RyggTheme.getColor(RyggColor.SurfaceElevated).copy(alpha = TRIMMED_OVERLAY_ALPHA)
+    val currentTrimRange by rememberUpdatedState(trimRange)
+    val currentOnTrimRangeChange by rememberUpdatedState(onTrimRangeChange)
 
     val high = samples.maxOf { it.elevationMeters }
     val low = samples.minOf { it.elevationMeters }
@@ -84,7 +92,13 @@ fun ElevationProfile(
                 style = RyggTheme.typography.titleSmall,
                 color = RyggTheme.getColor(RyggColor.TextPrimary)
             )
-            val readout = scrubFraction?.let { fraction ->
+            val readout = trimRange?.let { range ->
+                stringResource(
+                    R.string.details_trim_readout,
+                    units.distance(totalMeters * (range.endInclusive - range.start)),
+                    units.distance(totalMeters)
+                )
+            } ?: scrubFraction?.let { fraction ->
                 val sample = samples.sampleAt(fraction)
                 stringResource(
                     R.string.details_elevation_readout,
@@ -99,7 +113,7 @@ fun ElevationProfile(
             Text(
                 text = readout,
                 style = RyggTheme.textStyles.statValueSmall,
-                color = if (scrubFraction != null) {
+                color = if (scrubFraction != null || trimRange != null) {
                     RyggTheme.getColor(RyggColor.TextPrimary)
                 } else {
                     RyggTheme.getColor(RyggColor.TextSecondary)
@@ -111,7 +125,33 @@ fun ElevationProfile(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(RyggTheme.dimens.elevationProfileHeight)
-                .pointerInput(samples) {
+                .pointerInput(samples, trimRange != null) {
+                    if (currentTrimRange != null) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val startX = (down.position.x / size.width).coerceIn(0f, 1f)
+                            val range = currentTrimRange ?: return@awaitEachGesture
+                            val movingStart = abs(startX - range.start) < abs(startX - range.endInclusive)
+                            var pressed = true
+                            while (pressed) {
+                                val event = awaitPointerEvent()
+                                event.changes.forEach { change ->
+                                    val x = (change.position.x / size.width).coerceIn(0f, 1f)
+                                    val current = currentTrimRange ?: return@forEach
+                                    currentOnTrimRangeChange(
+                                        if (movingStart) {
+                                            x.coerceAtMost(current.endInclusive - MIN_TRIM_SPAN)..current.endInclusive
+                                        } else {
+                                            current.start..x.coerceAtLeast(current.start + MIN_TRIM_SPAN)
+                                        }
+                                    )
+                                    change.consume()
+                                }
+                                pressed = event.changes.any { it.pressed }
+                            }
+                        }
+                        return@pointerInput
+                    }
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
                         setScrub((down.position.x / size.width).coerceIn(0f, 1f))
@@ -183,6 +223,30 @@ fun ElevationProfile(
                     strokeWidth = strokeWidth,
                     cap = StrokeCap.Round
                 )
+            }
+
+            trimRange?.let { range ->
+                val startX = range.start * size.width
+                val endX = range.endInclusive * size.width
+                drawRect(color = trimmedOverlay, topLeft = Offset.Zero, size = Size(startX, size.height))
+                drawRect(
+                    color = trimmedOverlay,
+                    topLeft = Offset(endX, 0f),
+                    size = Size(size.width - endX, size.height)
+                )
+                listOf(startX, endX).forEach { x ->
+                    drawLine(
+                        color = handleColor,
+                        start = Offset(x, 0f),
+                        end = Offset(x, size.height),
+                        strokeWidth = lineStroke.toPx()
+                    )
+                    drawCircle(
+                        color = handleColor,
+                        radius = markerRadius.toPx() * HANDLE_SCALE,
+                        center = Offset(x, size.height / 2f)
+                    )
+                }
             }
 
             scrubFraction?.let { fraction ->
@@ -260,6 +324,10 @@ private fun gradeColor(
 }
 
 private const val FILL_ALPHA = 0.28f
+private const val TRIMMED_OVERLAY_ALPHA = 0.72f
+private const val HANDLE_SCALE = 1.6f
+
+private const val MIN_TRIM_SPAN = 0.02f
 private const val GRID_ALPHA = 0.12f
 private const val GRID_LINES = 3
 private const val GRADE_WINDOW_METERS = 60.0

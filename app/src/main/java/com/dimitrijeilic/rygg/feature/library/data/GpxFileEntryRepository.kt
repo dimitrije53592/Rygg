@@ -5,6 +5,7 @@ import com.dimitrijeilic.rygg.core.common.Outcome
 import com.dimitrijeilic.rygg.core.common.outcomeCatching
 import com.dimitrijeilic.rygg.core.gpx.GpxAnalyzer
 import com.dimitrijeilic.rygg.core.gpx.GpxParser
+import com.dimitrijeilic.rygg.core.gpx.GpxTrimmer
 import com.dimitrijeilic.rygg.core.gpx.GpxWriter
 import com.dimitrijeilic.rygg.core.gpx.haversineMeters
 import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
@@ -17,6 +18,7 @@ import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
 import com.dimitrijeilic.rygg.feature.library.domain.EntrySource
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
+import com.dimitrijeilic.rygg.feature.library.domain.SyncStatus
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +32,7 @@ class GpxFileEntryRepository @Inject constructor(
     private val gpxParser: GpxParser,
     private val gpxAnalyzer: GpxAnalyzer,
     private val gpxWriter: GpxWriter,
+    private val gpxTrimmer: GpxTrimmer,
     private val routeSyncManager: RouteSyncManager
 ) {
     fun observeGpxFileEntries(): Flow<List<GpxFileEntry>> =
@@ -155,6 +158,57 @@ class GpxFileEntryRepository @Inject constructor(
         val newFileName = gpxStorage.rename(entry.fileName, finalName)
         val toSave = entry.copy(name = finalName, fileName = newFileName, originalFileName = newFileName)
         gpxFileEntryDao.insert(toSave.toEntity()).also { routeSyncManager.onRouteAdded(it) }
+    }
+
+    suspend fun saveTrimmedCopy(
+        entry: GpxFileEntry,
+        startFraction: Double,
+        endFraction: Double,
+        name: String
+    ): Outcome<Long> = withContext(Dispatchers.IO) {
+        outcomeCatching {
+            val document = gpxStorage.resolve(entry.fileName).inputStream().use { gpxParser.parse(it).gpxDocument }
+            val trimmed = gpxTrimmer.trim(document, startFraction, endFraction)
+            val staged = gpxStorage.saveText(gpxWriter.write(trimmed))
+            val fileName = gpxStorage.rename(staged.name, name)
+            val analysis = gpxAnalyzer.analyze(trimmed)
+            val now = System.currentTimeMillis()
+            val copy = entry.copy(
+                id = 0L,
+                fileName = fileName,
+                contentHash = gpxStorage.sha256(gpxStorage.resolve(fileName)),
+                remoteId = null,
+                ownerUid = null,
+                syncStatus = SyncStatus.LOCAL_ONLY,
+                fileDownloaded = true,
+                deletedAt = null,
+                sharedToken = null,
+                name = name,
+                isFavorite = false,
+                distanceMeters = analysis.distanceMeters,
+                ascentMeters = analysis.ascentMeters,
+                descentMeters = analysis.descentMeters,
+                elevationMeters = analysis.elevationMeters,
+                pointCount = analysis.pointCount,
+                routeCount = analysis.routeCount,
+                waypointCount = analysis.waypointCount,
+                hasTime = analysis.hasTime,
+                startTimeMillis = analysis.startTimeMillis,
+                movingTimeMillis = analysis.movingTimeMillis,
+                totalTimeMillis = analysis.totalTimeMillis,
+                avgSpeedMps = analysis.avgSpeedMps,
+                maxSpeedMps = analysis.maxSpeedMps,
+                minLat = analysis.minLat,
+                minLon = analysis.minLon,
+                maxLat = analysis.maxLat,
+                maxLon = analysis.maxLon,
+                pathPoints = analysis.simplifiedPath,
+                importedAt = now,
+                updatedAt = now,
+                originalFileName = fileName
+            )
+            gpxFileEntryDao.insert(copy.toEntity()).also { routeSyncManager.onRouteAdded(it) }
+        }
     }
 
     // Delegates to the sync manager: local delete plus cloud removal when the route is owned.

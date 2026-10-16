@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
@@ -56,9 +57,11 @@ fun DetailsHeroMap(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     highlightFraction: Float? = null,
+    keptRange: ClosedFloatingPointRange<Float>? = null,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
     onRename: ((String) -> Unit)? = null,
+    onTrim: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
     onShareFile: (() -> Unit)? = null,
@@ -73,6 +76,7 @@ fun DetailsHeroMap(
             points = entry.pathPoints,
             scale = RouteCanvasScale.Hero,
             highlightFraction = highlightFraction,
+            keptRange = keptRange,
             modifier = Modifier
                 .fillMaxSize()
                 .sharedRouteCanvas(entry.id)
@@ -125,6 +129,7 @@ fun DetailsHeroMap(
                         currentName = entry.name,
                         onToggleFavorite = onToggleFavorite,
                         onRename = onRename,
+                        onTrim = onTrim,
                         onDelete = onDelete
                     )
                 }
@@ -197,6 +202,7 @@ private fun HeroOverflowMenu(
     currentName: String,
     onToggleFavorite: () -> Unit,
     onRename: (String) -> Unit,
+    onTrim: (() -> Unit)?,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -249,6 +255,22 @@ private fun HeroOverflowMenu(
                     showRenameDialog = true
                 }
             )
+            onTrim?.let {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.details_trim)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCut,
+                            contentDescription = null,
+                            tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        it()
+                    }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.details_delete)) },
                 leadingIcon = {

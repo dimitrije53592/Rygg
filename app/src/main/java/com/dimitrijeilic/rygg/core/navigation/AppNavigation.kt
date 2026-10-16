@@ -206,6 +206,11 @@ fun AppNavigation() {
                                 onNavigateBack = { navController.navigateUp() },
                                 onViewOnMap = { entryId ->
                                     navController.navigate(Map(entryId = entryId))
+                                },
+                                onOpenEntry = { entryId ->
+                                    navController.navigate(Details(entryId = entryId)) {
+                                        popUpTo<Details> { inclusive = true }
+                                    }
                                 }
                             )
                         }

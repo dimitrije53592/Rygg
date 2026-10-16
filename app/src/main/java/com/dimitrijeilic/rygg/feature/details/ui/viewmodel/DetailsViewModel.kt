@@ -15,8 +15,10 @@ import com.dimitrijeilic.rygg.feature.library.domain.exportBaseName
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -31,6 +33,7 @@ class DetailsViewModel @Inject constructor(
 ) : ViewModel() {
     private val entryId = savedStateHandle.toRoute<Details>().entryId
     private var profileCache: CachedProfile? = null
+    private val isSavingTrim = MutableStateFlow(false)
 
     // One-shot share side effects handed to the wrapper (which owns the Context to act on them).
     private val _events = Channel<DetailsEvent>(Channel.BUFFERED)
@@ -56,6 +59,7 @@ class DetailsViewModel @Inject constructor(
                     }
                 }
             }
+            .combine(isSavingTrim) { state, saving -> state.copy(isSavingTrim = saving) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -73,6 +77,22 @@ class DetailsViewModel @Inject constructor(
         val entry = loadedEntry() ?: return
         viewModelScope.launch {
             gpxFileEntryRepository.renameGpxFile(entry, newName)
+        }
+    }
+
+    fun onSaveTrim(startFraction: Double, endFraction: Double, name: String) {
+        val entry = loadedEntry() ?: return
+        if (isSavingTrim.value) return
+        viewModelScope.launch {
+            isSavingTrim.value = true
+            val outcome = gpxFileEntryRepository.saveTrimmedCopy(entry, startFraction, endFraction, name)
+            isSavingTrim.value = false
+            _events.send(
+                when (outcome) {
+                    is Outcome.Success -> DetailsEvent.TrimSaved(outcome.data)
+                    else -> DetailsEvent.TrimFailed
+                }
+            )
         }
     }
 
@@ -169,6 +189,10 @@ sealed interface DetailsEvent {
     data object FileSaved : DetailsEvent
 
     data object FileSaveFailed : DetailsEvent
+
+    data class TrimSaved(val entryId: Long) : DetailsEvent
+
+    data object TrimFailed : DetailsEvent
 }
 
 private data class CachedProfile(
@@ -178,7 +202,8 @@ private data class CachedProfile(
 )
 
 data class DetailsUiState(
-    val loadingState: DetailsLoadingState
+    val loadingState: DetailsLoadingState,
+    val isSavingTrim: Boolean = false
 )
 
 sealed interface DetailsLoadingState {

@@ -362,4 +362,11 @@
     <string name="details_save_file">Save GPX to device</string>
     <string name="details_save_file_done">GPX saved</string>
     <string name="details_save_file_failed">Couldn\'t save the GPX file. Please try again.</string>
+
+    <string name="details_trim">Trim</string>
+    <string name="details_trim_readout">Keeping %1$s of %2$s</string>
+    <string name="details_trim_copy_name">%1$s (trimmed)</string>
+    <string name="details_trim_hint">Drag the handles to choose the part to keep. It is saved as a new route; the original stays as it is.</string>
+    <string name="details_trim_save">Save trimmed copy</string>
+    <string name="details_trim_failed">Couldn\'t trim this route. Keep a longer stretch and try again.</string>
 </resources>

@@ -357,4 +357,11 @@
     <string name="details_save_file">Sačuvaj GPX na uređaj</string>
     <string name="details_save_file_done">GPX je sačuvan</string>
     <string name="details_save_file_failed">Čuvanje GPX fajla nije uspelo. Pokušajte ponovo.</string>
+
+    <string name="details_trim">Skrati</string>
+    <string name="details_trim_readout">Zadržava se %1$s od %2$s</string>
+    <string name="details_trim_copy_name">%1$s (skraćeno)</string>
+    <string name="details_trim_hint">Povucite ručke da izaberete deo koji zadržavate. Čuva se kao nova ruta; original ostaje nepromenjen.</string>
+    <string name="details_trim_save">Sačuvaj skraćenu kopiju</string>
+    <string name="details_trim_failed">Skraćivanje rute nije uspelo. Zadržite duži deo i pokušajte ponovo.</string>
 </resources>
