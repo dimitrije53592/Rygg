@@ -12,13 +12,15 @@ service cloud.firestore {
     }
 
     // Public share snapshots. Anyone holding the unguessable token may read; only the authed
-    // owner may create one, and it must be stamped with their own uid. No updates/deletes from
-    // clients (a stale snapshot simply 404s at the Storage layer once its blob is gone).
+    // owner may create one, and it must be stamped with their own uid. Snapshots are immutable,
+    // but the owner may delete theirs — account deletion has to remove every shared link.
     match /sharedRoutes/{token} {
       allow read: if true;
       allow create: if request.auth != null
                     && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if request.auth != null
+                    && resource.data.ownerUid == request.auth.uid;
     }
 
     // Write-only feedback drop box. Guests reach it with an anonymous session, so any authed uid

@@ -68,7 +68,9 @@ private fun ResetForm(params: ForgotPasswordScreenParams) {
         Text(
             text = message,
             style = RyggTheme.typography.bodyMedium,
-            color = RyggTheme.getColor(RyggColor.Error)
+            color = RyggTheme.getColor(RyggColor.Error),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 

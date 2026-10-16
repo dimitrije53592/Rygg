@@ -59,6 +59,10 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'SYNCED'")
     suspend fun getOwnedSynced(ownerUid: String): List<GpxFileEntryEntity>
 
+    // Every row an account owns, whatever its sync state — account deletion sweeps them all.
+    @Query("SELECT * FROM library WHERE ownerUid = :ownerUid")
+    suspend fun getOwned(ownerUid: String): List<GpxFileEntryEntity>
+
     // Owned rows with an in-flight delete tombstone.
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'PENDING_DELETE'")
     suspend fun getOwnedPendingDelete(ownerUid: String): List<GpxFileEntryEntity>
@@ -100,4 +104,13 @@ interface GpxFileEntryDao {
             "WHERE ownerUid = :ownerUid AND syncStatus != 'SYNCED'"
     )
     suspend fun revertOwnedUnsyncedToGuest(ownerUid: String)
+
+    // On account deletion: the cloud copies are gone, so every remaining owned route becomes a
+    // guest row and stays on this device.
+    @Query(
+        "UPDATE library SET ownerUid = NULL, remoteId = NULL, sharedToken = NULL, " +
+            "fileUploaded = 0, syncStatus = 'LOCAL_ONLY' " +
+            "WHERE ownerUid = :ownerUid"
+    )
+    suspend fun revertOwnedToGuest(ownerUid: String)
 }

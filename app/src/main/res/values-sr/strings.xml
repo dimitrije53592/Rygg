@@ -325,4 +325,18 @@
     <string name="profile_lifetime">Ukupno</string>
     <string name="profile_sign_out_confirm_title">Odjaviti se iz Rygg-a?</string>
     <string name="profile_sign_out_cancel">Otkaži</string>
+    <string name="profile_delete_account">Obriši nalog</string>
+    <string name="profile_delete_title">Obrisati nalog?</string>
+    <string name="profile_delete_message">Ovim trajno brišete Rygg nalog, rute sačuvane u oblaku i sve linkove koje ste podelili. Rute na ovom telefonu ostaju, samo oflajn. Ovo se ne može poništiti.</string>
+    <string name="profile_delete_password_label">Lozinka za potvrdu</string>
+    <string name="profile_delete_google_hint">Zatim ćete potvrditi Google nalogom.</string>
+    <string name="profile_delete_confirm">Obriši nalog</string>
+    <string name="profile_delete_cancel">Zadrži nalog</string>
+    <string name="profile_delete_error_password">Lozinka nije tačna.</string>
+    <string name="profile_delete_error_account">Izaberite isti Google nalog kojim ste prijavljeni.</string>
+    <string name="profile_delete_error_offline">Niste povezani na internet. Povežite se i pokušajte ponovo.</string>
+    <string name="profile_delete_error_generic">Brisanje naloga nije uspelo. Pokušajte ponovo.</string>
+    <string name="profile_deleted_title">Nalog je obrisan</string>
+    <string name="profile_deleted_message">Vaš nalog, rezervne kopije u oblaku i deljeni linkovi su obrisani. Rute su i dalje na ovom telefonu.</string>
+    <string name="profile_deleted_ok">U redu</string>
 </resources>

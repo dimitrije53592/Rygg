@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
@@ -30,7 +31,7 @@ fun RegisterScreen(params: RegisterScreenParams) {
     ) {
         Text(
             text = stringResource(R.string.register_title),
-            style = RyggTheme.typography.headlineLarge,
+            style = RyggTheme.typography.headlineMedium,
             color = RyggTheme.getColor(RyggColor.TextPrimary),
             modifier = Modifier.padding(bottom = RyggTheme.dimens.commonContentPadding8)
         )
@@ -98,7 +99,9 @@ fun RegisterScreen(params: RegisterScreenParams) {
             Text(
                 text = message,
                 style = RyggTheme.typography.bodyMedium,
-                color = RyggTheme.getColor(RyggColor.Error)
+                color = RyggTheme.getColor(RyggColor.Error),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
