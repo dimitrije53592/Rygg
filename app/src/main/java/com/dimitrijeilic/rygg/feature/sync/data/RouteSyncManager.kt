@@ -15,6 +15,7 @@ import com.dimitrijeilic.rygg.feature.auth.data.AuthRepository
 import com.dimitrijeilic.rygg.feature.library.data.GpxStorage
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryEntity
+import com.dimitrijeilic.rygg.feature.library.data.local.RouteImageEntity
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
 import com.dimitrijeilic.rygg.feature.sync.data.remote.RemoteRoute
@@ -281,6 +282,11 @@ class RouteSyncManager @Inject constructor(
         dao.markPendingUpload(localId, System.currentTimeMillis())
         val fresh = dao.getById(localId) ?: return
         pushUpsert(uid, fresh)
+    }
+
+    // A photo was removed locally: re-push the route so the doc drops it.
+    suspend fun onImageDeleted(image: RouteImageEntity) {
+        onRouteChanged(image.entryId)
     }
 
     // Delete locally and, if owned, remove the cloud copies. An owned delete records a

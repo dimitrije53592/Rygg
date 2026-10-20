@@ -44,6 +44,8 @@ data class GpxFileEntry(
     val maxLon: Double?,
     // Thumbnail geometry (downsampled trail contour)
     val pathPoints: List<GeoPoint>,
+    // Photos in display order; the first is the cover
+    val images: List<RouteImage> = emptyList(),
     // Organisation
     val folder: String?,
     // Organisation
