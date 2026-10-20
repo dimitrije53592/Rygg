@@ -408,4 +408,5 @@
     <string name="details_trim_failed">Skraćivanje rute nije uspelo. Zadržite duži deo i pokušajte ponovo.</string>
 
     <string name="details_share_link_preparing">Pripremanje linka…</string>
+    <string name="photo_waiting_for_sync">Čeka se sinhronizacija</string>
 </resources>

@@ -412,4 +412,5 @@
     <string name="details_trim_failed">Couldn\'t trim this route. Keep a longer stretch and try again.</string>
 
     <string name="details_share_link_preparing">Preparing link…</string>
+    <string name="photo_waiting_for_sync">Waiting for sync</string>
 </resources>
