@@ -62,6 +62,7 @@ class DetailsViewModel @Inject constructor(
             }
             .combine(isSavingTrim) { state, saving -> state.copy(isSavingTrim = saving) }
             .combine(isSharingLink) { state, sharing -> state.copy(isSharingLink = sharing) }
+            .combine(gpxFileEntryRepository.observeFolders()) { state, folders -> state.copy(folders = folders) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -79,6 +80,13 @@ class DetailsViewModel @Inject constructor(
         val entry = loadedEntry() ?: return
         viewModelScope.launch {
             gpxFileEntryRepository.renameGpxFile(entry, newName)
+        }
+    }
+
+    fun onSetFolder(folder: String?) {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            gpxFileEntryRepository.setFolder(entry.id, folder)
         }
     }
 
@@ -210,7 +218,8 @@ private data class CachedProfile(
 data class DetailsUiState(
     val loadingState: DetailsLoadingState,
     val isSavingTrim: Boolean = false,
-    val isSharingLink: Boolean = false
+    val isSharingLink: Boolean = false,
+    val folders: List<String> = emptyList()
 )
 
 sealed interface DetailsLoadingState {

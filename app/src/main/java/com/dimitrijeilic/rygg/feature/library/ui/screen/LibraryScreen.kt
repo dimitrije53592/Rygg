@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,23 +32,34 @@ import com.dimitrijeilic.rygg.core.ui.utils.rememberFilePicker
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.ui.components.DeleteEntryDialog
+import com.dimitrijeilic.rygg.feature.library.ui.components.DeleteFolderDialog
+import com.dimitrijeilic.rygg.feature.library.ui.components.FolderEditorSheet
 import com.dimitrijeilic.rygg.feature.library.ui.components.GpxFileEntryList
 import com.dimitrijeilic.rygg.feature.library.ui.components.ImportDisciplineSheet
+import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryAddSheet
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryDisciplineBar
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryEmptyState
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryErrorState
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryListHeader
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryLoadingState
 import com.dimitrijeilic.rygg.feature.library.ui.components.LibraryNoMatchesState
+import com.dimitrijeilic.rygg.feature.library.ui.components.LibrarySearchBar
+import com.dimitrijeilic.rygg.feature.library.ui.components.RenameFolderDialog
 import com.dimitrijeilic.rygg.feature.library.ui.paramproviders.LibraryParamsProvider
 import com.dimitrijeilic.rygg.feature.library.ui.viewmodel.GpxFilesLoadingState
 import com.dimitrijeilic.rygg.feature.library.ui.viewmodel.LibraryUiState
 
 @Composable
 fun LibraryScreen(params: LibraryScreenParams) {
+    var showAddSheet by remember { mutableStateOf(false) }
     var showImportSheet by remember { mutableStateOf(false) }
     var pendingDiscipline by remember { mutableStateOf(Discipline.HIKE) }
     var pendingDelete by remember { mutableStateOf<GpxFileEntry?>(null) }
+    var isSearchOpen by remember { mutableStateOf(params.uiState.searchQuery.isNotEmpty()) }
+    var expandedFolders by remember { mutableStateOf(emptySet<String>()) }
+    var showFolderEditor by remember { mutableStateOf(false) }
+    var renamingFolder by remember { mutableStateOf<String?>(null) }
+    var pendingFolderDelete by remember { mutableStateOf<String?>(null) }
     val launchFilePicker = rememberFilePicker(
         onFilePicked = { uri -> params.onImport(uri, pendingDiscipline) }
     )
@@ -57,10 +69,20 @@ fun LibraryScreen(params: LibraryScreenParams) {
             RyggTopAppBar(
                 title = stringResource(R.string.library_title),
                 actions = {
+                    if (!isSearchOpen && !params.uiState.isLibraryEmpty) {
+                        RyggTopBarAction(
+                            icon = Icons.Outlined.Search,
+                            contentDescription = stringResource(R.string.library_search),
+                            onClick = { isSearchOpen = true }
+                        )
+                        Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
+                    }
                     RyggTopBarAction(
                         icon = Icons.Outlined.Add,
-                        contentDescription = stringResource(R.string.library_import),
-                        onClick = { showImportSheet = true }
+                        contentDescription = stringResource(R.string.library_add_title),
+                        onClick = {
+                            if (params.uiState.isLibraryEmpty) showImportSheet = true else showAddSheet = true
+                        }
                     )
                     Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
                     RyggProfileAction(onClick = params.onOpenProfile)
@@ -76,6 +98,16 @@ fun LibraryScreen(params: LibraryScreenParams) {
                     .background(RyggTheme.getColor(RyggColor.SurfaceDim))
                     .padding(innerPadding)
             ) {
+                if (isSearchOpen) {
+                    LibrarySearchBar(
+                        query = params.uiState.searchQuery,
+                        onQueryChange = params.onSearchQueryChange,
+                        onClose = {
+                            isSearchOpen = false
+                            params.onSearchQueryChange("")
+                        }
+                    )
+                }
                 LibraryDisciplineBar(
                     disciplines = Discipline.entries,
                     selectedDiscipline = params.uiState.selectedDiscipline,
@@ -92,9 +124,19 @@ fun LibraryScreen(params: LibraryScreenParams) {
                         is GpxFilesLoadingState.Error -> LibraryErrorState(state.errorMessage)
                         is GpxFilesLoadingState.GpxFilesLoaded ->
                             LoadedContent(
-                                entries = state.gpxFilesEntries,
+                                state = state,
                                 uiState = params.uiState,
                                 params = params,
+                                expandedFolders = if (params.uiState.isFiltering) {
+                                    state.folders.map { it.name }.toSet()
+                                } else {
+                                    expandedFolders
+                                },
+                                onToggleFolder = { name ->
+                                    expandedFolders = if (name in expandedFolders) expandedFolders - name else expandedFolders + name
+                                },
+                                onRenameFolder = { name -> renamingFolder = name },
+                                onDeleteFolder = { name -> pendingFolderDelete = name },
                                 onRequestDelete = { entry -> pendingDelete = entry },
                                 onImport = { showImportSheet = true }
                             )
@@ -111,7 +153,43 @@ fun LibraryScreen(params: LibraryScreenParams) {
                     onCancel = { pendingDelete = null }
                 )
             }
+            pendingFolderDelete?.let { name ->
+                DeleteFolderDialog(
+                    folderName = name,
+                    onConfirm = {
+                        pendingFolderDelete = null
+                        expandedFolders = expandedFolders - name
+                        params.onDeleteFolder(name)
+                    },
+                    onCancel = { pendingFolderDelete = null }
+                )
+            }
+            renamingFolder?.let { name ->
+                RenameFolderDialog(
+                    currentName = name,
+                    onConfirm = { newName ->
+                        renamingFolder = null
+                        if (name in expandedFolders) expandedFolders = expandedFolders - name + newName.trim()
+                        params.onRenameFolder(name, newName)
+                    },
+                    onCancel = { renamingFolder = null }
+                )
+            }
         }
+    }
+
+    if (showAddSheet) {
+        LibraryAddSheet(
+            onImportRoute = {
+                showAddSheet = false
+                showImportSheet = true
+            },
+            onNewFolder = {
+                showAddSheet = false
+                showFolderEditor = true
+            },
+            onDismiss = { showAddSheet = false }
+        )
     }
 
     if (showImportSheet) {
@@ -124,13 +202,29 @@ fun LibraryScreen(params: LibraryScreenParams) {
             onDismiss = { showImportSheet = false }
         )
     }
+
+    if (showFolderEditor) {
+        FolderEditorSheet(
+            routes = params.uiState.allRoutes,
+            onSave = { name, entryIds ->
+                showFolderEditor = false
+                expandedFolders = expandedFolders + name.trim()
+                params.onCreateFolder(name, entryIds)
+            },
+            onDismiss = { showFolderEditor = false }
+        )
+    }
 }
 
 @Composable
 private fun LoadedContent(
-    entries: List<GpxFileEntry>,
+    state: GpxFilesLoadingState.GpxFilesLoaded,
     uiState: LibraryUiState,
     params: LibraryScreenParams,
+    expandedFolders: Set<String>,
+    onToggleFolder: (String) -> Unit,
+    onRenameFolder: (String) -> Unit,
+    onDeleteFolder: (String) -> Unit,
     onRequestDelete: (GpxFileEntry) -> Unit,
     onImport: () -> Unit
 ) {
@@ -140,7 +234,7 @@ private fun LoadedContent(
     }
     Column(modifier = Modifier.fillMaxSize()) {
         LibraryListHeader(
-            activityCount = entries.size,
+            activityCount = state.routeCount,
             sortMode = uiState.sortMode,
             favoritesOnly = uiState.favoritesOnly,
             selectedSource = uiState.selectedSource,
@@ -148,12 +242,17 @@ private fun LoadedContent(
             onToggleFavoritesFilter = params.onToggleFavoritesFilter,
             onCycleSourceFilter = params.onCycleSourceFilter
         )
-        if (entries.isEmpty()) {
+        if (state.routeCount == 0) {
             LibraryNoMatchesState()
         } else {
             GpxFileEntryList(
-                entries = entries,
+                folders = state.folders,
+                expandedFolders = expandedFolders,
+                entries = state.gpxFilesEntries,
                 sortMode = uiState.sortMode,
+                onToggleFolder = onToggleFolder,
+                onRenameFolder = onRenameFolder,
+                onDeleteFolder = onDeleteFolder,
                 onEntryClick = params.onEntryClick,
                 onFavoriteClick = params.onFavoriteClick,
                 onDeleteEntry = onRequestDelete
@@ -179,6 +278,10 @@ data class LibraryScreenParams(
     val onFavoriteClick: (GpxFileEntry) -> Unit,
     val onDeleteEntry: (GpxFileEntry) -> Unit,
     val onDisciplineSelected: (Discipline?) -> Unit,
+    val onCreateFolder: (String, Set<Long>) -> Unit,
+    val onRenameFolder: (String, String) -> Unit,
+    val onDeleteFolder: (String) -> Unit,
+    val onSearchQueryChange: (String) -> Unit,
     val onToggleSort: () -> Unit,
     val onToggleFavoritesFilter: () -> Unit,
     val onCycleSourceFilter: () -> Unit,

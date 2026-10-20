@@ -13,8 +13,7 @@ internal fun previewGpxFileEntry(
     discipline: Discipline = Discipline.HIKE,
     source: EntrySource = EntrySource.RECORDED,
     isFavorite: Boolean = true,
-    hasTime: Boolean = true,
-    tags: List<String> = listOf("Mountaineering", "Two-day", "Summit")
+    hasTime: Boolean = true
 ): GpxFileEntry = GpxFileEntry(
     id = id,
     fileName = "triglav.gpx",
@@ -49,7 +48,6 @@ internal fun previewGpxFileEntry(
         GeoPoint(46.39, 13.86)
     ),
     folder = null,
-    tags = tags,
     importedAt = 1_497_500_000_000,
     updatedAt = 1_497_500_000_000,
     creator = "MapSource",

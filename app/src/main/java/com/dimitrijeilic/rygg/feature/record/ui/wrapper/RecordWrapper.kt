@@ -28,6 +28,7 @@ fun RecordWrapper(
                 onRecordingStopped()
             },
             onAddWaypoint = viewModel::onAddWaypoint,
+            onBatteryPromptSeen = viewModel::onBatteryPromptSeen,
             onOpenProfile = onOpenProfile
         )
     )

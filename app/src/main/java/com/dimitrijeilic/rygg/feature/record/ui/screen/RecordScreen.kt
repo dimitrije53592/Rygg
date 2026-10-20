@@ -86,9 +86,12 @@ import com.dimitrijeilic.rygg.core.units.Quantity
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingState
+import com.dimitrijeilic.rygg.feature.record.ui.components.BatteryOptimizationDialog
 import com.dimitrijeilic.rygg.feature.record.ui.components.GpsStatusChip
 import com.dimitrijeilic.rygg.feature.record.ui.components.LocationPausedBanner
 import com.dimitrijeilic.rygg.feature.record.ui.components.RecordStartButton
+import com.dimitrijeilic.rygg.feature.record.ui.components.isIgnoringBatteryOptimizations
+import com.dimitrijeilic.rygg.feature.record.ui.components.openBatteryOptimizationSettings
 import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.RecordUiState
 import kotlinx.coroutines.delay
 
@@ -97,6 +100,7 @@ fun RecordScreen(params: RecordScreenParams) {
     val context = LocalContext.current
     val locationGate = rememberLocationGate()
     var pendingStart by remember { mutableStateOf<Discipline?>(null) }
+    var pendingBatteryStart by remember { mutableStateOf<Discipline?>(null) }
     var showWaypointDialog by remember { mutableStateOf(false) }
 
     val notificationLauncher = rememberLauncherForActivityResult(
@@ -115,8 +119,17 @@ fun RecordScreen(params: RecordScreenParams) {
         }
     }
 
+    // Asked once: OEM battery savers are the usual reason a long recording gets killed.
+    fun startWithBatteryCheck(discipline: Discipline) {
+        if (params.uiState.batteryPromptSeen || context.isIgnoringBatteryOptimizations()) {
+            startWithNotificationCheck(discipline)
+        } else {
+            pendingBatteryStart = discipline
+        }
+    }
+
     fun requestStart(discipline: Discipline) {
-        locationGate.requestAccess(LocationPurpose.RECORD) { startWithNotificationCheck(discipline) }
+        locationGate.requestAccess(LocationPurpose.RECORD) { startWithBatteryCheck(discipline) }
     }
 
     val onTurnOnLocation = { locationGate.requestAccess(LocationPurpose.RECORD) }
@@ -169,6 +182,22 @@ fun RecordScreen(params: RecordScreenParams) {
     }
 
     LocationGatePrompt(gate = locationGate)
+
+    pendingBatteryStart?.let { discipline ->
+        BatteryOptimizationDialog(
+            onOpenSettings = {
+                params.onBatteryPromptSeen()
+                pendingBatteryStart = null
+                context.openBatteryOptimizationSettings()
+            },
+            onStartAnyway = {
+                params.onBatteryPromptSeen()
+                pendingBatteryStart = null
+                startWithNotificationCheck(discipline)
+            },
+            onDismiss = { pendingBatteryStart = null }
+        )
+    }
 
     if (showWaypointDialog) {
         WaypointNameDialog(
@@ -542,6 +571,7 @@ private fun RecordScreenIdlePreview() {
                 onResume = {},
                 onStop = {},
                 onAddWaypoint = {},
+                onBatteryPromptSeen = {},
                 onOpenProfile = {}
             )
         )
@@ -571,6 +601,7 @@ private fun RecordScreenActivePreview() {
                 onResume = {},
                 onStop = {},
                 onAddWaypoint = {},
+                onBatteryPromptSeen = {},
                 onOpenProfile = {}
             )
         )
@@ -585,6 +616,7 @@ data class RecordScreenParams(
     val onResume: () -> Unit,
     val onStop: () -> Unit,
     val onAddWaypoint: (String) -> Unit,
+    val onBatteryPromptSeen: () -> Unit,
     val onOpenProfile: () -> Unit
 )
 

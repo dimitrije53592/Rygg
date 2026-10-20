@@ -46,7 +46,6 @@ data class GpxFileEntry(
     val pathPoints: List<GeoPoint>,
     // Organisation
     val folder: String?,
-    val tags: List<String>,
     // Organisation
     val importedAt: Long,
     val updatedAt: Long,

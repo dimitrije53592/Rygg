@@ -17,3 +17,11 @@ fun decodeGeoPoints(value: String): List<GeoPoint> {
         if (lat != null && lon != null) GeoPoint(lat, lon) else null
     }
 }
+
+fun encodeGeoPaths(paths: List<List<GeoPoint>>): String =
+    paths.joinToString("|") { encodeGeoPoints(it) }
+
+fun decodeGeoPaths(value: String): List<List<GeoPoint>> {
+    if (value.isBlank()) return emptyList()
+    return value.split("|").map { decodeGeoPoints(it) }.filter { it.isNotEmpty() }
+}

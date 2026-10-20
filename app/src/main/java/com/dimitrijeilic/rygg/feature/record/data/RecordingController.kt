@@ -10,6 +10,7 @@ import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingResolution
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingSnapshot
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingState
+import com.dimitrijeilic.rygg.feature.record.domain.RecoveredRecording
 import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,11 +39,13 @@ class RecordingController @Inject constructor(
     private val route: RouteAccumulator,
     private val autoPauseDetector: AutoPauseDetector,
     private val trackPointFilter: TrackPointFilter,
+    private val journal: RecordingJournal,
     settingsRepository: SettingsRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val session = MutableStateFlow(Session())
+    private val recoveryLock = Mutex()
     private var locationJob: Job? = null
     private var locationSwitchJob: Job? = null
 
@@ -71,13 +76,39 @@ class RecordingController @Inject constructor(
     fun start(discipline: Discipline) {
         route.reset()
         resetContinuity()
+        val startInstant = Instant.now()
         session.value = Session(
             state = RecordingState.RECORDING,
             discipline = discipline,
-            startInstant = Instant.now()
+            startInstant = startInstant
         )
+        journal.begin(discipline, startInstant)
         timer.start()
         startLocation()
+    }
+
+    fun isIdle(): Boolean = session.value.state == RecordingState.IDLE
+
+    // An unfinished recording left in the journal by a killed process, if nothing is live now.
+    suspend fun pendingRecovery(): RecoveredRecording? = recoveryLock.withLock {
+        if (!isIdle()) null else journal.load()
+    }
+
+    // Rebuilds a journaled recording as PAUSED; the caller decides whether to resume or save it.
+    suspend fun recover(): RecoveredRecording? = recoveryLock.withLock {
+        if (!isIdle()) return@withLock null
+        val recovered = journal.load() ?: return@withLock null
+        route.restore(recovered.segments, recovered.waypoints)
+        resetContinuity()
+        timer.restore(recovered.elapsedMillis)
+        journal.adopt(recovered)
+        session.value = Session(
+            state = RecordingState.PAUSED,
+            discipline = recovered.discipline,
+            startInstant = recovered.startInstant
+        )
+        journal.checkpoint(RecordingState.PAUSED, recovered.elapsedMillis)
+        recovered
     }
 
     // Manual pause is sticky: it stops the location stream, so auto-resume can't fire until the
@@ -88,6 +119,7 @@ class RecordingController @Inject constructor(
         stopLocation()
         resetContinuity()
         session.update { it.copy(state = RecordingState.PAUSED) }
+        journal.checkpoint(RecordingState.PAUSED, timer.elapsedNow())
     }
 
     fun resume() {
@@ -98,17 +130,24 @@ class RecordingController @Inject constructor(
         resetContinuity()
         startLocation()
         session.update { it.copy(state = RecordingState.RECORDING) }
+        journal.checkpoint(RecordingState.RECORDING, timer.elapsedNow())
     }
 
+    // The journal keeps the stopped track as PAUSED until it is saved or discarded (reset), so a
+    // kill on the save screen can still be recovered.
     fun stop() {
         timer.stop()
         stopLocation()
         flushFinalFix()
         resetContinuity()
         session.update { it.copy(state = RecordingState.IDLE, locationOff = false) }
+        journal.checkpoint(RecordingState.PAUSED, timer.elapsedNow())
     }
 
-    fun addWaypoint(name: String) = route.addWaypoint(name)
+    fun addWaypoint(name: String) {
+        val waypoint = route.addWaypoint(name) ?: return
+        journal.appendWaypoint(waypoint, route.currentSegment, session.value.state, timer.elapsedNow())
+    }
 
     // Build the recorded GPX document; null when nothing usable was captured.
     fun buildDocument(): GpxDocument? = route.buildDocument(session.value.startInstant, CREATOR)
@@ -119,6 +158,7 @@ class RecordingController @Inject constructor(
         stopLocation()
         timer.reset()
         route.reset()
+        journal.clear()
         session.value = Session()
     }
 
@@ -159,27 +199,34 @@ class RecordingController @Inject constructor(
 
         if (session.value.state != RecordingState.RECORDING) return
         if (trackPointFilter.shouldKeep(location.latitude, location.longitude, System.currentTimeMillis(), resolution.value)) {
-            route.add(location)
+            record(location)
         }
+    }
+
+    private fun record(location: Location) {
+        val point = route.add(location)
+        journal.append(point, route.currentSegment, session.value.state, timer.elapsedNow())
     }
 
     // Thinning can leave the last fix unrecorded, which would end the track short of where the
     // user actually stopped (and can strand a brief recording under buildDocument's 2-point floor).
     private fun flushFinalFix() {
         val fix = lastFix ?: return
-        if (!trackPointFilter.isLastKept(fix.latitude, fix.longitude)) route.add(fix)
+        if (!trackPointFilter.isLastKept(fix.latitude, fix.longitude)) record(fix)
     }
 
     private fun autoPause() {
         timer.pause()
         route.breakContinuity()
         session.update { it.copy(state = RecordingState.AUTO_PAUSED) }
+        journal.checkpoint(RecordingState.AUTO_PAUSED, timer.elapsedNow())
     }
 
     private fun autoResume() {
         timer.resume()
         route.breakContinuity()
         session.update { it.copy(state = RecordingState.RECORDING) }
+        journal.checkpoint(RecordingState.RECORDING, timer.elapsedNow())
     }
 
     // Drop fixes that would corrupt distance/speed: poor horizontal accuracy, and the stale

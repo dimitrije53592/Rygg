@@ -124,6 +124,7 @@ fun MapScreen(params: MapScreenParams) {
                 onPinClick = { id ->
                     focusedRouteId = id
                     trackingRouteId = id
+                    params.onFocusRoute(id)
                 }
             )
 
@@ -253,6 +254,7 @@ data class MapScreenParams(
     val styleUrl: String,
     val routes: List<RouteOverlay>,
     val focusEntryId: Long?,
+    val onFocusRoute: (Long) -> Unit,
     val onStartFollow: (Long) -> Unit,
     val onOpenProfile: () -> Unit
 )

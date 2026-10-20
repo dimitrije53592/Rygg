@@ -57,6 +57,15 @@ class RyggTimer @Inject constructor() {
         _elapsed.value = baseMillis
     }
 
+    // Seeds a stopped timer with time accumulated before a process restart.
+    fun restore(elapsedMillis: Long) {
+        reset()
+        baseMillis = elapsedMillis
+        _elapsed.value = elapsedMillis
+    }
+
+    fun elapsedNow(): Long = currentMillis()
+
     fun reset() {
         stopTicking()
         baseMillis = 0L

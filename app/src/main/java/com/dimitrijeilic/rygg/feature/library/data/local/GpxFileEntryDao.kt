@@ -33,6 +33,15 @@ interface GpxFileEntryDao {
     @Query("DELETE FROM library WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("SELECT DISTINCT folder FROM library WHERE folder IS NOT NULL AND deletedAt IS NULL ORDER BY folder COLLATE NOCASE")
+    fun observeFolders(): Flow<List<String>>
+
+    @Query("SELECT id FROM library WHERE folder = :folder AND deletedAt IS NULL")
+    suspend fun getFolderMemberIds(folder: String): List<Long>
+
+    @Query("UPDATE library SET folder = :folder, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun setFolder(id: Long, folder: String?, updatedAt: Long)
+
     @Query("UPDATE library SET isFavorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
 
@@ -58,6 +67,10 @@ interface GpxFileEntryDao {
     // Owned rows already mirrored to the cloud — safe to drop from this device on sign-out.
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'SYNCED'")
     suspend fun getOwnedSynced(ownerUid: String): List<GpxFileEntryEntity>
+
+    // Accounts other than the signed-in one (or any, when signed out) that still own rows here.
+    @Query("SELECT DISTINCT ownerUid FROM library WHERE ownerUid IS NOT NULL AND (:currentUid IS NULL OR ownerUid != :currentUid)")
+    suspend fun getForeignOwners(currentUid: String?): List<String>
 
     // Every row an account owns, whatever its sync state — account deletion sweeps them all.
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid")

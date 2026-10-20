@@ -3,21 +3,24 @@ package com.dimitrijeilic.rygg.feature.details.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DetailsMetaCard(
     entry: GpxFileEntry,
@@ -31,12 +34,22 @@ fun DetailsMetaCard(
             .padding(RyggTheme.dimens.commonContentPadding16),
         verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing12)
     ) {
-        if (entry.tags.isNotEmpty()) {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8),
-                verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+        entry.folder?.let { folder ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
             ) {
-                entry.tags.forEach { tag -> TagChip(tag) }
+                Icon(
+                    painter = painterResource(R.drawable.ic_folder),
+                    contentDescription = stringResource(R.string.details_folder),
+                    tint = RyggTheme.getColor(RyggColor.TextSecondary),
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize16)
+                )
+                Text(
+                    text = folder,
+                    style = RyggTheme.typography.bodyMedium,
+                    color = RyggTheme.getColor(RyggColor.TextPrimary)
+                )
             }
         }
         if (entry.description.isNotBlank()) {
@@ -47,21 +60,4 @@ fun DetailsMetaCard(
             )
         }
     }
-}
-
-@Composable
-private fun TagChip(tag: String) {
-    Text(
-        text = tag,
-        style = RyggTheme.typography.labelMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = RyggTheme.getColor(RyggColor.BrandGreen),
-        modifier = Modifier
-            .clip(RyggShapes.small)
-            .background(RyggTheme.getColor(RyggColor.MossSurface))
-            .padding(
-                horizontal = RyggTheme.dimens.commonContentPadding12,
-                vertical = RyggTheme.dimens.commonContentPadding8
-            )
-    )
 }

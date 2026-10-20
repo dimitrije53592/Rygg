@@ -54,6 +54,12 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[RECORDING_RESOLUTION_KEY] = resolution.name }
     }
 
+    val batteryPromptSeen: Flow<Boolean> = dataStore.data.map { it[BATTERY_PROMPT_SEEN_KEY] ?: false }
+
+    suspend fun setBatteryPromptSeen() {
+        dataStore.edit { it[BATTERY_PROMPT_SEEN_KEY] = true }
+    }
+
     val offRouteAlertsEnabled: Flow<Boolean> = dataStore.data.map { it[OFF_ROUTE_ALERTS_KEY] ?: true }
 
     val offRouteThreshold: Flow<OffRouteThreshold> = dataStore.data.map { prefs ->
@@ -105,3 +111,4 @@ private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")
 private val OFF_ROUTE_ALERTS_KEY = booleanPreferencesKey("off_route_alerts_enabled")
 private val OFF_ROUTE_THRESHOLD_KEY = stringPreferencesKey("off_route_threshold")
+private val BATTERY_PROMPT_SEEN_KEY = booleanPreferencesKey("battery_prompt_seen")

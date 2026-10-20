@@ -23,6 +23,7 @@ object Dimensions {
     val followRouteToolbarPadding: Dp = 240.dp
 
     val detailsHeroHeight: Dp = 260.dp
+    val folderRouteListMaxHeight: Dp = 360.dp
     val elevationProfileHeight: Dp = 120.dp
     val detailsSkeletonStats: Dp = 168.dp
 

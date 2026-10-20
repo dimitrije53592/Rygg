@@ -41,6 +41,32 @@ class GpxFileEntryRepository @Inject constructor(
     fun observeGpxFileEntry(id: Long): Flow<GpxFileEntry?> =
         gpxFileEntryDao.observeById(id).map { entity -> entity?.toDomain() }
 
+    // A folder exists as long as one route is in it; there is no separate folder entity to sync.
+    fun observeFolders(): Flow<List<String>> = gpxFileEntryDao.observeFolders()
+
+    suspend fun setFolder(id: Long, folder: String?) {
+        gpxFileEntryDao.setFolder(id, folder?.trim()?.ifBlank { null }, System.currentTimeMillis())
+        routeSyncManager.onRouteChanged(id)
+    }
+
+    suspend fun createFolder(name: String, entryIds: Set<Long>) {
+        val folder = name.trim().ifBlank { return }
+        entryIds.forEach { id ->
+            val current = gpxFileEntryDao.getById(id) ?: return@forEach
+            if (current.folder != folder) setFolder(id, folder)
+        }
+    }
+
+    suspend fun renameFolder(name: String, newName: String) {
+        val folder = newName.trim().ifBlank { return }
+        if (folder == name) return
+        gpxFileEntryDao.getFolderMemberIds(name).forEach { setFolder(it, folder) }
+    }
+
+    suspend fun deleteFolder(name: String) {
+        gpxFileEntryDao.getFolderMemberIds(name).forEach { setFolder(it, null) }
+    }
+
     // Copy + parse a picked file into an unsaved entry (id = 0). The file is stored, but
     // nothing is inserted until persistGpxFile — see the import-preview flow.
     suspend fun stageGpxFile(uri: Uri, discipline: Discipline): Outcome<GpxFileEntry> = outcomeCatching {
@@ -79,7 +105,6 @@ class GpxFileEntryRepository @Inject constructor(
             maxLon = analysis.maxLon,
             pathPoints = analysis.simplifiedPath,
             folder = null,
-            tags = emptyList(),
             importedAt = now,
             updatedAt = now,
             creator = analysis.creator,
@@ -144,7 +169,6 @@ class GpxFileEntryRepository @Inject constructor(
             maxLon = analysis.maxLon,
             pathPoints = analysis.simplifiedPath,
             folder = null,
-            tags = emptyList(),
             importedAt = now,
             updatedAt = now,
             creator = analysis.creator,

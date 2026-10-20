@@ -73,6 +73,7 @@ fun DetailsWrapper(
                 onViewOnMap = onViewOnMap,
                 onToggleFavorite = { viewModel.onToggleFavorite() },
                 onRename = { viewModel.onRename(it) },
+                onSetFolder = viewModel::onSetFolder,
                 onSaveTrim = viewModel::onSaveTrim,
                 onDelete = {
                     viewModel.onDelete()

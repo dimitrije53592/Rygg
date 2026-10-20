@@ -7,6 +7,7 @@ import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.record.data.RecordingController
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingState
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
+import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,17 +15,23 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val recordingController: RecordingController
+    private val recordingController: RecordingController,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val selectedDiscipline = MutableStateFlow(Discipline.HIKE)
 
     val uiState: StateFlow<RecordUiState> =
-        combine(recordingController.snapshot, selectedDiscipline) { snapshot, discipline ->
+        combine(
+            recordingController.snapshot,
+            selectedDiscipline,
+            settingsRepository.batteryPromptSeen
+        ) { snapshot, discipline, batteryPromptSeen ->
             RecordUiState(
                 state = snapshot.state,
                 discipline = if (snapshot.state == RecordingState.IDLE) discipline else snapshot.discipline,
@@ -36,7 +43,8 @@ class RecordViewModel @Inject constructor(
                 pointCount = snapshot.pointCount,
                 waypointCount = snapshot.waypointCount,
                 gpsReady = snapshot.gpsReady,
-                locationOff = snapshot.locationOff
+                locationOff = snapshot.locationOff,
+                batteryPromptSeen = batteryPromptSeen
             )
         }.stateIn(
             scope = viewModelScope,
@@ -67,6 +75,10 @@ class RecordViewModel @Inject constructor(
     fun onAddWaypoint(name: String) {
         recordingController.addWaypoint(name)
     }
+
+    fun onBatteryPromptSeen() {
+        viewModelScope.launch { settingsRepository.setBatteryPromptSeen() }
+    }
 }
 
 data class RecordUiState(
@@ -80,5 +92,6 @@ data class RecordUiState(
     val pointCount: Int = 0,
     val waypointCount: Int = 0,
     val gpsReady: Boolean = false,
-    val locationOff: Boolean = false
+    val locationOff: Boolean = false,
+    val batteryPromptSeen: Boolean = true
 )

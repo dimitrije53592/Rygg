@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
@@ -65,6 +66,7 @@ fun DetailsHeroMap(
     onToggleFavorite: (() -> Unit)? = null,
     onRename: ((String) -> Unit)? = null,
     onTrim: (() -> Unit)? = null,
+    onMoveToFolder: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
     onShareFile: (() -> Unit)? = null,
@@ -134,6 +136,7 @@ fun DetailsHeroMap(
                         onToggleFavorite = onToggleFavorite,
                         onRename = onRename,
                         onTrim = onTrim,
+                        onMoveToFolder = onMoveToFolder,
                         onDelete = onDelete
                     )
                 }
@@ -225,6 +228,7 @@ private fun HeroOverflowMenu(
     onToggleFavorite: () -> Unit,
     onRename: (String) -> Unit,
     onTrim: (() -> Unit)?,
+    onMoveToFolder: (() -> Unit)?,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -283,6 +287,22 @@ private fun HeroOverflowMenu(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.ContentCut,
+                            contentDescription = null,
+                            tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        it()
+                    }
+                )
+            }
+            onMoveToFolder?.let {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.details_move_to_folder)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Folder,
                             contentDescription = null,
                             tint = RyggTheme.getColor(RyggColor.BrandGreen)
                         )

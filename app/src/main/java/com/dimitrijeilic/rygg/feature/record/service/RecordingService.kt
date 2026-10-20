@@ -77,14 +77,49 @@ class RecordingService : Service() {
 
             ACTION_STOP -> {
                 controller.stop()
-                isForeground = false
-                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-                stopSelf()
+                stopForegroundAndSelf()
+            }
+
+            ACTION_RECOVER -> recover(alwaysResume = true)
+
+            // Null intent: the system restarted us after killing the process mid-recording.
+            null -> recover(alwaysResume = false)
+        }
+        // Sticky so a killed recording is restarted and rebuilt from the journal.
+        return START_STICKY
+    }
+
+    private fun recover(alwaysResume: Boolean) {
+        // Android 12+ may refuse a foreground start from the background; the journal is kept, and
+        // the app offers to recover on next launch instead.
+        if (!tryStartForeground()) {
+            stopSelf()
+            return
+        }
+        serviceScope.launch {
+            val recovered = controller.recover()
+            when {
+                recovered == null && controller.isIdle() -> stopForegroundAndSelf()
+                recovered == null -> Unit
+                alwaysResume || recovered.state != RecordingState.PAUSED -> controller.resume()
             }
         }
-        // Not sticky: after a process kill the in-memory recording is gone, so a null-intent
-        // redelivery would only resurrect a service that never re-enters the foreground.
-        return START_NOT_STICKY
+    }
+
+    private fun tryStartForeground(): Boolean =
+        try {
+            startForegroundRecording()
+            true
+        } catch (e: IllegalStateException) {
+            false
+        } catch (e: SecurityException) {
+            false
+        }
+
+    private fun stopForegroundAndSelf() {
+        isForeground = false
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun startForegroundRecording() {
@@ -160,6 +195,7 @@ class RecordingService : Service() {
         const val ACTION_PAUSE = "com.dimitrijeilic.rygg.record.PAUSE"
         const val ACTION_RESUME = "com.dimitrijeilic.rygg.record.RESUME"
         const val ACTION_STOP = "com.dimitrijeilic.rygg.record.STOP"
+        const val ACTION_RECOVER = "com.dimitrijeilic.rygg.record.RECOVER"
         const val EXTRA_DISCIPLINE = "discipline"
 
         private const val REQUEST_CODE_PAUSE = 100
@@ -175,6 +211,8 @@ class RecordingService : Service() {
         fun resume(context: Context) = send(context, ACTION_RESUME)
 
         fun stop(context: Context) = send(context, ACTION_STOP)
+
+        fun recover(context: Context) = send(context, ACTION_RECOVER, foreground = true)
 
         // Only START promotes the service to the foreground. Control actions target the already
         // running service via startService, so they don't owe the system a startForeground()
