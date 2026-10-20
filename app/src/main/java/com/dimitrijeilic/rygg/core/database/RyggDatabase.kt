@@ -10,6 +10,8 @@ import com.dimitrijeilic.rygg.feature.record.data.local.RecordingDao
 import com.dimitrijeilic.rygg.feature.record.data.local.RecordingPointEntity
 import com.dimitrijeilic.rygg.feature.record.data.local.RecordingSessionEntity
 
+// From launch on, every version bump ships a Migration and its exported schema under app/schemas:
+// once users have libraries, a destructive fallback would wipe them.
 @Database(
     entities = [
         GpxFileEntryEntity::class,
@@ -18,7 +20,7 @@ import com.dimitrijeilic.rygg.feature.record.data.local.RecordingSessionEntity
         RouteOverviewEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class RyggDatabase : RoomDatabase() {
     abstract fun gpxFileEntryDao(): GpxFileEntryDao

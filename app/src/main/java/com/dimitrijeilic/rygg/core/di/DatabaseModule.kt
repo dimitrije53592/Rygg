@@ -20,7 +20,6 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): RyggDatabase =
         Room.databaseBuilder(context, RyggDatabase::class.java, "rygg.db")
-            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
     @Provides
