@@ -31,8 +31,8 @@ import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggSecondaryButton
-import com.dimitrijeilic.rygg.core.ui.components.shimmer
 import com.dimitrijeilic.rygg.core.ui.components.RyggTextField
+import com.dimitrijeilic.rygg.core.ui.components.shimmer
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme

@@ -25,8 +25,8 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.core.ui.utils.formatPointCount
-import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
+import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 
 @Composable
 fun DetailsContentsCard(

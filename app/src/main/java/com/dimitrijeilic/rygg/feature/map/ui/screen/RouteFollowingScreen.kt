@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Icon
@@ -34,15 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.dimitrijeilic.rygg.R
-import com.dimitrijeilic.rygg.core.ui.theme.ryggElevation
-import com.dimitrijeilic.rygg.core.ui.theme.RyggElevation
 import com.dimitrijeilic.rygg.core.location.LocationPurpose
-import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
 import com.dimitrijeilic.rygg.core.ui.components.KeepScreenOn
 import com.dimitrijeilic.rygg.core.ui.components.LoadingIndicator
+import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
-import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
+import com.dimitrijeilic.rygg.core.ui.theme.RyggElevation
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
+import com.dimitrijeilic.rygg.core.ui.theme.ryggElevation
 import com.dimitrijeilic.rygg.core.ui.utils.rememberLocationGate
 import com.dimitrijeilic.rygg.core.units.Quantity
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
@@ -57,13 +56,13 @@ import com.dimitrijeilic.rygg.feature.map.ui.util.toPuckLocation
 import com.dimitrijeilic.rygg.feature.map.ui.viewmodel.PREVIEW_SPEED_METERS_PER_SECOND
 import com.dimitrijeilic.rygg.feature.map.ui.viewmodel.RouteFollowingPhase
 import com.dimitrijeilic.rygg.feature.map.ui.viewmodel.RouteFollowingUiState
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.launch
 import org.maplibre.compose.camera.CameraMoveReason
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.CameraState
 import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.spatialk.geojson.Position
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RouteFollowingScreen(

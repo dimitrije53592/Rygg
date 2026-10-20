@@ -12,6 +12,7 @@ class GpxTrimmer @Inject constructor() {
         val toMeters = total * endFraction.coerceIn(0.0, 1.0)
 
         var travelled = 0.0
+
         fun keep(points: List<GpxPoint>): List<GpxPoint> {
             val kept = mutableListOf<GpxPoint>()
             points.forEachIndexed { index, point ->

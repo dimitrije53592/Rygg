@@ -4,5 +4,5 @@ package com.dimitrijeilic.rygg.feature.auth.domain
 // action (account deletion) asks for.
 enum class SignInMethod {
     PASSWORD,
-    GOOGLE,
+    GOOGLE
 }

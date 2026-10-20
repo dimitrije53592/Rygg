@@ -17,8 +17,8 @@ import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
-import com.dimitrijeilic.rygg.feature.map.ui.util.absorbTouches
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
+import com.dimitrijeilic.rygg.feature.map.ui.util.absorbTouches
 
 @Composable
 fun FarAwayCard(

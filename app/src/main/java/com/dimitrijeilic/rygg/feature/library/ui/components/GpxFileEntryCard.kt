@@ -49,12 +49,12 @@ import com.dimitrijeilic.rygg.core.ui.theme.ryggElevation
 import com.dimitrijeilic.rygg.core.ui.utils.formatDate
 import com.dimitrijeilic.rygg.core.ui.utils.formatDurationHoursMinutes
 import com.dimitrijeilic.rygg.core.ui.utils.formatPointCount
+import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.library.domain.EntrySource
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.domain.SyncStatus
 import com.dimitrijeilic.rygg.feature.library.ui.paramproviders.GpxFileEntryProvider
-import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
 
 @Composable
 fun GpxFileEntryCard(

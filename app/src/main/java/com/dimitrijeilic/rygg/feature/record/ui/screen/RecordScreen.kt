@@ -63,12 +63,12 @@ import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
 import com.dimitrijeilic.rygg.core.ui.components.RyggDialog
 import com.dimitrijeilic.rygg.core.ui.components.RyggHoldButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
+import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggSecondaryButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggSegmentedControl
 import com.dimitrijeilic.rygg.core.ui.components.RyggStat
 import com.dimitrijeilic.rygg.core.ui.components.RyggStatSize
 import com.dimitrijeilic.rygg.core.ui.components.RyggTextField
-import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggTopAppBar
 import com.dimitrijeilic.rygg.core.ui.components.pressScale
 import com.dimitrijeilic.rygg.core.ui.components.screenContourLines
