@@ -41,6 +41,14 @@ class GpxFileEntryRepository @Inject constructor(
     fun observeGpxFileEntry(id: Long): Flow<GpxFileEntry?> =
         gpxFileEntryDao.observeById(id).map { entity -> entity?.toDomain() }
 
+    // A folder exists as long as one route is in it; there is no separate folder entity to sync.
+    fun observeFolders(): Flow<List<String>> = gpxFileEntryDao.observeFolders()
+
+    suspend fun setFolder(id: Long, folder: String?) {
+        gpxFileEntryDao.setFolder(id, folder?.trim()?.ifBlank { null }, System.currentTimeMillis())
+        routeSyncManager.onRouteChanged(id)
+    }
+
     // Copy + parse a picked file into an unsaved entry (id = 0). The file is stored, but
     // nothing is inserted until persistGpxFile — see the import-preview flow.
     suspend fun stageGpxFile(uri: Uri, discipline: Discipline): Outcome<GpxFileEntry> = outcomeCatching {

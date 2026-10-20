@@ -119,6 +119,12 @@
     <string name="details_favorite">Dodaj u označene zvezdicom</string>
     <string name="details_unfavorite">Ukloni iz označenih zvezdicom</string>
     <string name="details_rename">Preimenuj</string>
+    <string name="details_move_to_folder">Premesti u folder</string>
+    <string name="details_folder">Folder</string>
+    <string name="details_folder_title">Premesti u folder</string>
+    <string name="details_folder_none">Bez foldera</string>
+    <string name="details_folder_new_hint">Naziv novog foldera</string>
+    <string name="details_folder_create">Napravi</string>
     <string name="details_rename_title">Preimenuj rutu</string>
     <string name="details_rename_hint">Naziv rute</string>
     <string name="details_rename_save">Sačuvaj</string>

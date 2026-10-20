@@ -42,6 +42,7 @@ import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsMetaCard
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsSectionTitle
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsStatsGrid
 import com.dimitrijeilic.rygg.feature.details.ui.components.ElevationProfile
+import com.dimitrijeilic.rygg.feature.details.ui.components.FolderPickerSheet
 import com.dimitrijeilic.rygg.feature.details.ui.paramproviders.DetailsParamsProvider
 import com.dimitrijeilic.rygg.feature.details.ui.viewmodel.DetailsLoadingState
 import com.dimitrijeilic.rygg.feature.details.ui.viewmodel.DetailsUiState
@@ -137,6 +138,7 @@ private fun LoadedContent(
     // Hoisted so dragging the elevation profile can mark the matching point on the hero route.
     var scrubFraction by remember { mutableStateOf<Float?>(null) }
     var trimRange by remember(entry.id) { mutableStateOf<ClosedFloatingPointRange<Float>?>(null) }
+    var showFolderSheet by remember { mutableStateOf(false) }
     val viewMode = mode as? DetailsMode.View
     val trimCopyName = stringResource(R.string.details_trim_copy_name, entry.name)
 
@@ -161,6 +163,7 @@ private fun LoadedContent(
                 } else {
                     null
                 },
+                onMoveToFolder = viewMode?.let { { showFolderSheet = true } },
                 onDelete = (mode as? DetailsMode.View)?.onDelete,
                 onShareLink = (mode as? DetailsMode.View)?.onShareLink,
                 onShareFile = (mode as? DetailsMode.View)?.onShareFile,
@@ -215,7 +218,7 @@ private fun LoadedContent(
                     DetailsContentsCard(entry)
                 }
 
-                if (entry.description.isNotBlank()) {
+                if (entry.description.isNotBlank() || entry.folder != null) {
                     Section(title = stringResource(R.string.details_details)) {
                         DetailsMetaCard(entry)
                     }
@@ -233,6 +236,18 @@ private fun LoadedContent(
         } else {
             BottomActionBar(mode = mode, entryId = entry.id, onNavigateBack = params.onNavigateBack)
         }
+    }
+
+    if (showFolderSheet && viewMode != null) {
+        FolderPickerSheet(
+            currentFolder = entry.folder,
+            folders = params.uiState.folders,
+            onFolderPicked = { folder ->
+                showFolderSheet = false
+                viewMode.onSetFolder(folder)
+            },
+            onDismiss = { showFolderSheet = false }
+        )
     }
 }
 
@@ -388,6 +403,7 @@ sealed interface DetailsMode {
         val onViewOnMap: (Long) -> Unit,
         val onToggleFavorite: () -> Unit,
         val onRename: (String) -> Unit,
+        val onSetFolder: (String?) -> Unit,
         val onSaveTrim: (Double, Double, String) -> Unit,
         val onDelete: () -> Unit,
         val onShareLink: () -> Unit,

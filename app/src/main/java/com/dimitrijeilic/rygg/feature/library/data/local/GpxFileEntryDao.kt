@@ -33,6 +33,12 @@ interface GpxFileEntryDao {
     @Query("DELETE FROM library WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("SELECT DISTINCT folder FROM library WHERE folder IS NOT NULL AND deletedAt IS NULL ORDER BY folder COLLATE NOCASE")
+    fun observeFolders(): Flow<List<String>>
+
+    @Query("UPDATE library SET folder = :folder, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun setFolder(id: Long, folder: String?, updatedAt: Long)
+
     @Query("UPDATE library SET isFavorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
 

@@ -118,6 +118,12 @@
     <string name="details_favorite">Add to starred</string>
     <string name="details_unfavorite">Remove from starred</string>
     <string name="details_rename">Rename</string>
+    <string name="details_move_to_folder">Move to folder</string>
+    <string name="details_folder">Folder</string>
+    <string name="details_folder_title">Move to folder</string>
+    <string name="details_folder_none">No folder</string>
+    <string name="details_folder_new_hint">New folder name</string>
+    <string name="details_folder_create">Create</string>
     <string name="details_rename_title">Rename route</string>
     <string name="details_rename_hint">Route name</string>
     <string name="details_rename_save">Save</string>
