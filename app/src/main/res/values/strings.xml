@@ -218,6 +218,7 @@
     <string name="settings_sync_title">Sync &amp; backup</string>
     <string name="settings_sync_enabled">Back up my routes</string>
     <string name="settings_sync_wifi_only">Sync files on Wi-Fi only</string>
+    <string name="settings_sync_photos">Sync photos</string>
     <string name="settings_sync_description">Keep your routes safe in the cloud and in sync across your devices.</string>
 
     <!-- Record -->

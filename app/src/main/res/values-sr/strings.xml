@@ -220,6 +220,7 @@
     <string name="settings_sync_title">Sinhronizacija i rezervna kopija</string>
     <string name="settings_sync_enabled">Napravi rezervnu kopiju mojih ruta</string>
     <string name="settings_sync_wifi_only">Sinhronizuj datoteke samo preko Wi-Fi-ja</string>
+    <string name="settings_sync_photos">Sinhronizuj fotografije</string>
     <string name="settings_sync_description">Čuvajte svoje rute bezbedno u oblaku i sinhronizovane između uređaja.</string>
 
     <!-- Record -->

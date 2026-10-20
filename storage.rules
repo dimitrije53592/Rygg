@@ -14,6 +14,16 @@ service firebase.storage {
                             && request.resource.size < 20 * 1024 * 1024;
     }
 
+    // A signed-in account's route photos (users/{uid}/images/{imageId}.jpg). Capped at 5 MB to
+    // mirror MAX_IMAGE_BYTES; the app only ever uploads re-encoded JPEGs.
+    match /users/{uid}/images/{imageId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+                            && request.auth.uid == uid
+                            && request.resource.size < 5 * 1024 * 1024
+                            && request.resource.contentType == 'image/jpeg';
+    }
+
     // Public share copies: world-readable. An authed user may only CREATE a new object
     // (resource == null) — existing share blobs are immutable, so nobody can overwrite or tamper
     // with a route someone else already shared. The blob carries no owner, so delete is checked

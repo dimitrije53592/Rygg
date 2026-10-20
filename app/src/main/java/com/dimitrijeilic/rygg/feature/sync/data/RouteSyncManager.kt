@@ -13,11 +13,14 @@ import com.dimitrijeilic.rygg.core.common.outcomeCatching
 import com.dimitrijeilic.rygg.core.ui.utils.RouteShareLinks
 import com.dimitrijeilic.rygg.feature.auth.data.AuthRepository
 import com.dimitrijeilic.rygg.feature.library.data.GpxStorage
+import com.dimitrijeilic.rygg.feature.library.data.RouteImageStorage
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryEntity
+import com.dimitrijeilic.rygg.feature.library.data.local.RouteImageDao
 import com.dimitrijeilic.rygg.feature.library.data.local.RouteImageEntity
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
+import com.dimitrijeilic.rygg.feature.sync.data.remote.RemoteImage
 import com.dimitrijeilic.rygg.feature.sync.data.remote.RemoteRoute
 import com.dimitrijeilic.rygg.feature.sync.data.remote.SharedRoute
 import com.dimitrijeilic.rygg.feature.sync.data.remote.toNewEntity
@@ -41,7 +44,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.uuid.Uuid
 
-// Mirrors the local Room library to Firestore (metadata) + Cloud Storage (.gpx files) for the
+// Mirrors the local Room library to Firestore (metadata) + Cloud Storage (.gpx files, photos) for the
 // signed-in account, and backs the "link -> save a copy" sharing flow. Offline-first: metadata
 // writes ride Firestore's offline queue (no await), file transfers are WorkManager jobs.
 @Singleton
@@ -51,6 +54,8 @@ class RouteSyncManager @Inject constructor(
     private val storage: FirebaseStorage,
     private val dao: GpxFileEntryDao,
     private val gpxStorage: GpxStorage,
+    private val imageDao: RouteImageDao,
+    private val imageStorage: RouteImageStorage,
     private val auth: AuthRepository,
     private val settings: SettingsRepository
 ) {
@@ -70,6 +75,7 @@ class RouteSyncManager @Inject constructor(
         adoptGuestRoutes(uid)
         startPull(uid)
         pushPending(uid)
+        pushImageTransfers(uid)
     }
 
     // Drop the account's synced routes (safe in the cloud, re-pull next sign-in); unsynced ones
@@ -87,11 +93,30 @@ class RouteSyncManager @Inject constructor(
     }
 
     private suspend fun releaseRoutes(ownerUid: String) {
-        (dao.getOwnedSynced(ownerUid) + dao.getOwnedPendingDelete(ownerUid)).forEach { entity ->
-            if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
-            dao.deleteById(entity.id)
-        }
+        (dao.getOwnedSynced(ownerUid) + dao.getOwnedPendingDelete(ownerUid)).forEach { deleteLocalRoute(it) }
+        releaseImages(ownerUid, includeSynced = false)
         dao.revertOwnedUnsyncedToGuest(ownerUid)
+    }
+
+    // Photos of routes reverting to guest rows: drop the never-downloaded ones, and mark the rest
+    // for re-upload under whichever account adopts the route next.
+    private suspend fun releaseImages(ownerUid: String, includeSynced: Boolean) {
+        imageDao.getForReverting(ownerUid, includeSynced).filter { !it.fileDownloaded }.forEach {
+            workManager.cancelUniqueWork("image-download-${it.id}")
+            imageDao.deleteById(it.id)
+        }
+        imageDao.resetUploaded(ownerUid, includeSynced)
+    }
+
+    // Removes a route row with its .gpx and photo files; Room cascades the photo rows.
+    private suspend fun deleteLocalRoute(entity: GpxFileEntryEntity) {
+        imageDao.getForEntry(entity.id).forEach { image ->
+            workManager.cancelUniqueWork("image-upload-${image.id}")
+            workManager.cancelUniqueWork("image-download-${image.id}")
+            imageStorage.delete(image.id)
+        }
+        if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
+        dao.deleteById(entity.id)
     }
 
     // Sync turned off while signed in: detach the pull, keep local data. onSignedIn resumes it.
@@ -117,6 +142,12 @@ class RouteSyncManager @Inject constructor(
             workManager.cancelUniqueWork("upload-$remoteId")
             workManager.cancelUniqueWork("download-$remoteId")
         }
+        owned.forEach { entity ->
+            imageDao.getForEntry(entity.id).forEach { image ->
+                workManager.cancelUniqueWork("image-upload-${image.id}")
+                workManager.cancelUniqueWork("image-download-${image.id}")
+            }
+        }
 
         // Blob before snapshot: storage.rules checks the snapshot's ownerUid to allow the delete.
         sharedRoutes.whereEqualTo("ownerUid", uid).get(Source.SERVER).await().documents.forEach { doc ->
@@ -134,12 +165,11 @@ class RouteSyncManager @Inject constructor(
         }
 
         storage.reference.child("users/$uid").listAll().await().items.forEach { it.deleteIfExists() }
+        storage.reference.child("users/$uid/images").listAll().await().items.forEach { it.deleteIfExists() }
 
         // Ghost rows (no local file) and pending tombstones have nothing left to keep.
-        owned.filter { !it.fileDownloaded || it.syncStatus == "PENDING_DELETE" }.forEach { entity ->
-            if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
-            dao.deleteById(entity.id)
-        }
+        owned.filter { !it.fileDownloaded || it.syncStatus == "PENDING_DELETE" }.forEach { deleteLocalRoute(it) }
+        releaseImages(uid, includeSynced = true)
         dao.revertOwnedToGuest(uid)
     }
 
@@ -157,8 +187,7 @@ class RouteSyncManager @Inject constructor(
         dao.getGuestRoutes().forEach { guest ->
             val localDupe = dao.getByContentHash(uid, guest.contentHash)
             if (localDupe != null) {
-                gpxStorage.deleteFile(guest.fileName)
-                dao.deleteById(guest.id)
+                deleteLocalRoute(guest)
                 return@forEach
             }
             val remoteMatch = findRemoteByContentHash(uid, guest.contentHash)
@@ -206,7 +235,9 @@ class RouteSyncManager @Inject constructor(
             entity.fileDownloaded && entity.fileName.isNotEmpty() && !entity.fileUploaded
         // Eager, no-await metadata write (rides Firestore's offline queue). The row stays
         // PENDING_UPLOAD until the server acks, so the badge is only "backed up" once it truly is.
-        userRoutes(uid).document(remoteId).set(entity.toRemote(remoteId, storagePath))
+        val images = imageDao.getForEntry(entity.id)
+        val syncedImages = images.filter { it.fileUploaded }.map { it.toRemote() }
+        userRoutes(uid).document(remoteId).set(entity.toRemote(remoteId, storagePath, syncedImages))
             .addOnSuccessListener {
                 if (!needsFileUpload) scope.launch { dao.setSyncStatus(entity.id, "SYNCED") }
             }
@@ -214,6 +245,20 @@ class RouteSyncManager @Inject constructor(
             // Any network: a small .gpx shouldn't wait for Wi-Fi, and a doc with no file is a
             // "ghost" on other devices. The Wi-Fi-only setting still gates bulk incoming downloads.
             enqueueUpload(entity.id, uid, remoteId, entity.fileName, wifiOnly = false)
+        }
+        if (settings.currentSyncPhotos()) {
+            val wifiOnly = settings.currentSyncWifiOnly()
+            images.filter { !it.fileUploaded && it.fileDownloaded }.forEach { enqueueImageUpload(uid, it.id, wifiOnly) }
+        }
+    }
+
+    // Starts every photo transfer still owed for this account; photos wait for the "Sync photos"
+    // setting, so this also runs when it is switched back on.
+    suspend fun pushImageTransfers(uid: String) {
+        if (!settings.currentSyncEnabled() || !settings.currentSyncPhotos()) return
+        val wifiOnly = settings.currentSyncWifiOnly()
+        imageDao.getPendingTransfers(uid).forEach { image ->
+            if (image.fileDownloaded) enqueueImageUpload(uid, image.id, wifiOnly) else enqueueImageDownload(uid, image.id, wifiOnly)
         }
     }
 
@@ -234,16 +279,15 @@ class RouteSyncManager @Inject constructor(
         val local = dao.getByRemoteId(remote.remoteId)
 
         if (change.type == DocumentChange.Type.REMOVED || remote.deletedAt != null) {
-            if (local != null) {
-                gpxStorage.deleteFile(local.fileName)
-                dao.deleteById(local.id)
-            }
+            if (local != null) deleteLocalRoute(local)
             return
         }
         if (local == null) {
             val newId = dao.insert(remote.toNewEntity(uid))
             enqueueDownload(newId, uid, remote.remoteId, immediate = false, wifiOnly = settings.currentSyncWifiOnly())
+            applyRemoteImages(uid, newId, remote.images)
         } else if (remote.updatedAt > local.updatedAt) {
+            applyRemoteImages(uid, local.id, remote.images)
             val contentChanged =
                 remote.contentHash.isNotEmpty() && remote.contentHash != local.contentHash
             // Last-write-wins: newer remote metadata replaces the local copy.
@@ -253,6 +297,29 @@ class RouteSyncManager @Inject constructor(
                 dao.markFileMissing(local.id)
                 enqueueDownload(local.id, uid, remote.remoteId, immediate = false, wifiOnly = settings.currentSyncWifiOnly())
             }
+        }
+    }
+
+    // Make the route's photos match the doc. A local photo missing from the doc is dropped only if
+    // it was uploaded (so another device deleted it); unuploaded ones are kept and go last.
+    private suspend fun applyRemoteImages(uid: String, entryId: Long, remoteImages: List<RemoteImage>) {
+        val local = imageDao.getForEntry(entryId)
+        val remoteIds = remoteImages.map { it.id }.toSet()
+        local.filter { it.fileUploaded && it.id !in remoteIds }.forEach { image ->
+            workManager.cancelUniqueWork("image-download-${image.id}")
+            imageStorage.delete(image.id)
+            imageDao.deleteById(image.id)
+        }
+        val localIds = local.map { it.id }.toSet()
+        val fresh = remoteImages.filter { it.id !in localIds }
+        imageDao.insertAll(fresh.map { it.toNewEntity(entryId) })
+        imageDao.setPositions(
+            remoteImages.sortedBy { it.position }.map { it.id } +
+                local.filter { !it.fileUploaded }.sortedBy { it.position }.map { it.id }
+        )
+        if (settings.currentSyncPhotos()) {
+            val wifiOnly = settings.currentSyncWifiOnly()
+            fresh.forEach { enqueueImageDownload(uid, it.id, wifiOnly) }
         }
     }
 
@@ -286,7 +353,10 @@ class RouteSyncManager @Inject constructor(
 
     // A photo was removed locally: re-push the route so the doc drops it.
     suspend fun onImageDeleted(image: RouteImageEntity) {
+        workManager.cancelUniqueWork("image-upload-${image.id}")
         onRouteChanged(image.entryId)
+        val uid = auth.currentUser()?.uid ?: return
+        if (image.fileUploaded) runCatching { storage.reference.child(imagePath(uid, image.id)).delete() }
     }
 
     // Delete locally and, if owned, remove the cloud copies. An owned delete records a
@@ -295,8 +365,7 @@ class RouteSyncManager @Inject constructor(
         val entity = dao.getById(entry.id) ?: return
         val uid = entity.ownerUid
         if (uid == null || entity.remoteId == null) {
-            if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
-            dao.deleteById(entity.id)
+            deleteLocalRoute(entity)
             return
         }
         dao.markPendingDelete(entity.id, System.currentTimeMillis())
@@ -310,8 +379,10 @@ class RouteSyncManager @Inject constructor(
             userRoutes(uid).document(remoteId).delete()
             runCatching { storage.reference.child("users/$uid/$remoteId.gpx").delete() }
         }
-        if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
-        dao.deleteById(entity.id)
+        imageDao.getForEntry(entity.id).filter { it.fileUploaded }.forEach { image ->
+            runCatching { storage.reference.child(imagePath(uid, image.id)).delete() }
+        }
+        deleteLocalRoute(entity)
     }
 
     // Force-fetch a pulled route's .gpx immediately (e.g. the user just opened it).
@@ -357,6 +428,7 @@ class RouteSyncManager @Inject constructor(
             local = dao.getById(entry.id)!!
             userRoutes(uid).document(remoteId).set(local.toRemote(remoteId, "users/$uid/$remoteId.gpx"))
             enqueueUpload(entry.id, uid, remoteId, local.fileName, settings.currentSyncWifiOnly())
+            pushImageTransfers(uid)
         }
 
         val token = Uuid.random().toString().replace("-", "")
@@ -447,6 +519,34 @@ class RouteSyncManager @Inject constructor(
         workManager.enqueueUniqueWork("download-$remoteId", policy, request)
     }
 
+    private fun enqueueImageUpload(uid: String, imageId: String, wifiOnly: Boolean) {
+        val network = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+        val request = OneTimeWorkRequestBuilder<RouteImageUploadWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(network).build())
+            .setInputData(
+                workDataOf(
+                    RouteImageUploadWorker.KEY_IMAGE_ID to imageId,
+                    RouteImageUploadWorker.KEY_UID to uid
+                )
+            )
+            .build()
+        workManager.enqueueUniqueWork("image-upload-$imageId", ExistingWorkPolicy.KEEP, request)
+    }
+
+    private fun enqueueImageDownload(uid: String, imageId: String, wifiOnly: Boolean) {
+        val network = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+        val request = OneTimeWorkRequestBuilder<RouteImageDownloadWorker>()
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(network).build())
+            .setInputData(
+                workDataOf(
+                    RouteImageDownloadWorker.KEY_IMAGE_ID to imageId,
+                    RouteImageDownloadWorker.KEY_UID to uid
+                )
+            )
+            .build()
+        workManager.enqueueUniqueWork("image-download-$imageId", ExistingWorkPolicy.KEEP, request)
+    }
+
     companion object {
         const val ERR_SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED"
         const val ERR_ROUTE_MISSING = "ROUTE_MISSING"
@@ -454,6 +554,12 @@ class RouteSyncManager @Inject constructor(
         const val ERR_NOT_FOUND = "NOT_FOUND"
 
         private const val MAX_FILE_BYTES = 20L * 1024 * 1024
+
+        // Mirrors the 5 MB cap in storage.rules; re-encoded 2048px JPEGs stay well under it.
+        const val MAX_IMAGE_BYTES = 5L * 1024 * 1024
+
+        // Flat per-account folder, so account deletion can sweep it with a single listAll.
+        fun imagePath(uid: String, imageId: String) = "users/$uid/images/$imageId.jpg"
 
         // Firestore caps a write batch at 500 operations.
         private const val MAX_BATCH_WRITES = 500

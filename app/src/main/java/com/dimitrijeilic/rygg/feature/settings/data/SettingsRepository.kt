@@ -78,6 +78,7 @@ class SettingsRepository @Inject constructor(
     // Cloud sync preferences. Sync is on by default; files transfer on Wi-Fi by default.
     val syncEnabled: Flow<Boolean> = dataStore.data.map { it[SYNC_ENABLED_KEY] ?: true }
     val syncWifiOnly: Flow<Boolean> = dataStore.data.map { it[SYNC_WIFI_ONLY_KEY] ?: true }
+    val syncPhotos: Flow<Boolean> = dataStore.data.map { it[SYNC_PHOTOS_KEY] ?: true }
 
     suspend fun setSyncEnabled(enabled: Boolean) {
         dataStore.edit { it[SYNC_ENABLED_KEY] = enabled }
@@ -87,9 +88,15 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { it[SYNC_WIFI_ONLY_KEY] = wifiOnly }
     }
 
+    suspend fun setSyncPhotos(enabled: Boolean) {
+        dataStore.edit { it[SYNC_PHOTOS_KEY] = enabled }
+    }
+
     suspend fun currentSyncEnabled(): Boolean = syncEnabled.first()
 
     suspend fun currentSyncWifiOnly(): Boolean = syncWifiOnly.first()
+
+    suspend fun currentSyncPhotos(): Boolean = syncPhotos.first()
 
     fun currentLanguage(): AppLanguage {
         val tag = AppLocaleStore.getLanguageTag(context)
@@ -109,6 +116,7 @@ private val MEASUREMENT_SYSTEM_KEY = stringPreferencesKey("measurement_system")
 private val RECORDING_RESOLUTION_KEY = stringPreferencesKey("recording_resolution")
 private val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
 private val SYNC_WIFI_ONLY_KEY = booleanPreferencesKey("sync_wifi_only")
+private val SYNC_PHOTOS_KEY = booleanPreferencesKey("sync_photos")
 private val OFF_ROUTE_ALERTS_KEY = booleanPreferencesKey("off_route_alerts_enabled")
 private val OFF_ROUTE_THRESHOLD_KEY = stringPreferencesKey("off_route_threshold")
 private val BATTERY_PROMPT_SEEN_KEY = booleanPreferencesKey("battery_prompt_seen")

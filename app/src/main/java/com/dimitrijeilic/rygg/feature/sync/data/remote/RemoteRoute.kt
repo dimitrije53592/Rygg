@@ -3,6 +3,7 @@ package com.dimitrijeilic.rygg.feature.sync.data.remote
 import com.dimitrijeilic.rygg.core.gpx.decodeGeoPoints
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryEntity
+import com.dimitrijeilic.rygg.feature.library.data.local.RouteImageEntity
 import com.dimitrijeilic.rygg.feature.library.domain.EntrySource
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.domain.SyncStatus
@@ -42,7 +43,37 @@ data class RemoteRoute(
     val originalFileName: String? = null,
     val contentHash: String = "",
     val storagePath: String? = null,
-    val deletedAt: Long? = null
+    val deletedAt: Long? = null,
+    // Only photos whose bytes are already in Storage; shared snapshots always leave this empty.
+    val images: List<RemoteImage> = emptyList()
+)
+
+data class RemoteImage(
+    val id: String = "",
+    val position: Int = 0,
+    val width: Int = 0,
+    val height: Int = 0,
+    val createdAt: Long = 0
+)
+
+fun RouteImageEntity.toRemote(): RemoteImage = RemoteImage(
+    id = id,
+    position = position,
+    width = width,
+    height = height,
+    createdAt = createdAt
+)
+
+// A photo first seen in a pulled doc: its bytes are in Storage but not on this device yet.
+fun RemoteImage.toNewEntity(entryId: Long): RouteImageEntity = RouteImageEntity(
+    id = id,
+    entryId = entryId,
+    position = position,
+    width = width,
+    height = height,
+    createdAt = createdAt,
+    fileDownloaded = false,
+    fileUploaded = true
 )
 
 // Public snapshot created at share time (sharedRoutes/{token}); readable by anyone with the token.
@@ -96,7 +127,11 @@ fun RemoteRoute.toPreviewEntry(): GpxFileEntry = GpxFileEntry(
     originalFileName = originalFileName
 )
 
-fun GpxFileEntryEntity.toRemote(remoteId: String, storagePath: String): RemoteRoute = RemoteRoute(
+fun GpxFileEntryEntity.toRemote(
+    remoteId: String,
+    storagePath: String,
+    images: List<RemoteImage> = emptyList()
+): RemoteRoute = RemoteRoute(
     remoteId = remoteId,
     name = name,
     description = description,
@@ -129,7 +164,8 @@ fun GpxFileEntryEntity.toRemote(remoteId: String, storagePath: String): RemoteRo
     originalFileName = originalFileName,
     contentHash = contentHash,
     storagePath = storagePath,
-    deletedAt = deletedAt
+    deletedAt = deletedAt,
+    images = images
 )
 
 // A new local row for a route first seen on another device; its file downloads later.

@@ -54,6 +54,7 @@ fun SettingsWrapper(
             onMeasurementSystemSelected = viewModel::setMeasurementSystem,
             onSyncEnabledChanged = viewModel::setSyncEnabled,
             onSyncWifiOnlyChanged = viewModel::setSyncWifiOnly,
+            onSyncPhotosChanged = viewModel::setSyncPhotos,
             onRecordingResolutionSelected = viewModel::setRecordingResolution,
             onOffRouteAlertsChanged = viewModel::setOffRouteAlertsEnabled,
             onOffRouteThresholdSelected = viewModel::setOffRouteThreshold,

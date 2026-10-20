@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Policy
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -188,6 +189,17 @@ private fun SyncSection(params: SettingsScreenParams) {
             },
             enabled = params.uiState.syncEnabled
         )
+        SectionDivider(inset = true)
+        RyggSwitchRow(
+            label = stringResource(R.string.settings_sync_photos),
+            checked = params.uiState.syncPhotos,
+            leadingIcon = Icons.Outlined.PhotoLibrary,
+            onCheckedChange = {
+                haptics.toggle(it)
+                params.onSyncPhotosChanged(it)
+            },
+            enabled = params.uiState.syncEnabled
+        )
     }
 }
 
@@ -346,6 +358,7 @@ private fun SettingsScreenPreview() {
                 onMeasurementSystemSelected = {},
                 onSyncEnabledChanged = {},
                 onSyncWifiOnlyChanged = {},
+                onSyncPhotosChanged = {},
                 onRecordingResolutionSelected = {},
                 onOffRouteAlertsChanged = {},
                 onOffRouteThresholdSelected = {},
@@ -365,6 +378,7 @@ data class SettingsUiState(
     val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC,
     val syncEnabled: Boolean = true,
     val syncWifiOnly: Boolean = true,
+    val syncPhotos: Boolean = true,
     val recordingResolution: RecordingResolution = RecordingResolution.BALANCED,
     val offRouteAlertsEnabled: Boolean = true,
     val offRouteThreshold: OffRouteThreshold = OffRouteThreshold.DEFAULT,
@@ -381,6 +395,7 @@ data class SettingsScreenParams(
     val onMeasurementSystemSelected: (MeasurementSystem) -> Unit,
     val onSyncEnabledChanged: (Boolean) -> Unit,
     val onSyncWifiOnlyChanged: (Boolean) -> Unit,
+    val onSyncPhotosChanged: (Boolean) -> Unit,
     val onRecordingResolutionSelected: (RecordingResolution) -> Unit,
     val onOffRouteAlertsChanged: (Boolean) -> Unit,
     val onOffRouteThresholdSelected: (OffRouteThreshold) -> Unit,

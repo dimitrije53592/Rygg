@@ -2,6 +2,7 @@ package com.dimitrijeilic.rygg.feature.library.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,8 @@ interface RouteImageDao {
     @Query("SELECT id FROM route_image")
     suspend fun getAllIds(): List<String>
 
-    @Insert
+    // Two snapshot callbacks can race to insert the same pulled photo.
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(images: List<RouteImageEntity>)
 
     @Query("DELETE FROM route_image WHERE id = :id")
