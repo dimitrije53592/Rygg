@@ -99,7 +99,7 @@
     <string name="library_sort_name">Ime</string>
     <string name="library_sort_date">Datum</string>
     <string name="library_sort">Promeni redosled</string>
-    <string name="library_favorites_filter">Prikaži samo označene zvezdicom</string>
+    <string name="library_favorites_filter">Prikaži samo omiljene</string>
     <string name="library_source_filter">Filtriraj po izvoru</string>
     <string name="library_undated_section">Bez datuma</string>
     <string name="library_no_matches">Nijedna aktivnost ne odgovara ovom filteru</string>
@@ -140,8 +140,8 @@
     <string name="details_share_file">Podeli GPX datoteku</string>
     <string name="details_share_chooser_title">Podeli rutu</string>
     <string name="details_share_link_message">%1$s\n\nPogledajte ovu rutu u Rygg-u: %2$s</string>
-    <string name="details_favorite">Dodaj u označene zvezdicom</string>
-    <string name="details_unfavorite">Ukloni iz označenih zvezdicom</string>
+    <string name="details_favorite">Dodaj u omiljene</string>
+    <string name="details_unfavorite">Ukloni iz omiljenih</string>
     <string name="details_rename">Preimenuj</string>
     <string name="details_move_to_folder">Premesti u folder</string>
     <string name="details_folder">Folder</string>

@@ -99,7 +99,7 @@
     <string name="library_sort_name">Name</string>
     <string name="library_sort_date">Date</string>
     <string name="library_sort">Change sorting</string>
-    <string name="library_favorites_filter">Show starred only</string>
+    <string name="library_favorites_filter">Show favourites only</string>
     <string name="library_source_filter">Filter by source</string>
     <string name="library_undated_section">No date</string>
     <string name="library_no_matches">No activities match this filter</string>
@@ -138,8 +138,8 @@
     <string name="details_share_file">Share GPX file</string>
     <string name="details_share_chooser_title">Share route</string>
     <string name="details_share_link_message">%1$s\n\nView this route in Rygg: %2$s</string>
-    <string name="details_favorite">Add to starred</string>
-    <string name="details_unfavorite">Remove from starred</string>
+    <string name="details_favorite">Add to favourites</string>
+    <string name="details_unfavorite">Remove from favourites</string>
     <string name="details_rename">Rename</string>
     <string name="details_move_to_folder">Move to folder</string>
     <string name="details_folder">Folder</string>
