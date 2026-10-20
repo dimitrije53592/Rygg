@@ -11,6 +11,7 @@ import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
 import com.dimitrijeilic.rygg.core.navigation.Details
 import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
+import com.dimitrijeilic.rygg.feature.library.domain.exportBaseName
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -109,6 +110,30 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
+    fun onSaveFileRequested() {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            if (!entry.fileDownloaded || entry.fileName.isBlank()) {
+                gpxFileEntryRepository.ensureRouteFileDownloaded(entry.id)
+                _events.send(DetailsEvent.FileNotReady)
+            } else {
+                _events.send(DetailsEvent.PickSaveTarget("${exportBaseName(entry.name)}.gpx"))
+            }
+        }
+    }
+
+    fun onSaveFileTo(target: Uri) {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            val event = when (gpxFileEntryRepository.exportGpxFile(entry, target)) {
+                is Outcome.Success -> DetailsEvent.FileSaved
+                is Outcome.Error -> DetailsEvent.FileSaveFailed
+                Outcome.Loading -> return@launch
+            }
+            _events.send(event)
+        }
+    }
+
     private fun loadedEntry(): GpxFileEntry? =
         (uiState.value.loadingState as? DetailsLoadingState.Loaded)?.entry
 
@@ -138,6 +163,12 @@ sealed interface DetailsEvent {
     data object ShareLinkFailed : DetailsEvent
 
     data object FileNotReady : DetailsEvent
+
+    data class PickSaveTarget(val suggestedName: String) : DetailsEvent
+
+    data object FileSaved : DetailsEvent
+
+    data object FileSaveFailed : DetailsEvent
 }
 
 private data class CachedProfile(

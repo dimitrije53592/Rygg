@@ -61,7 +61,8 @@ fun DetailsHeroMap(
     onRename: ((String) -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
-    onShareFile: (() -> Unit)? = null
+    onShareFile: (() -> Unit)? = null,
+    onSaveFile: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -111,10 +112,11 @@ fun DetailsHeroMap(
                 }
             )
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
-                if (onShareLink != null && onShareFile != null) {
+                if (onShareLink != null && onShareFile != null && onSaveFile != null) {
                     HeroShareButton(
                         onShareLink = onShareLink,
-                        onShareFile = onShareFile
+                        onShareFile = onShareFile,
+                        onSaveFile = onSaveFile
                     )
                 }
                 if (onToggleFavorite != null && onRename != null && onDelete != null) {
@@ -154,7 +156,8 @@ fun DetailsHeroMap(
 @Composable
 private fun HeroShareButton(
     onShareLink: () -> Unit,
-    onShareFile: () -> Unit
+    onShareFile: () -> Unit,
+    onSaveFile: () -> Unit
 ) {
     var showSheet by remember { mutableStateOf(false) }
 
@@ -178,6 +181,10 @@ private fun HeroShareButton(
             onShareFile = {
                 showSheet = false
                 onShareFile()
+            },
+            onSaveFile = {
+                showSheet = false
+                onSaveFile()
             },
             onDismiss = { showSheet = false }
         )

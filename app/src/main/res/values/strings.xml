@@ -358,4 +358,8 @@
     <string name="settings_off_route_default">Normal</string>
     <string name="settings_off_route_far">Loose</string>
     <string name="settings_off_route_description">Sound and vibration, even with the screen off, after about 10 seconds off the line. Tight alerts at 30 m, Normal at 60 m, Loose at 100 m, plus GPS accuracy.</string>
+
+    <string name="details_save_file">Save GPX to device</string>
+    <string name="details_save_file_done">GPX saved</string>
+    <string name="details_save_file_failed">Couldn\'t save the GPX file. Please try again.</string>
 </resources>

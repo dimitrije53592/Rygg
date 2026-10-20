@@ -353,4 +353,8 @@
     <string name="settings_off_route_default">Normalno</string>
     <string name="settings_off_route_far">Široko</string>
     <string name="settings_off_route_description">Zvuk i vibracija, i kada je ekran isključen, nakon otprilike 10 sekundi van linije. Usko upozorava na 30 m, Normalno na 60 m, Široko na 100 m, uz tačnost GPS-a.</string>
+
+    <string name="details_save_file">Sačuvaj GPX na uređaj</string>
+    <string name="details_save_file_done">GPX je sačuvan</string>
+    <string name="details_save_file_failed">Čuvanje GPX fajla nije uspelo. Pokušajte ponovo.</string>
 </resources>

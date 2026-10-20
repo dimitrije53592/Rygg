@@ -84,6 +84,10 @@ class GpxFileEntryRepository @Inject constructor(
         )
     }
 
+    suspend fun exportGpxFile(entry: GpxFileEntry, target: Uri): Outcome<Unit> = outcomeCatching {
+        gpxStorage.exportTo(entry.fileName, target)
+    }
+
     suspend fun persistGpxFile(entry: GpxFileEntry): Outcome<Long> = outcomeCatching {
         gpxFileEntryDao.insert(entry.toEntity()).also { routeSyncManager.onRouteAdded(it) }
     }

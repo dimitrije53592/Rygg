@@ -151,7 +151,8 @@ private fun LoadedContent(
                 onRename = (mode as? DetailsMode.View)?.onRename,
                 onDelete = (mode as? DetailsMode.View)?.onDelete,
                 onShareLink = (mode as? DetailsMode.View)?.onShareLink,
-                onShareFile = (mode as? DetailsMode.View)?.onShareFile
+                onShareFile = (mode as? DetailsMode.View)?.onShareFile,
+                onSaveFile = (mode as? DetailsMode.View)?.onSaveFile
             )
 
             Column(
@@ -313,7 +314,8 @@ sealed interface DetailsMode {
         val onRename: (String) -> Unit,
         val onDelete: () -> Unit,
         val onShareLink: () -> Unit,
-        val onShareFile: () -> Unit
+        val onShareFile: () -> Unit,
+        val onSaveFile: () -> Unit
     ) : DetailsMode
 
     // Preview of a not-yet-saved entry (import or recording). When [name] is non-null an

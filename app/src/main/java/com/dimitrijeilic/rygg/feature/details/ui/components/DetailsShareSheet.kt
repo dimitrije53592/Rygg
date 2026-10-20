@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 fun DetailsShareSheet(
     onShareLink: () -> Unit,
     onShareFile: () -> Unit,
+    onSaveFile: () -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -62,6 +64,11 @@ fun DetailsShareSheet(
                 icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.details_share_file),
                 onClick = onShareFile
+            )
+            ShareOption(
+                icon = Icons.Outlined.SaveAlt,
+                label = stringResource(R.string.details_save_file),
+                onClick = onSaveFile
             )
         }
     }
@@ -106,6 +113,7 @@ private fun DetailsShareSheetPreview() {
         Column {
             ShareOption(icon = Icons.Outlined.Link, label = "Share link", onClick = {})
             ShareOption(icon = Icons.Outlined.FileDownload, label = "Share GPX file", onClick = {})
+            ShareOption(icon = Icons.Outlined.SaveAlt, label = "Save to device", onClick = {})
         }
     }
 }

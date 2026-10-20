@@ -9,6 +9,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dimitrijeilic.rygg.R
+import com.dimitrijeilic.rygg.core.ui.utils.GPX_MIME_TYPE
+import com.dimitrijeilic.rygg.core.ui.utils.rememberDocumentCreator
 import com.dimitrijeilic.rygg.core.ui.utils.shareGpxFile
 import com.dimitrijeilic.rygg.core.ui.utils.shareRouteLink
 import com.dimitrijeilic.rygg.feature.details.ui.screen.DetailsMode
@@ -27,6 +29,12 @@ fun DetailsWrapper(
     val context = LocalContext.current
     val shareFailedMessage = stringResource(R.string.details_share_failed)
     val fileNotReadyMessage = stringResource(R.string.details_share_file_not_ready)
+    val fileSavedMessage = stringResource(R.string.details_save_file_done)
+    val fileSaveFailedMessage = stringResource(R.string.details_save_file_failed)
+    val launchSaveAs = rememberDocumentCreator(
+        mimeType = GPX_MIME_TYPE,
+        onCreated = viewModel::onSaveFileTo
+    )
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -38,6 +46,14 @@ fun DetailsWrapper(
 
                 DetailsEvent.FileNotReady ->
                     Toast.makeText(context, fileNotReadyMessage, Toast.LENGTH_SHORT).show()
+
+                is DetailsEvent.PickSaveTarget -> launchSaveAs(event.suggestedName)
+
+                DetailsEvent.FileSaved ->
+                    Toast.makeText(context, fileSavedMessage, Toast.LENGTH_SHORT).show()
+
+                DetailsEvent.FileSaveFailed ->
+                    Toast.makeText(context, fileSaveFailedMessage, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -55,7 +71,8 @@ fun DetailsWrapper(
                     onNavigateBack()
                 },
                 onShareLink = { viewModel.onShareLink() },
-                onShareFile = { viewModel.onShareFile() }
+                onShareFile = { viewModel.onShareFile() },
+                onSaveFile = { viewModel.onSaveFileRequested() }
             )
         )
     )
