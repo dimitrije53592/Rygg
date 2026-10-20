@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.dimitrijeilic.rygg.core.database.RyggDatabase
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
+import com.dimitrijeilic.rygg.feature.map.data.local.RouteOverviewDao
 import com.dimitrijeilic.rygg.feature.record.data.local.RecordingDao
 import dagger.Module
 import dagger.Provides
@@ -27,4 +28,7 @@ object DatabaseModule {
 
     @Provides
     fun provideRecordingDao(database: RyggDatabase): RecordingDao = database.recordingDao()
+
+    @Provides
+    fun provideRouteOverviewDao(database: RyggDatabase): RouteOverviewDao = database.routeOverviewDao()
 }

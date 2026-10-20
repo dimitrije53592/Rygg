@@ -21,6 +21,7 @@ fun MapWrapper(
             styleUrl = uiState.styleUrl,
             routes = uiState.routes,
             focusEntryId = uiState.focusEntryId,
+            onFocusRoute = viewModel::onFocusRoute,
             onStartFollow = onStartFollow,
             onOpenProfile = onOpenProfile
         )
