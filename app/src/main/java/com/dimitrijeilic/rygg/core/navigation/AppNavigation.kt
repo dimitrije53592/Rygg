@@ -29,16 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.util.Consumer
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.dimitrijeilic.rygg.core.ui.components.LocalNavAnimatedVisibilityScope
 import com.dimitrijeilic.rygg.core.ui.components.LocalSharedTransitionScope
 import com.dimitrijeilic.rygg.core.ui.components.RyggBottomAppBar
-import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
 import com.dimitrijeilic.rygg.core.ui.theme.RyggMotion
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.core.ui.utils.RouteShareLinks
@@ -57,6 +56,7 @@ import com.dimitrijeilic.rygg.feature.map.ui.wrapper.MapWrapper
 import com.dimitrijeilic.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
 import com.dimitrijeilic.rygg.feature.profile.ui.wrapper.ProfileWrapper
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
+import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
 import com.dimitrijeilic.rygg.feature.record.ui.wrapper.RecordWrapper
 import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.LicensesWrapper
 import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.SettingsWrapper
@@ -206,6 +206,11 @@ fun AppNavigation() {
                                 onNavigateBack = { navController.navigateUp() },
                                 onViewOnMap = { entryId ->
                                     navController.navigate(Map(entryId = entryId))
+                                },
+                                onOpenEntry = { entryId ->
+                                    navController.navigate(Details(entryId = entryId)) {
+                                        popUpTo<Details> { inclusive = true }
+                                    }
                                 }
                             )
                         }
@@ -229,7 +234,8 @@ fun AppNavigation() {
                         deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
                     ) {
                         RecordWrapper(
-                            onRecordingStopped = { navController.navigate(RecordingPreview) }
+                            onRecordingStopped = { navController.navigate(RecordingPreview) },
+                            onOpenProfile = { navController.navigate(Profile) }
                         )
                     }
                     composable<RecordingPreview>(
@@ -241,7 +247,8 @@ fun AppNavigation() {
                         MapWrapper(
                             onStartFollow = { entryId ->
                                 navController.navigate(FollowRoute(entryId = entryId))
-                            }
+                            },
+                            onOpenProfile = { navController.navigate(Profile) }
                         )
                     }
                     composable<FollowRoute> {

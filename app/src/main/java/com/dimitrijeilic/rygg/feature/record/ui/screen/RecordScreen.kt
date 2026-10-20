@@ -63,6 +63,7 @@ import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
 import com.dimitrijeilic.rygg.core.ui.components.RyggDialog
 import com.dimitrijeilic.rygg.core.ui.components.RyggHoldButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
+import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggSecondaryButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggSegmentedControl
 import com.dimitrijeilic.rygg.core.ui.components.RyggStat
@@ -124,7 +125,13 @@ fun RecordScreen(params: RecordScreenParams) {
 
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.nav_record))
+            RyggTopAppBar(
+                title = stringResource(R.string.nav_record),
+                actions = {
+                    RyggProfileAction(onClick = params.onOpenProfile)
+                    Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
+                }
+            )
         }
     ) { innerPadding ->
         Box(
@@ -534,7 +541,8 @@ private fun RecordScreenIdlePreview() {
                 onPause = {},
                 onResume = {},
                 onStop = {},
-                onAddWaypoint = {}
+                onAddWaypoint = {},
+                onOpenProfile = {}
             )
         )
     }
@@ -562,7 +570,8 @@ private fun RecordScreenActivePreview() {
                 onPause = {},
                 onResume = {},
                 onStop = {},
-                onAddWaypoint = {}
+                onAddWaypoint = {},
+                onOpenProfile = {}
             )
         )
     }
@@ -575,7 +584,8 @@ data class RecordScreenParams(
     val onPause: () -> Unit,
     val onResume: () -> Unit,
     val onStop: () -> Unit,
-    val onAddWaypoint: (String) -> Unit
+    val onAddWaypoint: (String) -> Unit,
+    val onOpenProfile: () -> Unit
 )
 
 private const val PULSE_MILLIS = 900

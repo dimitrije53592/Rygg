@@ -17,7 +17,7 @@ import javax.inject.Inject
 // rules, and the auth user last — SyncInitializer then sees the sign-out like any other.
 class AccountDeletionRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val routeSyncManager: RouteSyncManager,
+    private val routeSyncManager: RouteSyncManager
 ) {
     suspend fun deleteAccount(credential: ReauthCredential): Outcome<Unit> = outcomeCatching {
         val user = firebaseAuth.currentUser?.takeUnless { it.isAnonymous }

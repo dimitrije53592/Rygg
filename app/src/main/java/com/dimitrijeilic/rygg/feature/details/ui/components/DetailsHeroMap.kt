@@ -14,18 +14,21 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,12 +59,16 @@ fun DetailsHeroMap(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     highlightFraction: Float? = null,
+    keptRange: ClosedFloatingPointRange<Float>? = null,
+    isSharingLink: Boolean = false,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
     onRename: ((String) -> Unit)? = null,
+    onTrim: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
-    onShareFile: (() -> Unit)? = null
+    onShareFile: (() -> Unit)? = null,
+    onSaveFile: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -72,6 +79,7 @@ fun DetailsHeroMap(
             points = entry.pathPoints,
             scale = RouteCanvasScale.Hero,
             highlightFraction = highlightFraction,
+            keptRange = keptRange,
             modifier = Modifier
                 .fillMaxSize()
                 .sharedRouteCanvas(entry.id)
@@ -111,10 +119,12 @@ fun DetailsHeroMap(
                 }
             )
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
-                if (onShareLink != null && onShareFile != null) {
+                if (onShareLink != null && onShareFile != null && onSaveFile != null) {
                     HeroShareButton(
+                        isSharingLink = isSharingLink,
                         onShareLink = onShareLink,
-                        onShareFile = onShareFile
+                        onShareFile = onShareFile,
+                        onSaveFile = onSaveFile
                     )
                 }
                 if (onToggleFavorite != null && onRename != null && onDelete != null) {
@@ -123,6 +133,7 @@ fun DetailsHeroMap(
                         currentName = entry.name,
                         onToggleFavorite = onToggleFavorite,
                         onRename = onRename,
+                        onTrim = onTrim,
                         onDelete = onDelete
                     )
                 }
@@ -153,31 +164,54 @@ fun DetailsHeroMap(
 
 @Composable
 private fun HeroShareButton(
+    isSharingLink: Boolean,
     onShareLink: () -> Unit,
-    onShareFile: () -> Unit
+    onShareFile: () -> Unit,
+    onSaveFile: () -> Unit
 ) {
     var showSheet by remember { mutableStateOf(false) }
+    var awaitingLink by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isSharingLink) {
+        if (!isSharingLink && awaitingLink) {
+            awaitingLink = false
+            showSheet = false
+        }
+    }
 
     GlassIconButton(
-        onClick = { showSheet = true },
+        onClick = { if (!isSharingLink) showSheet = true },
         content = {
-            Icon(
-                imageVector = Icons.Outlined.Share,
-                contentDescription = stringResource(R.string.details_share),
-                tint = Color.White,
-                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-            )
+            if (isSharingLink) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = RyggTheme.dimens.border2,
+                    modifier = Modifier.size(RyggTheme.dimens.progressIndicator20)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.Share,
+                    contentDescription = stringResource(R.string.details_share),
+                    tint = Color.White,
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+                )
+            }
         }
     )
     if (showSheet) {
         DetailsShareSheet(
+            isSharingLink = isSharingLink,
             onShareLink = {
-                showSheet = false
+                awaitingLink = true
                 onShareLink()
             },
             onShareFile = {
                 showSheet = false
                 onShareFile()
+            },
+            onSaveFile = {
+                showSheet = false
+                onSaveFile()
             },
             onDismiss = { showSheet = false }
         )
@@ -190,6 +224,7 @@ private fun HeroOverflowMenu(
     currentName: String,
     onToggleFavorite: () -> Unit,
     onRename: (String) -> Unit,
+    onTrim: (() -> Unit)?,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -242,6 +277,22 @@ private fun HeroOverflowMenu(
                     showRenameDialog = true
                 }
             )
+            onTrim?.let {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.details_trim)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCut,
+                            contentDescription = null,
+                            tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        it()
+                    }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.details_delete)) },
                 leadingIcon = {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.location.LocationPurpose
 import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
+import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggTopAppBar
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
@@ -98,7 +100,13 @@ fun MapScreen(params: MapScreenParams) {
 
     Scaffold(
         topBar = {
-            RyggTopAppBar(title = stringResource(R.string.nav_map))
+            RyggTopAppBar(
+                title = stringResource(R.string.nav_map),
+                actions = {
+                    RyggProfileAction(onClick = params.onOpenProfile)
+                    Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
+                }
+            )
         }
     ) { innerPadding ->
         Box(
@@ -245,5 +253,6 @@ data class MapScreenParams(
     val styleUrl: String,
     val routes: List<RouteOverlay>,
     val focusEntryId: Long?,
-    val onStartFollow: (Long) -> Unit
+    val onStartFollow: (Long) -> Unit,
+    val onOpenProfile: () -> Unit
 )

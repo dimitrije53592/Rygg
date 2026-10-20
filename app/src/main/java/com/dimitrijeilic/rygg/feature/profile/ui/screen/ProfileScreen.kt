@@ -424,7 +424,7 @@ enum class DeleteAccountError {
     WrongPassword,
     WrongAccount,
     Offline,
-    Generic,
+    Generic
 }
 
 data class ProfileScreenParams(

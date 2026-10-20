@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +31,8 @@ import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
 import com.dimitrijeilic.rygg.core.ui.components.RyggPrimaryButton
 import com.dimitrijeilic.rygg.core.ui.components.RyggSecondaryButton
-import com.dimitrijeilic.rygg.core.ui.components.shimmer
 import com.dimitrijeilic.rygg.core.ui.components.RyggTextField
+import com.dimitrijeilic.rygg.core.ui.components.shimmer
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
@@ -134,6 +136,9 @@ private fun LoadedContent(
 
     // Hoisted so dragging the elevation profile can mark the matching point on the hero route.
     var scrubFraction by remember { mutableStateOf<Float?>(null) }
+    var trimRange by remember(entry.id) { mutableStateOf<ClosedFloatingPointRange<Float>?>(null) }
+    val viewMode = mode as? DetailsMode.View
+    val trimCopyName = stringResource(R.string.details_trim_copy_name, entry.name)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -145,13 +150,21 @@ private fun LoadedContent(
             DetailsHeroMap(
                 entry = entry,
                 highlightFraction = scrubFraction,
+                keptRange = trimRange,
+                isSharingLink = params.uiState.isSharingLink,
                 onNavigateBack = params.onNavigateBack,
                 sourceLabel = sourceLabel,
                 onToggleFavorite = (mode as? DetailsMode.View)?.onToggleFavorite,
                 onRename = (mode as? DetailsMode.View)?.onRename,
+                onTrim = if (viewMode != null && entry.fileDownloaded && entry.pointCount >= 2) {
+                    { trimRange = 0f..1f }
+                } else {
+                    null
+                },
                 onDelete = (mode as? DetailsMode.View)?.onDelete,
                 onShareLink = (mode as? DetailsMode.View)?.onShareLink,
-                onShareFile = (mode as? DetailsMode.View)?.onShareFile
+                onShareFile = (mode as? DetailsMode.View)?.onShareFile,
+                onSaveFile = (mode as? DetailsMode.View)?.onSaveFile
             )
 
             Column(
@@ -171,10 +184,30 @@ private fun LoadedContent(
 
                 DetailsStatsGrid(entry)
 
+                val range = trimRange
                 if (elevationProfile.isNotEmpty()) {
                     ElevationProfile(
                         samples = elevationProfile,
-                        onScrubChange = { scrubFraction = it }
+                        onScrubChange = { scrubFraction = it },
+                        trimRange = range,
+                        onTrimRangeChange = { trimRange = it }
+                    )
+                } else if (range != null) {
+                    RangeSlider(
+                        value = range,
+                        onValueChange = { trimRange = it },
+                        colors = SliderDefaults.colors(
+                            thumbColor = RyggTheme.getColor(RyggColor.BrandGreen),
+                            activeTrackColor = RyggTheme.getColor(RyggColor.BrandGreen),
+                            inactiveTrackColor = RyggTheme.getColor(RyggColor.MossSurface)
+                        )
+                    )
+                }
+                if (range != null) {
+                    Text(
+                        text = stringResource(R.string.details_trim_hint),
+                        style = RyggTheme.typography.bodySmall,
+                        color = RyggTheme.getColor(RyggColor.TextSecondary)
                     )
                 }
 
@@ -190,7 +223,16 @@ private fun LoadedContent(
             }
         }
 
-        BottomActionBar(mode = mode, entryId = entry.id, onNavigateBack = params.onNavigateBack)
+        val range = trimRange
+        if (range != null && viewMode != null) {
+            TrimActionBar(
+                isSaving = params.uiState.isSavingTrim,
+                onSave = { viewMode.onSaveTrim(range.start.toDouble(), range.endInclusive.toDouble(), trimCopyName) },
+                onCancel = { trimRange = null }
+            )
+        } else {
+            BottomActionBar(mode = mode, entryId = entry.id, onNavigateBack = params.onNavigateBack)
+        }
     }
 }
 
@@ -234,6 +276,41 @@ private fun Section(
     Column(verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
         DetailsSectionTitle(text = title)
         content()
+    }
+}
+
+@Composable
+private fun TrimActionBar(
+    isSaving: Boolean,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    Surface(
+        color = RyggTheme.getColor(RyggColor.SurfaceElevated),
+        shadowElevation = RyggTheme.dimens.elevation4,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(RyggTheme.dimens.commonContentPadding16),
+            verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)
+        ) {
+            RyggPrimaryButton(
+                text = stringResource(R.string.details_trim_save),
+                onClick = onSave,
+                isLoading = isSaving,
+                modifier = Modifier.fillMaxWidth()
+            )
+            RyggSecondaryButton(
+                text = stringResource(R.string.details_rename_cancel),
+                onClick = onCancel,
+                isEnabled = !isSaving,
+                textColor = RyggTheme.getColor(RyggColor.TextSecondary),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -311,9 +388,11 @@ sealed interface DetailsMode {
         val onViewOnMap: (Long) -> Unit,
         val onToggleFavorite: () -> Unit,
         val onRename: (String) -> Unit,
+        val onSaveTrim: (Double, Double, String) -> Unit,
         val onDelete: () -> Unit,
         val onShareLink: () -> Unit,
-        val onShareFile: () -> Unit
+        val onShareFile: () -> Unit,
+        val onSaveFile: () -> Unit
     ) : DetailsMode
 
     // Preview of a not-yet-saved entry (import or recording). When [name] is non-null an

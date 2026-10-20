@@ -30,9 +30,11 @@ private fun detailsParams(loadingState: DetailsLoadingState): DetailsScreenParam
             onViewOnMap = {},
             onToggleFavorite = {},
             onRename = {},
+            onSaveTrim = { _, _, _ -> },
             onDelete = {},
             onShareLink = {},
-            onShareFile = {}
+            onShareFile = {},
+            onSaveFile = {}
         )
     )
 

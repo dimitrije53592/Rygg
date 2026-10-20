@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".core.RyggApplication"
@@ -50,6 +51,11 @@
 
         <service
             android:name=".feature.record.service.RecordingService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <service
+            android:name=".feature.map.service.RouteFollowingService"
             android:exported="false"
             android:foregroundServiceType="location" />
 

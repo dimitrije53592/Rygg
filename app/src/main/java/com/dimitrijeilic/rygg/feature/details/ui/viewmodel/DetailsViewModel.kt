@@ -11,11 +11,14 @@ import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
 import com.dimitrijeilic.rygg.core.navigation.Details
 import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
+import com.dimitrijeilic.rygg.feature.library.domain.exportBaseName
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -30,6 +33,8 @@ class DetailsViewModel @Inject constructor(
 ) : ViewModel() {
     private val entryId = savedStateHandle.toRoute<Details>().entryId
     private var profileCache: CachedProfile? = null
+    private val isSavingTrim = MutableStateFlow(false)
+    private val isSharingLink = MutableStateFlow(false)
 
     // One-shot share side effects handed to the wrapper (which owns the Context to act on them).
     private val _events = Channel<DetailsEvent>(Channel.BUFFERED)
@@ -55,6 +60,8 @@ class DetailsViewModel @Inject constructor(
                     }
                 }
             }
+            .combine(isSavingTrim) { state, saving -> state.copy(isSavingTrim = saving) }
+            .combine(isSharingLink) { state, sharing -> state.copy(isSharingLink = sharing) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -75,6 +82,22 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
+    fun onSaveTrim(startFraction: Double, endFraction: Double, name: String) {
+        val entry = loadedEntry() ?: return
+        if (isSavingTrim.value) return
+        viewModelScope.launch {
+            isSavingTrim.value = true
+            val outcome = gpxFileEntryRepository.saveTrimmedCopy(entry, startFraction, endFraction, name)
+            isSavingTrim.value = false
+            _events.send(
+                when (outcome) {
+                    is Outcome.Success -> DetailsEvent.TrimSaved(outcome.data)
+                    else -> DetailsEvent.TrimFailed
+                }
+            )
+        }
+    }
+
     fun onDelete() {
         val entry = loadedEntry() ?: return
         viewModelScope.launch {
@@ -85,8 +108,12 @@ class DetailsViewModel @Inject constructor(
     // Upload the route if needed, then emit a cross-device share link (or a failure).
     fun onShareLink() {
         val entry = loadedEntry() ?: return
+        if (isSharingLink.value) return
         viewModelScope.launch {
-            val event = when (val outcome = routeSyncManager.createShareLink(entry)) {
+            isSharingLink.value = true
+            val outcome = routeSyncManager.createShareLink(entry)
+            isSharingLink.value = false
+            val event = when (outcome) {
                 is Outcome.Success -> DetailsEvent.ShareLink(outcome.data, entry.name)
                 is Outcome.Error -> DetailsEvent.ShareLinkFailed
                 Outcome.Loading -> return@launch
@@ -106,6 +133,30 @@ class DetailsViewModel @Inject constructor(
             } else {
                 _events.send(DetailsEvent.ShareFile(gpxFileEntryRepository.gpxShareUri(entry), entry.name))
             }
+        }
+    }
+
+    fun onSaveFileRequested() {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            if (!entry.fileDownloaded || entry.fileName.isBlank()) {
+                gpxFileEntryRepository.ensureRouteFileDownloaded(entry.id)
+                _events.send(DetailsEvent.FileNotReady)
+            } else {
+                _events.send(DetailsEvent.PickSaveTarget("${exportBaseName(entry.name)}.gpx"))
+            }
+        }
+    }
+
+    fun onSaveFileTo(target: Uri) {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch {
+            val event = when (gpxFileEntryRepository.exportGpxFile(entry, target)) {
+                is Outcome.Success -> DetailsEvent.FileSaved
+                is Outcome.Error -> DetailsEvent.FileSaveFailed
+                Outcome.Loading -> return@launch
+            }
+            _events.send(event)
         }
     }
 
@@ -138,6 +189,16 @@ sealed interface DetailsEvent {
     data object ShareLinkFailed : DetailsEvent
 
     data object FileNotReady : DetailsEvent
+
+    data class PickSaveTarget(val suggestedName: String) : DetailsEvent
+
+    data object FileSaved : DetailsEvent
+
+    data object FileSaveFailed : DetailsEvent
+
+    data class TrimSaved(val entryId: Long) : DetailsEvent
+
+    data object TrimFailed : DetailsEvent
 }
 
 private data class CachedProfile(
@@ -147,7 +208,9 @@ private data class CachedProfile(
 )
 
 data class DetailsUiState(
-    val loadingState: DetailsLoadingState
+    val loadingState: DetailsLoadingState,
+    val isSavingTrim: Boolean = false,
+    val isSharingLink: Boolean = false
 )
 
 sealed interface DetailsLoadingState {

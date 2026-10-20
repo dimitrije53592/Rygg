@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.Color
 // depth where shadows are invisible.
 enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     BrandGreen(lightColor = Color(0xFF0E7A52), darkColor = Color(0xFF16A06B)),
-
     AccentBright(lightColor = Color(0xFF1FB87E), darkColor = Color(0xFF2FD694)),
     BrandDarkGreen(lightColor = Color(0xFF1D3631), darkColor = Color(0xFF11231D)),
     BrandGraphite(lightColor = Color(0xFF151A1F), darkColor = Color(0xFF0A0E12)),
@@ -21,18 +20,12 @@ enum class RyggColor(val lightColor: Color, val darkColor: Color) {
     OnBrand(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFF2F6F9)),
     TextPrimary(lightColor = Color(0xFF1B2026), darkColor = Color(0xFFE8EDF2)),
     TextSecondary(lightColor = Color(0xFF656C74), darkColor = Color(0xFF94A1AD)),
-    // Off-state of switches and other controls: needs 3:1 against the surface it sits on.
     ControlOff(lightColor = Color(0xFF7E878F), darkColor = Color(0xFF6E7A85)),
     Outline(lightColor = Color(0xFFE6E8E7), darkColor = Color(0xFF2A343D)),
-
-    // Content laid over map tiles or route imagery, so it does not flip with the theme.
     ScrimDark(lightColor = Color(0xFF000000), darkColor = Color(0xFF000000)),
     OnScrim(lightColor = Color(0xFFFFFFFF), darkColor = Color(0xFFFFFFFF)),
     Success(lightColor = Color(0xFF2E7D32), darkColor = Color(0xFF81C784)),
-
     Warning(lightColor = Color(0xFFB26A00), darkColor = Color(0xFFFFB74D)),
-
-    // Elevation-profile grade bands; gentler than 3% stays the brand accent (see ElevationProfile).
     GradeModerate(lightColor = Color(0xFFCCA32E), darkColor = Color(0xFFE8C547)),
     GradeSteep(lightColor = Color(0xFFCF7429), darkColor = Color(0xFFE8893D)),
     GradeVerySteep(lightColor = Color(0xFFC03A33), darkColor = Color(0xFFE05950)),

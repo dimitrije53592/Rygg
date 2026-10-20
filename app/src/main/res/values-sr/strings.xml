@@ -339,4 +339,31 @@
     <string name="profile_deleted_title">Nalog je obrisan</string>
     <string name="profile_deleted_message">Vaš nalog, rezervne kopije u oblaku i deljeni linkovi su obrisani. Rute su i dalje na ovom telefonu.</string>
     <string name="profile_deleted_ok">U redu</string>
+
+    <string name="follow_notification_title">Praćenje: %1$s</string>
+    <string name="follow_alert_channel_name">Upozorenja o skretanju s rute</string>
+    <string name="follow_alert_channel_description">Zvuk i vibracija kada napustite rutu koju pratite.</string>
+    <string name="follow_alert_title">Skrenuli ste s rute</string>
+    <string name="follow_alert_text">%1$s od rute. Vratite se na liniju.</string>
+    <string name="follow_alert_snooze">Utišaj 10 min</string>
+    <string name="settings_navigation_title">Praćenje rute</string>
+    <string name="settings_off_route_alerts">Upozorenja o skretanju</string>
+    <string name="settings_off_route_threshold">Rastojanje za upozorenje</string>
+    <string name="settings_off_route_near">Usko</string>
+    <string name="settings_off_route_default">Normalno</string>
+    <string name="settings_off_route_far">Široko</string>
+    <string name="settings_off_route_description">Zvuk i vibracija, i kada je ekran isključen, nakon otprilike 10 sekundi van linije. Usko upozorava na 30 m, Normalno na 60 m, Široko na 100 m, uz tačnost GPS-a.</string>
+
+    <string name="details_save_file">Sačuvaj GPX na uređaj</string>
+    <string name="details_save_file_done">GPX je sačuvan</string>
+    <string name="details_save_file_failed">Čuvanje GPX fajla nije uspelo. Pokušajte ponovo.</string>
+
+    <string name="details_trim">Skrati</string>
+    <string name="details_trim_readout">Zadržava se %1$s od %2$s</string>
+    <string name="details_trim_copy_name">%1$s (skraćeno)</string>
+    <string name="details_trim_hint">Povucite ručke da izaberete deo koji zadržavate. Čuva se kao nova ruta; original ostaje nepromenjen.</string>
+    <string name="details_trim_save">Sačuvaj skraćenu kopiju</string>
+    <string name="details_trim_failed">Skraćivanje rute nije uspelo. Zadržite duži deo i pokušajte ponovo.</string>
+
+    <string name="details_share_link_preparing">Pripremanje linka…</string>
 </resources>

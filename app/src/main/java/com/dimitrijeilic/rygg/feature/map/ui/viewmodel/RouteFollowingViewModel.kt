@@ -1,5 +1,6 @@
 package com.dimitrijeilic.rygg.feature.map.ui.viewmodel
 
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,12 +8,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.dimitrijeilic.rygg.core.navigation.FollowRoute
 import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
+import com.dimitrijeilic.rygg.feature.map.data.RouteFollowingController
 import com.dimitrijeilic.rygg.feature.map.domain.MapStyleSource
+import com.dimitrijeilic.rygg.feature.map.domain.OffRouteThreshold
 import com.dimitrijeilic.rygg.feature.map.domain.RouteGeometry
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
 import com.dimitrijeilic.rygg.feature.map.domain.RouteProgress
 import com.dimitrijeilic.rygg.feature.map.domain.TourSample
+import com.dimitrijeilic.rygg.feature.map.service.RouteFollowingService
+import com.dimitrijeilic.rygg.feature.settings.data.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +29,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RouteFollowingViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val gpxFileEntryRepository: GpxFileEntryRepository,
+    private val followingController: RouteFollowingController,
+    settingsRepository: SettingsRepository,
     mapStyleSource: MapStyleSource,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -41,8 +50,24 @@ class RouteFollowingViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var lastKnownLocation: Location? = null
+    private var offRouteThreshold = OffRouteThreshold.DEFAULT
 
     init {
+        viewModelScope.launch {
+            settingsRepository.offRouteThreshold.collect {
+                offRouteThreshold = it
+                evaluateState()
+            }
+        }
+
+        viewModelScope.launch {
+            var wasActive = false
+            followingController.snapshot.collect { snapshot ->
+                if (wasActive && !snapshot.isActive) _uiState.update { it.copy(stoppedExternally = true) }
+                wasActive = snapshot.isActive
+            }
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             // Kick off the full .gpx download for cloud routes; this session renders from the
             // simplified fallback below, and the detail is present next time it's opened.
@@ -106,7 +131,7 @@ class RouteFollowingViewModel @Inject constructor(
             }
 
             val progress = geometry.progressFor(location.latitude, location.longitude)
-            val isOnRoute = progress.isOnRoute(location.accuracy)
+            val isOnRoute = progress.isOnRoute(location.accuracy, offRouteThreshold.meters)
 
             val distance = progress.distanceToRouteMeters
             val isFarAway = distance > FAR_AWAY_THRESHOLD_METERS
@@ -124,7 +149,22 @@ class RouteFollowingViewModel @Inject constructor(
                     routeFollowingPhase = newPhase
                 )
             }
+
+            if (newPhase == RouteFollowingPhase.FollowingActive) startBackgroundFollowing(currentState)
         }
+    }
+
+    private fun startBackgroundFollowing(state: RouteFollowingUiState) {
+        val route = state.route ?: return
+        val geometry = state.geometry ?: return
+        if (followingController.snapshot.value.isActive) return
+        followingController.start(routeName = route.name, geometry = geometry)
+        RouteFollowingService.start(context)
+    }
+
+    override fun onCleared() {
+        followingController.stop()
+        super.onCleared()
     }
 
     fun setFreeLook(freeLook: Boolean) {
@@ -175,7 +215,8 @@ data class RouteFollowingUiState(
     val freeLook: Boolean = false,
     val pendingRebearing: Boolean = false,
     val routeFollowingPhase: RouteFollowingPhase = RouteFollowingPhase.InitialLoading,
-    val signalLost: Boolean = false
+    val signalLost: Boolean = false,
+    val stoppedExternally: Boolean = false
 )
 
 const val PREVIEW_SPEED_METERS_PER_SECOND = 800.0

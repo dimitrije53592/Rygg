@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import java.security.MessageDigest
 import javax.inject.Inject
 import kotlin.uuid.Uuid
@@ -101,6 +102,12 @@ class GpxStorage @Inject constructor(
     }
 
     fun resolve(fileName: String): File = File(filesDir, fileName)
+
+    suspend fun exportTo(fileName: String, target: Uri) = withContext(Dispatchers.IO) {
+        val output = context.contentResolver.openOutputStream(target, "wt")
+            ?: throw IOException("Cannot open $target")
+        output.use { out -> resolve(fileName).inputStream().use { it.copyTo(out) } }
+    }
 
     // Content Uri for a stored .gpx, usable in an ACTION_SEND share. Backed by the
     // FileProvider declared in the manifest (authority "<packageName>.fileprovider").

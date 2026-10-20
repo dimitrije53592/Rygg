@@ -27,7 +27,8 @@ fun RouteCanvas(
     points: List<GeoPoint>,
     modifier: Modifier = Modifier,
     scale: RouteCanvasScale = RouteCanvasScale.Card,
-    highlightFraction: Float? = null
+    highlightFraction: Float? = null,
+    keptRange: ClosedFloatingPointRange<Float>? = null
 ) {
     val trackColor = RyggTheme.getColor(RyggColor.AccentBright)
     val groundTop = RyggTheme.getColor(RyggColor.MossSurface)
@@ -46,14 +47,27 @@ fun RouteCanvas(
 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val projected = project(points, size.width, size.height)
-            val path = Path().apply {
-                projected.forEachIndexed { index, offset ->
-                    if (index == 0) moveTo(offset.x, offset.y) else lineTo(offset.x, offset.y)
-                }
+            val path = projected.toPath()
+            val keptPath = keptRange?.let { range ->
+                val from = cumulative.indexAtFraction(range.start)
+                val to = cumulative.indexAtFraction(range.endInclusive)
+                projected.subList(from, (to + 1).coerceAtMost(projected.size)).toPath()
+            }
+
+            if (keptPath != null) {
+                drawPath(
+                    path = path,
+                    color = trackColor.copy(alpha = TRIMMED_ALPHA),
+                    style = Stroke(
+                        width = scale.track.toPx(),
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
+                )
             }
 
             drawPath(
-                path = path,
+                path = keptPath ?: path,
                 color = trackColor.copy(alpha = GLOW_ALPHA),
                 style = Stroke(
                     width = scale.glow.toPx(),
@@ -62,7 +76,7 @@ fun RouteCanvas(
                 )
             )
             drawPath(
-                path = path,
+                path = keptPath ?: path,
                 color = trackColor,
                 style = Stroke(
                     width = scale.track.toPx(),
@@ -111,6 +125,13 @@ private const val FIT_PADDING_FRACTION = 0.12f
 private const val GLOW_ALPHA = 0.22f
 private const val CONTOUR_ALPHA = 0.5f
 private const val HIGHLIGHT_SCALE = 1.4f
+private const val TRIMMED_ALPHA = 0.3f
+
+private fun List<Offset>.toPath(): Path = Path().apply {
+    forEachIndexed { index, offset ->
+        if (index == 0) moveTo(offset.x, offset.y) else lineTo(offset.x, offset.y)
+    }
+}
 
 // Longitude degrees shrink by cos(latitude), so projecting lat/lon straight onto x/y stretches
 // every route horizontally — about 41% at 45N. Same correction as RouteProgress.toLocalMeters.

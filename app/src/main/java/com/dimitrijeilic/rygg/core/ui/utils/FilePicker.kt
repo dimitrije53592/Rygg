@@ -18,8 +18,24 @@ fun rememberFilePicker(
     return { filePicker.launch(SUPPORTED_FILE_TYPES) }
 }
 
+@Composable
+fun rememberDocumentCreator(
+    mimeType: String,
+    onCreated: (Uri) -> Unit
+): (suggestedName: String) -> Unit {
+    val creator = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument(mimeType)
+    ) { uri: Uri? ->
+        uri?.let(onCreated)
+    }
+
+    return { suggestedName -> creator.launch(suggestedName) }
+}
+
+const val GPX_MIME_TYPE = "application/gpx+xml"
+
 private val SUPPORTED_FILE_TYPES = arrayOf(
-    "application/gpx+xml",
+    GPX_MIME_TYPE,
     "application/xml",
     "text/xml",
     "application/octet-stream"

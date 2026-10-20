@@ -11,6 +11,7 @@ import com.dimitrijeilic.rygg.feature.map.ui.viewmodel.MapViewModel
 @Composable
 fun MapWrapper(
     onStartFollow: (Long) -> Unit,
+    onOpenProfile: () -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -20,7 +21,8 @@ fun MapWrapper(
             styleUrl = uiState.styleUrl,
             routes = uiState.routes,
             focusEntryId = uiState.focusEntryId,
-            onStartFollow = onStartFollow
+            onStartFollow = onStartFollow,
+            onOpenProfile = onOpenProfile
         )
     )
 }

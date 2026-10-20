@@ -6,9 +6,9 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.notification.NotificationBuilder
+import com.dimitrijeilic.rygg.core.ui.utils.formatStopwatch
 import com.dimitrijeilic.rygg.core.units.MeasurementSystem
 import com.dimitrijeilic.rygg.core.units.UnitFormatter
-import com.dimitrijeilic.rygg.core.ui.utils.formatStopwatch
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingSnapshot
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingState
 

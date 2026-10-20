@@ -19,11 +19,7 @@ class SmoothCornerShape(
     private val bottomRadius: Dp = topRadius,
     private val smoothing: Float = CORNER_SMOOTHING
 ) : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         // A radius past half the short side has no room for the transition curves.
         val limit = min(size.width, size.height) / 2f
         val top = CornerRounding(radius = min(with(density) { topRadius.toPx() }, limit), smoothing = smoothing)
@@ -32,10 +28,14 @@ class SmoothCornerShape(
         // library's internal vertex order.
         val polygon = RoundedPolygon(
             vertices = floatArrayOf(
-                0f, 0f,
-                size.width, 0f,
-                size.width, size.height,
-                0f, size.height
+                0f,
+                0f,
+                size.width,
+                0f,
+                size.width,
+                size.height,
+                0f,
+                size.height
             ),
             perVertexRounding = listOf(top, top, bottom, bottom),
             centerX = size.width / 2f,

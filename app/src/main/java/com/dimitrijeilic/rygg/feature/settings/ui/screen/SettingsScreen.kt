@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.HorizontalDivider
@@ -37,6 +38,7 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.core.ui.theme.ThemeMode
 import com.dimitrijeilic.rygg.core.ui.utils.rememberRyggHaptics
 import com.dimitrijeilic.rygg.core.units.MeasurementSystem
+import com.dimitrijeilic.rygg.feature.map.domain.OffRouteThreshold
 import com.dimitrijeilic.rygg.feature.record.domain.RecordingResolution
 import com.dimitrijeilic.rygg.feature.settings.domain.AppLanguage
 import com.dimitrijeilic.rygg.feature.settings.domain.PermissionStatus
@@ -68,6 +70,7 @@ fun SettingsScreen(params: SettingsScreenParams) {
             AppearanceSection(params)
             LanguageRegionSection(params)
             RecordingSection(params)
+            NavigationSection(params)
             SyncSection(params)
             PermissionsSection(params)
             AboutSection(params)
@@ -128,6 +131,33 @@ private fun RecordingSection(params: SettingsScreenParams) {
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun NavigationSection(params: SettingsScreenParams) {
+    val haptics = rememberRyggHaptics()
+    SettingsSection(
+        title = stringResource(R.string.settings_navigation_title),
+        footer = stringResource(R.string.settings_off_route_description)
+    ) {
+        RyggSwitchRow(
+            label = stringResource(R.string.settings_off_route_alerts),
+            checked = params.uiState.offRouteAlertsEnabled,
+            leadingIcon = Icons.Outlined.NotificationsActive,
+            onCheckedChange = {
+                haptics.toggle(it)
+                params.onOffRouteAlertsChanged(it)
+            }
+        )
+        SectionDivider()
+        SettingLabel(text = stringResource(R.string.settings_off_route_threshold))
+        RyggSegmentedControl(
+            options = OffRouteThreshold.entries,
+            selected = params.uiState.offRouteThreshold,
+            onSelect = params.onOffRouteThresholdSelected,
+            label = { stringResource(it.labelRes) }
+        )
     }
 }
 
@@ -317,6 +347,8 @@ private fun SettingsScreenPreview() {
                 onSyncEnabledChanged = {},
                 onSyncWifiOnlyChanged = {},
                 onRecordingResolutionSelected = {},
+                onOffRouteAlertsChanged = {},
+                onOffRouteThresholdSelected = {},
                 onManageLocationPermission = {},
                 onManageNotificationPermission = {},
                 onOpenPrivacyPolicy = {},
@@ -334,6 +366,8 @@ data class SettingsUiState(
     val syncEnabled: Boolean = true,
     val syncWifiOnly: Boolean = true,
     val recordingResolution: RecordingResolution = RecordingResolution.BALANCED,
+    val offRouteAlertsEnabled: Boolean = true,
+    val offRouteThreshold: OffRouteThreshold = OffRouteThreshold.DEFAULT,
     val locationPermission: PermissionStatus = PermissionStatus.DENIED,
     val notificationPermission: PermissionStatus = PermissionStatus.DENIED,
     val appVersion: String = ""
@@ -348,6 +382,8 @@ data class SettingsScreenParams(
     val onSyncEnabledChanged: (Boolean) -> Unit,
     val onSyncWifiOnlyChanged: (Boolean) -> Unit,
     val onRecordingResolutionSelected: (RecordingResolution) -> Unit,
+    val onOffRouteAlertsChanged: (Boolean) -> Unit,
+    val onOffRouteThresholdSelected: (OffRouteThreshold) -> Unit,
     val onManageLocationPermission: () -> Unit,
     val onManageNotificationPermission: () -> Unit,
     val onOpenPrivacyPolicy: () -> Unit,

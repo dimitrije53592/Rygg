@@ -2,6 +2,7 @@ package com.dimitrijeilic.rygg.feature.details.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.SaveAlt
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -29,8 +32,10 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailsShareSheet(
+    isSharingLink: Boolean,
     onShareLink: () -> Unit,
     onShareFile: () -> Unit,
+    onSaveFile: () -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -55,13 +60,24 @@ fun DetailsShareSheet(
             )
             ShareOption(
                 icon = Icons.Outlined.Link,
-                label = stringResource(R.string.details_share_link),
-                onClick = onShareLink
+                label = stringResource(
+                    if (isSharingLink) R.string.details_share_link_preparing else R.string.details_share_link
+                ),
+                onClick = onShareLink,
+                enabled = !isSharingLink,
+                isLoading = isSharingLink
             )
             ShareOption(
                 icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.details_share_file),
-                onClick = onShareFile
+                onClick = onShareFile,
+                enabled = !isSharingLink
+            )
+            ShareOption(
+                icon = Icons.Outlined.SaveAlt,
+                label = stringResource(R.string.details_save_file),
+                onClick = onSaveFile,
+                enabled = !isSharingLink
             )
         }
     }
@@ -71,12 +87,15 @@ fun DetailsShareSheet(
 private fun ShareOption(
     icon: ImageVector,
     label: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    isLoading: Boolean = false
 ) {
+    val dimmed = !enabled && !isLoading
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(
                 horizontal = RyggTheme.dimens.commonContentPadding24,
                 vertical = RyggTheme.dimens.commonContentPadding16
@@ -84,16 +103,29 @@ private fun ShareOption(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = RyggTheme.getColor(RyggColor.BrandGreen),
-            modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-        )
+        Box(
+            modifier = Modifier.size(RyggTheme.dimens.iconSize24),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = RyggTheme.getColor(RyggColor.BrandGreen),
+                    strokeWidth = RyggTheme.dimens.border2,
+                    modifier = Modifier.size(RyggTheme.dimens.progressIndicator20)
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = RyggTheme.getColor(if (dimmed) RyggColor.TextSecondary else RyggColor.BrandGreen),
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+                )
+            }
+        }
         Text(
             text = label,
             style = RyggTheme.typography.bodyLarge,
-            color = RyggTheme.getColor(RyggColor.TextPrimary)
+            color = RyggTheme.getColor(if (dimmed) RyggColor.TextSecondary else RyggColor.TextPrimary)
         )
     }
 }
@@ -106,6 +138,7 @@ private fun DetailsShareSheetPreview() {
         Column {
             ShareOption(icon = Icons.Outlined.Link, label = "Share link", onClick = {})
             ShareOption(icon = Icons.Outlined.FileDownload, label = "Share GPX file", onClick = {})
+            ShareOption(icon = Icons.Outlined.SaveAlt, label = "Save to device", onClick = {})
         }
     }
 }
