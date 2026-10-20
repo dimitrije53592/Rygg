@@ -1,6 +1,7 @@
 package com.dimitrijeilic.rygg.core.ui.theme
 
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asComposePath
@@ -20,6 +21,7 @@ class SmoothCornerShape(
     private val smoothing: Float = CORNER_SMOOTHING
 ) : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        if (size.width <= 0f || size.height <= 0f) return Outline.Rectangle(size.toRect())
         // A radius past half the short side has no room for the transition curves.
         val limit = min(size.width, size.height) / 2f
         val top = CornerRounding(radius = min(with(density) { topRadius.toPx() }, limit), smoothing = smoothing)
