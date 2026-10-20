@@ -34,6 +34,7 @@ class DetailsViewModel @Inject constructor(
     private val entryId = savedStateHandle.toRoute<Details>().entryId
     private var profileCache: CachedProfile? = null
     private val isSavingTrim = MutableStateFlow(false)
+    private val isSharingLink = MutableStateFlow(false)
 
     // One-shot share side effects handed to the wrapper (which owns the Context to act on them).
     private val _events = Channel<DetailsEvent>(Channel.BUFFERED)
@@ -60,6 +61,7 @@ class DetailsViewModel @Inject constructor(
                 }
             }
             .combine(isSavingTrim) { state, saving -> state.copy(isSavingTrim = saving) }
+            .combine(isSharingLink) { state, sharing -> state.copy(isSharingLink = sharing) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
@@ -106,8 +108,12 @@ class DetailsViewModel @Inject constructor(
     // Upload the route if needed, then emit a cross-device share link (or a failure).
     fun onShareLink() {
         val entry = loadedEntry() ?: return
+        if (isSharingLink.value) return
         viewModelScope.launch {
-            val event = when (val outcome = routeSyncManager.createShareLink(entry)) {
+            isSharingLink.value = true
+            val outcome = routeSyncManager.createShareLink(entry)
+            isSharingLink.value = false
+            val event = when (outcome) {
                 is Outcome.Success -> DetailsEvent.ShareLink(outcome.data, entry.name)
                 is Outcome.Error -> DetailsEvent.ShareLinkFailed
                 Outcome.Loading -> return@launch
@@ -203,7 +209,8 @@ private data class CachedProfile(
 
 data class DetailsUiState(
     val loadingState: DetailsLoadingState,
-    val isSavingTrim: Boolean = false
+    val isSavingTrim: Boolean = false,
+    val isSharingLink: Boolean = false
 )
 
 sealed interface DetailsLoadingState {

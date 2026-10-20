@@ -21,12 +21,14 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +60,7 @@ fun DetailsHeroMap(
     modifier: Modifier = Modifier,
     highlightFraction: Float? = null,
     keptRange: ClosedFloatingPointRange<Float>? = null,
+    isSharingLink: Boolean = false,
     sourceLabel: String? = null,
     onToggleFavorite: (() -> Unit)? = null,
     onRename: ((String) -> Unit)? = null,
@@ -118,6 +121,7 @@ fun DetailsHeroMap(
             Row(horizontalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing8)) {
                 if (onShareLink != null && onShareFile != null && onSaveFile != null) {
                     HeroShareButton(
+                        isSharingLink = isSharingLink,
                         onShareLink = onShareLink,
                         onShareFile = onShareFile,
                         onSaveFile = onSaveFile
@@ -160,27 +164,45 @@ fun DetailsHeroMap(
 
 @Composable
 private fun HeroShareButton(
+    isSharingLink: Boolean,
     onShareLink: () -> Unit,
     onShareFile: () -> Unit,
     onSaveFile: () -> Unit
 ) {
     var showSheet by remember { mutableStateOf(false) }
+    var awaitingLink by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isSharingLink) {
+        if (!isSharingLink && awaitingLink) {
+            awaitingLink = false
+            showSheet = false
+        }
+    }
 
     GlassIconButton(
-        onClick = { showSheet = true },
+        onClick = { if (!isSharingLink) showSheet = true },
         content = {
-            Icon(
-                imageVector = Icons.Outlined.Share,
-                contentDescription = stringResource(R.string.details_share),
-                tint = Color.White,
-                modifier = Modifier.size(RyggTheme.dimens.iconSize24)
-            )
+            if (isSharingLink) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = RyggTheme.dimens.border2,
+                    modifier = Modifier.size(RyggTheme.dimens.progressIndicator20)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.Share,
+                    contentDescription = stringResource(R.string.details_share),
+                    tint = Color.White,
+                    modifier = Modifier.size(RyggTheme.dimens.iconSize24)
+                )
+            }
         }
     )
     if (showSheet) {
         DetailsShareSheet(
+            isSharingLink = isSharingLink,
             onShareLink = {
-                showSheet = false
+                awaitingLink = true
                 onShareLink()
             },
             onShareFile = {

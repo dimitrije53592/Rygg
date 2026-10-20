@@ -151,6 +151,7 @@ private fun LoadedContent(
                 entry = entry,
                 highlightFraction = scrubFraction,
                 keptRange = trimRange,
+                isSharingLink = params.uiState.isSharingLink,
                 onNavigateBack = params.onNavigateBack,
                 sourceLabel = sourceLabel,
                 onToggleFavorite = (mode as? DetailsMode.View)?.onToggleFavorite,

@@ -369,4 +369,6 @@
     <string name="details_trim_hint">Drag the handles to choose the part to keep. It is saved as a new route; the original stays as it is.</string>
     <string name="details_trim_save">Save trimmed copy</string>
     <string name="details_trim_failed">Couldn\'t trim this route. Keep a longer stretch and try again.</string>
+
+    <string name="details_share_link_preparing">Preparing link…</string>
 </resources>
