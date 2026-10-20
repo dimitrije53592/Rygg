@@ -428,4 +428,11 @@
     <string name="photo_delete_title">Delete this photo?</string>
     <string name="photo_delete_message">It will be removed from this route on all your devices.</string>
     <string name="photo_waiting_for_sync">Waiting for sync</string>
+    <string name="map_waypoint_unnamed">Waypoint</string>
+    <string name="map_waypoint_close">Close</string>
+    <string name="map_waypoint_elevation">Elevation</string>
+    <string name="map_waypoint_from_you">From you</string>
+    <string name="map_waypoint_coordinates">Coordinates</string>
+    <string name="map_waypoint_copy">Copy coordinates</string>
+    <string name="map_waypoint_copied">Coordinates copied</string>
 </resources>

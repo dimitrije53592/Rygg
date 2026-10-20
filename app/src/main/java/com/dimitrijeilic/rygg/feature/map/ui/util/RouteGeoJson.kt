@@ -1,6 +1,7 @@
 package com.dimitrijeilic.rygg.feature.map.ui.util
 
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
+import com.dimitrijeilic.rygg.feature.map.ui.components.SelectedWaypoint
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.maplibre.spatialk.geojson.Feature
@@ -11,6 +12,7 @@ import org.maplibre.spatialk.geojson.Position
 
 internal const val PROP_ID = "id"
 internal const val PROP_NAME = "name"
+internal const val PROP_WAYPOINT_INDEX = "waypoint"
 
 internal fun routeLineFeatures(routes: List<RouteOverlay>): FeatureCollection<*, *> {
     val features = routes.flatMap { route ->
@@ -40,14 +42,20 @@ internal fun routeStartFeatures(routes: List<RouteOverlay>): FeatureCollection<*
     return FeatureCollection(features)
 }
 
-internal fun routeWaypointFeatures(routes: List<RouteOverlay>): FeatureCollection<*, *> {
+// [hidden] is the waypoint currently shown as a callout, which takes the pin's place.
+internal fun routeWaypointFeatures(
+    routes: List<RouteOverlay>,
+    hidden: SelectedWaypoint? = null
+): FeatureCollection<*, *> {
     val features = routes.flatMap { route ->
-        route.waypoints.map { waypoint ->
+        route.waypoints.mapIndexedNotNull { index, waypoint ->
+            if (hidden?.routeId == route.id && hidden.index == index) return@mapIndexedNotNull null
             Feature(
                 geometry = Point(Position(waypoint.lon, waypoint.lat)),
                 properties = buildJsonObject {
                     put(PROP_ID, route.id.toString())
                     put(PROP_NAME, waypoint.name)
+                    put(PROP_WAYPOINT_INDEX, index)
                 }
             )
         }

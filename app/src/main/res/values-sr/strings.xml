@@ -424,4 +424,11 @@
     <string name="photo_delete_title">Obrisati ovu fotografiju?</string>
     <string name="photo_delete_message">Biće uklonjena sa ove rute na svim vašim uređajima.</string>
     <string name="photo_waiting_for_sync">Čeka se sinhronizacija</string>
+    <string name="map_waypoint_unnamed">Putna tačka</string>
+    <string name="map_waypoint_close">Zatvori</string>
+    <string name="map_waypoint_elevation">Nadmorska visina</string>
+    <string name="map_waypoint_from_you">Od vas</string>
+    <string name="map_waypoint_coordinates">Koordinate</string>
+    <string name="map_waypoint_copy">Kopiraj koordinate</string>
+    <string name="map_waypoint_copied">Koordinate su kopirane</string>
 </resources>

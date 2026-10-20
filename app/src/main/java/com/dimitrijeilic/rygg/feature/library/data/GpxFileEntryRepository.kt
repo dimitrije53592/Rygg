@@ -286,7 +286,15 @@ class GpxFileEntryRepository @Inject constructor(
                 .use { gpxParser.parse(it).gpxDocument }
             RouteFileContent(
                 paths = document.trackPaths(),
-                waypoints = document.waypoints.map { Waypoint(it.lat, it.lon, it.name.orEmpty()) }
+                waypoints = document.waypoints.map { point ->
+                    Waypoint(
+                        lat = point.lat,
+                        lon = point.lon,
+                        name = point.name.orEmpty(),
+                        ele = point.ele,
+                        description = (point.desc ?: point.cmt)?.trim()?.ifBlank { null }
+                    )
+                }
             )
         }.getOrNull()
 
