@@ -59,6 +59,7 @@ internal fun RouteLayers(
     )
 
     // Waypoints of the focused route — shown on the map and while following (not gated by showPins).
+    // Labels ignore collisions so every waypoint name stays readable; long names wrap.
     val focusedWaypoints = remember(routes, focusedRouteId) {
         GeoJsonData.Features(routeWaypointFeatures(routes.filter { it.id == focusedRouteId }))
     }
@@ -67,15 +68,18 @@ internal fun RouteLayers(
         id = "waypoints-focused",
         source = focusedWaypointsSource,
         iconImage = image(painterResource(R.drawable.ic_map_pin_waypoint)),
-        iconSize = const(0.6f),
+        iconSize = const(0.8f),
         iconAnchor = const(SymbolAnchor.Bottom),
         iconAllowOverlap = const(true),
+        iconIgnorePlacement = const(true),
         textField = format(span(feature.get(PROP_NAME).asString())),
         textColor = const(RyggTheme.getColor(RyggColor.TextPrimary)),
         textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
         textHaloWidth = const(2.dp),
         textAnchor = const(SymbolAnchor.Top),
-        textOffset = offset(0f.em, 0.5f.em)
+        textOffset = offset(0f.em, 0.5f.em),
+        textAllowOverlap = const(true),
+        textIgnorePlacement = const(true)
     )
 
     if (!showPins) return
