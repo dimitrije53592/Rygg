@@ -23,11 +23,17 @@ import com.dimitrijeilic.rygg.core.ui.utils.formatMonthYear
 import com.dimitrijeilic.rygg.core.ui.utils.monthKey
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.domain.SortMode
+import com.dimitrijeilic.rygg.feature.library.ui.viewmodel.LibraryFolder
 
 @Composable
 internal fun GpxFileEntryList(
+    folders: List<LibraryFolder>,
+    expandedFolders: Set<String>,
     entries: List<GpxFileEntry>,
     sortMode: SortMode,
+    onToggleFolder: (String) -> Unit,
+    onRenameFolder: (String) -> Unit,
+    onDeleteFolder: (String) -> Unit,
     onEntryClick: (GpxFileEntry) -> Unit,
     onFavoriteClick: (GpxFileEntry) -> Unit,
     onDeleteEntry: (GpxFileEntry) -> Unit
@@ -47,6 +53,39 @@ internal fun GpxFileEntryList(
         ),
         verticalArrangement = Arrangement.spacedBy(RyggTheme.dimens.commonSpacing16)
     ) {
+        folders.forEach { folder ->
+            val expanded = folder.name in expandedFolders
+            item(key = "folder-${folder.name}") {
+                SwipeToDeleteBox(
+                    onDelete = { onDeleteFolder(folder.name) },
+                    modifier = Modifier.animateItem(placementSpec = RyggMotion.spatial())
+                ) {
+                    LibraryFolderCard(
+                        name = folder.name,
+                        routeCount = folder.entries.size,
+                        expanded = expanded,
+                        onToggle = { onToggleFolder(folder.name) },
+                        onRename = { onRenameFolder(folder.name) }
+                    )
+                }
+            }
+            if (expanded) {
+                items(folder.entries, key = { it.id }) { entry ->
+                    EntryRow(
+                        entry = entry,
+                        onEntryClick = onEntryClick,
+                        onFavoriteClick = onFavoriteClick,
+                        onDeleteEntry = onDeleteEntry,
+                        modifier = Modifier.padding(horizontal = RyggTheme.dimens.commonContentPadding12)
+                    )
+                }
+            }
+        }
+        if (folders.isNotEmpty() && entries.isNotEmpty()) {
+            item(key = UNFILED_SECTION_KEY) {
+                SectionHeader(stringResource(R.string.library_unfiled_section).uppercase())
+            }
+        }
         if (sortMode == SortMode.TIME) {
             val timed = entries.filter { it.startTimeMillis != null }
             val untimed = entries.filter { it.startTimeMillis == null }
@@ -82,11 +121,12 @@ private fun LazyItemScope.EntryRow(
     entry: GpxFileEntry,
     onEntryClick: (GpxFileEntry) -> Unit,
     onFavoriteClick: (GpxFileEntry) -> Unit,
-    onDeleteEntry: (GpxFileEntry) -> Unit
+    onDeleteEntry: (GpxFileEntry) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     SwipeToDeleteBox(
         onDelete = { onDeleteEntry(entry) },
-        modifier = Modifier.animateItem(placementSpec = RyggMotion.spatial())
+        modifier = modifier.animateItem(placementSpec = RyggMotion.spatial())
     ) {
         GpxFileEntryCard(
             entry = entry,
@@ -112,3 +152,4 @@ private fun SectionHeader(title: String) {
 }
 
 private const val UNDATED_SECTION_KEY = "undated_section"
+private const val UNFILED_SECTION_KEY = "unfiled_section"

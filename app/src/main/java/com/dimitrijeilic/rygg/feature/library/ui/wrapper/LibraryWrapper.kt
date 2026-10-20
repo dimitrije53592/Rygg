@@ -33,6 +33,10 @@ fun LibraryWrapper(
             onDisciplineSelected = { discipline ->
                 viewModel.onDisciplineSelected(discipline)
             },
+            onCreateFolder = viewModel::onCreateFolder,
+            onRenameFolder = viewModel::onRenameFolder,
+            onDeleteFolder = viewModel::onDeleteFolder,
+            onSearchQueryChange = viewModel::onSearchQueryChange,
             onToggleSort = { viewModel.onToggleSort() },
             onToggleFavoritesFilter = { viewModel.onToggleFavoritesFilter() },
             onCycleSourceFilter = { viewModel.onCycleSource() },
