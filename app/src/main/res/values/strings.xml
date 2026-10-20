@@ -326,6 +326,10 @@
     <string name="record_recovery_save">Save as is</string>
     <string name="record_recovery_discard">Discard recording</string>
     <string name="record_recovery_hold_to_discard">Hold to discard</string>
+    <string name="record_battery_title">Keep recording in the background</string>
+    <string name="record_battery_message">Some phones stop apps in the background to save battery, which can cut a recording short. Let Rygg run unrestricted so long hikes are recorded in full.</string>
+    <string name="record_battery_open_settings">Open battery settings</string>
+    <string name="record_battery_skip">Start anyway</string>
     <string name="record_counts">%1$s · %2$s</string>
     <string name="library_summary_activities">Activities</string>
     <string name="settings_theme_system_short">System</string>

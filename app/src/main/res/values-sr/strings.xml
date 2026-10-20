@@ -321,6 +321,10 @@
     <string name="record_recovery_save">Sačuvaj ovako</string>
     <string name="record_recovery_discard">Odbaci snimanje</string>
     <string name="record_recovery_hold_to_discard">Držite za odbacivanje</string>
+    <string name="record_battery_title">Snimanje u pozadini</string>
+    <string name="record_battery_message">Neki telefoni gase aplikacije u pozadini radi uštede baterije, što može prekinuti snimanje. Dozvolite aplikaciji Rygg rad bez ograničenja da bi duge ture bile snimljene u celosti.</string>
+    <string name="record_battery_open_settings">Otvori podešavanja baterije</string>
+    <string name="record_battery_skip">Ipak počni</string>
     <string name="record_counts">%1$s · %2$s</string>
     <string name="library_summary_activities">Aktivnosti</string>
     <string name="settings_theme_system_short">Sistem</string>
