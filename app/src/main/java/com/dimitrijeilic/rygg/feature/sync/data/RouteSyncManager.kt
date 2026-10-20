@@ -75,11 +75,22 @@ class RouteSyncManager @Inject constructor(
     // revert to guest rows so nothing is lost.
     suspend fun onSignedOut(previousUid: String) {
         stopPull()
-        (dao.getOwnedSynced(previousUid) + dao.getOwnedPendingDelete(previousUid)).forEach { entity ->
+        releaseRoutes(previousUid)
+    }
+
+    // Rows owned by an account that isn't signed in here, e.g. restored from an Android backup or
+    // left by a kill before onSignedOut ran, would otherwise show in (and sync into) another
+    // account's library. Treat each such account as signed out.
+    suspend fun releaseForeignRoutes(currentUid: String?) {
+        dao.getForeignOwners(currentUid).forEach { releaseRoutes(it) }
+    }
+
+    private suspend fun releaseRoutes(ownerUid: String) {
+        (dao.getOwnedSynced(ownerUid) + dao.getOwnedPendingDelete(ownerUid)).forEach { entity ->
             if (entity.fileName.isNotEmpty()) gpxStorage.deleteFile(entity.fileName)
             dao.deleteById(entity.id)
         }
-        dao.revertOwnedUnsyncedToGuest(previousUid)
+        dao.revertOwnedUnsyncedToGuest(ownerUid)
     }
 
     // Sync turned off while signed in: detach the pull, keep local data. onSignedIn resumes it.

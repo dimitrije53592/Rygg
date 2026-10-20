@@ -59,6 +59,10 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND syncStatus = 'SYNCED'")
     suspend fun getOwnedSynced(ownerUid: String): List<GpxFileEntryEntity>
 
+    // Accounts other than the signed-in one (or any, when signed out) that still own rows here.
+    @Query("SELECT DISTINCT ownerUid FROM library WHERE ownerUid IS NOT NULL AND (:currentUid IS NULL OR ownerUid != :currentUid)")
+    suspend fun getForeignOwners(currentUid: String?): List<String>
+
     // Every row an account owns, whatever its sync state — account deletion sweeps them all.
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid")
     suspend fun getOwned(ownerUid: String): List<GpxFileEntryEntity>

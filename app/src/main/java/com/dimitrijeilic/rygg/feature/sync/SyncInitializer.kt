@@ -43,6 +43,7 @@ class SyncInitializer @Inject constructor(
                     if (previousUid != null && previousUid != uid) {
                         syncManager.onSignedOut(previousUid)
                     }
+                    syncManager.releaseForeignRoutes(uid)
                     when {
                         uid == null -> Unit // signed out; handled above
                         // Signed in and sync (re)enabled: a new account, or the toggle just flipped on.
