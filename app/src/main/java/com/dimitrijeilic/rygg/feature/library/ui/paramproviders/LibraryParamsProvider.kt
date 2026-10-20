@@ -25,8 +25,7 @@ class LibraryParamsProvider : PreviewParameterProvider<LibraryScreenParams> {
                         discipline = Discipline.RIDE,
                         source = EntrySource.IMPORTED,
                         isFavorite = false,
-                        hasTime = false,
-                        tags = emptyList()
+                        hasTime = false
                     )
                 )
             )

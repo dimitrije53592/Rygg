@@ -36,7 +36,6 @@ data class RemoteRoute(
     val maxLon: Double? = null,
     val thumbnailPath: String = "",
     val folder: String? = null,
-    val tags: List<String> = emptyList(),
     val importedAt: Long = 0,
     val updatedAt: Long = 0,
     val creator: String? = null,
@@ -91,7 +90,6 @@ fun RemoteRoute.toPreviewEntry(): GpxFileEntry = GpxFileEntry(
     maxLon = maxLon,
     pathPoints = decodeGeoPoints(thumbnailPath),
     folder = folder,
-    tags = tags,
     importedAt = importedAt,
     updatedAt = updatedAt,
     creator = creator,
@@ -125,7 +123,6 @@ fun GpxFileEntryEntity.toRemote(remoteId: String, storagePath: String): RemoteRo
     maxLon = maxLon,
     thumbnailPath = thumbnailPath,
     folder = folder,
-    tags = tags,
     importedAt = importedAt,
     updatedAt = updatedAt,
     creator = creator,
@@ -172,7 +169,6 @@ fun RemoteRoute.toNewEntity(ownerUid: String): GpxFileEntryEntity = GpxFileEntry
     maxLon = maxLon,
     thumbnailPath = thumbnailPath,
     folder = folder,
-    tags = tags,
     importedAt = importedAt,
     updatedAt = updatedAt,
     creator = creator,
@@ -208,7 +204,6 @@ fun RemoteRoute.toUpdatedEntity(local: GpxFileEntryEntity): GpxFileEntryEntity =
     maxLon = maxLon,
     thumbnailPath = thumbnailPath,
     folder = folder,
-    tags = tags,
     updatedAt = updatedAt
 )
 
@@ -250,7 +245,6 @@ fun RemoteRoute.toSavedCopyEntity(fileName: String, ownerUid: String?, now: Long
         maxLon = maxLon,
         thumbnailPath = thumbnailPath,
         folder = folder,
-        tags = tags,
         importedAt = now,
         updatedAt = now,
         creator = creator,

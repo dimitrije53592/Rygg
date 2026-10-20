@@ -53,7 +53,6 @@ data class GpxFileEntryEntity(
     val thumbnailPath: String,
     // Organisation
     val folder: String?,
-    val tags: List<String>,
     // Organisation
     val importedAt: Long,
     val updatedAt: Long,

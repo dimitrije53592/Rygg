@@ -215,7 +215,7 @@ private fun LoadedContent(
                     DetailsContentsCard(entry)
                 }
 
-                if (entry.description.isNotBlank() || entry.tags.isNotEmpty()) {
+                if (entry.description.isNotBlank()) {
                     Section(title = stringResource(R.string.details_details)) {
                         DetailsMetaCard(entry)
                     }
