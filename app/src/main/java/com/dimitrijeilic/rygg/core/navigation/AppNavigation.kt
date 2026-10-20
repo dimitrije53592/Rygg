@@ -58,6 +58,7 @@ import com.dimitrijeilic.rygg.feature.profile.ui.wrapper.ProfileWrapper
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
 import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
 import com.dimitrijeilic.rygg.feature.record.ui.wrapper.RecordWrapper
+import com.dimitrijeilic.rygg.feature.record.ui.wrapper.RecordingRecoveryWrapper
 import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.LicensesWrapper
 import com.dimitrijeilic.rygg.feature.settings.ui.wrapper.SettingsWrapper
 
@@ -282,6 +283,8 @@ fun AppNavigation() {
             }
         }
     }
+
+    RecordingRecoveryWrapper(onOpenPreview = { navController.navigate(RecordingPreview) })
 }
 
 private const val SLIDE_FRACTION = 6

@@ -314,6 +314,13 @@
     <string name="discipline_paddle">Veslanje</string>
     <string name="nav_record_live">Snimanje u toku, %1$s</string>
     <string name="record_hold_to_stop">Držite za zaustavljanje</string>
+    <string name="record_recovery_title">Nedovršeno snimanje</string>
+    <string name="record_recovery_message">Rygg je zatvoren tokom snimanja (%1$s). Trasa do tog trenutka je sačuvana.</string>
+    <string name="record_recovery_time">Vreme</string>
+    <string name="record_recovery_resume">Nastavi snimanje</string>
+    <string name="record_recovery_save">Sačuvaj ovako</string>
+    <string name="record_recovery_discard">Odbaci snimanje</string>
+    <string name="record_recovery_hold_to_discard">Držite za odbacivanje</string>
     <string name="record_counts">%1$s · %2$s</string>
     <string name="library_summary_activities">Aktivnosti</string>
     <string name="settings_theme_system_short">Sistem</string>

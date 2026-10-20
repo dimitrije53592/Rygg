@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.dimitrijeilic.rygg.core.database.RyggDatabase
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
+import com.dimitrijeilic.rygg.feature.record.data.local.RecordingDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,4 +24,7 @@ object DatabaseModule {
 
     @Provides
     fun provideGpxFileEntryDao(database: RyggDatabase): GpxFileEntryDao = database.gpxFileEntryDao()
+
+    @Provides
+    fun provideRecordingDao(database: RyggDatabase): RecordingDao = database.recordingDao()
 }

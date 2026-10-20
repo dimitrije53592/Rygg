@@ -319,6 +319,13 @@
     <string name="unit_symbol_mph" translatable="false">mph</string>
     <string name="nav_record_live">Recording in progress, %1$s</string>
     <string name="record_hold_to_stop">Hold to stop</string>
+    <string name="record_recovery_title">Unfinished recording</string>
+    <string name="record_recovery_message">Rygg was closed during your %1$s recording. The track up to that point is safe.</string>
+    <string name="record_recovery_time">Time</string>
+    <string name="record_recovery_resume">Resume recording</string>
+    <string name="record_recovery_save">Save as is</string>
+    <string name="record_recovery_discard">Discard recording</string>
+    <string name="record_recovery_hold_to_discard">Hold to discard</string>
     <string name="record_counts">%1$s · %2$s</string>
     <string name="library_summary_activities">Activities</string>
     <string name="settings_theme_system_short">System</string>
