@@ -10,6 +10,7 @@ import com.dimitrijeilic.rygg.core.common.asResult
 import com.dimitrijeilic.rygg.core.gpx.model.ElevationSample
 import com.dimitrijeilic.rygg.core.navigation.Details
 import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
+import com.dimitrijeilic.rygg.feature.library.data.RouteImageRepository
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.domain.exportBaseName
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
@@ -28,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
+    private val routeImageRepository: RouteImageRepository,
     private val routeSyncManager: RouteSyncManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -35,6 +37,7 @@ class DetailsViewModel @Inject constructor(
     private var profileCache: CachedProfile? = null
     private val isSavingTrim = MutableStateFlow(false)
     private val isSharingLink = MutableStateFlow(false)
+    private val isAddingPhotos = MutableStateFlow(false)
 
     // One-shot share side effects handed to the wrapper (which owns the Context to act on them).
     private val _events = Channel<DetailsEvent>(Channel.BUFFERED)
@@ -62,6 +65,7 @@ class DetailsViewModel @Inject constructor(
             }
             .combine(isSavingTrim) { state, saving -> state.copy(isSavingTrim = saving) }
             .combine(isSharingLink) { state, sharing -> state.copy(isSharingLink = sharing) }
+            .combine(isAddingPhotos) { state, adding -> state.copy(isAddingPhotos = adding) }
             .combine(gpxFileEntryRepository.observeFolders()) { state, folders -> state.copy(folders = folders) }
             .stateIn(
                 scope = viewModelScope,
@@ -168,6 +172,26 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
+    fun onAddPhotos(uris: List<Uri>) {
+        val entry = loadedEntry() ?: return
+        if (isAddingPhotos.value) return
+        viewModelScope.launch {
+            isAddingPhotos.value = true
+            val outcome = routeImageRepository.addImages(entry.id, uris)
+            isAddingPhotos.value = false
+            when (outcome) {
+                is Outcome.Success -> if (outcome.data < uris.size) _events.send(DetailsEvent.PhotoLimitReached)
+                is Outcome.Error -> _events.send(DetailsEvent.PhotosAddFailed)
+                Outcome.Loading -> Unit
+            }
+        }
+    }
+
+    fun onReorderPhotos(orderedIds: List<String>) {
+        val entry = loadedEntry() ?: return
+        viewModelScope.launch { routeImageRepository.reorder(entry.id, orderedIds) }
+    }
+
     private fun loadedEntry(): GpxFileEntry? =
         (uiState.value.loadingState as? DetailsLoadingState.Loaded)?.entry
 
@@ -207,6 +231,10 @@ sealed interface DetailsEvent {
     data class TrimSaved(val entryId: Long) : DetailsEvent
 
     data object TrimFailed : DetailsEvent
+
+    data object PhotosAddFailed : DetailsEvent
+
+    data object PhotoLimitReached : DetailsEvent
 }
 
 private data class CachedProfile(
@@ -219,6 +247,7 @@ data class DetailsUiState(
     val loadingState: DetailsLoadingState,
     val isSavingTrim: Boolean = false,
     val isSharingLink: Boolean = false,
+    val isAddingPhotos: Boolean = false,
     val folders: List<String> = emptyList()
 )
 

@@ -24,6 +24,9 @@ data object RecordingPreview
 data class Details(val entryId: Long)
 
 @Serializable
+data class PhotoViewer(val entryId: Long, val imageId: String)
+
+@Serializable
 data class SharedRoutePreview(val token: String)
 
 @Serializable

@@ -17,8 +17,8 @@ import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
-import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
