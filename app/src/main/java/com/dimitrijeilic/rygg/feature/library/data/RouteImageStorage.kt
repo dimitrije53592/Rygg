@@ -27,7 +27,9 @@ class RouteImageStorage @Inject constructor(
     private val imagesDir: File
         get() = File(context.filesDir, IMAGES_FOLDER_NAME).apply { mkdirs() }
 
-    fun resolve(imageId: String): File = File(imagesDir, "$imageId.jpg")
+    fun resolve(imageId: String): File = fileFor(context, imageId)
+
+    fun uri(imageId: String): Uri = RouteImageProvider.uriFor(context, imageId)
 
     // Re-encoding through a Bitmap is what strips EXIF (including GPS) from the stored copy; Coil
     // applies the EXIF rotation while decoding, which ImageDecoder can't do below API 28.
@@ -68,6 +70,11 @@ class RouteImageStorage @Inject constructor(
         if (longEdge <= maxEdge) return this
         val factor = maxEdge.toFloat() / longEdge
         return Bitmap.createScaledBitmap(this, (width * factor).roundToInt(), (height * factor).roundToInt(), true)
+    }
+
+    companion object {
+        fun fileFor(context: Context, imageId: String): File =
+            File(File(context.filesDir, IMAGES_FOLDER_NAME), "$imageId.jpg")
     }
 }
 

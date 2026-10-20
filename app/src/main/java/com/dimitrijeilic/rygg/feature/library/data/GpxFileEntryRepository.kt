@@ -43,13 +43,13 @@ class GpxFileEntryRepository @Inject constructor(
         combine(gpxFileEntryDao.observeAll(), routeImageDao.observeAll()) { entities, images ->
             val imagesByEntry = images.groupBy { it.entryId }
             entities.map { entity ->
-                entity.toDomain().copy(images = imagesByEntry[entity.id].orEmpty().map { it.toDomain() })
+                entity.toDomain().copy(images = imagesByEntry[entity.id].orEmpty().map { it.toDomain(routeImageStorage.uri(it.id)) })
             }
         }
 
     fun observeGpxFileEntry(id: Long): Flow<GpxFileEntry?> =
         combine(gpxFileEntryDao.observeById(id), routeImageDao.observeForEntry(id)) { entity, images ->
-            entity?.toDomain()?.copy(images = images.map { it.toDomain() })
+            entity?.toDomain()?.copy(images = images.map { it.toDomain(routeImageStorage.uri(it.id)) })
         }
 
     // A folder exists as long as one route is in it; there is no separate folder entity to sync.

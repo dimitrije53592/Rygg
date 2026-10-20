@@ -18,7 +18,7 @@ class RouteImageRepository @Inject constructor(
     private val routeSyncManager: RouteSyncManager
 ) {
     fun observeImages(entryId: Long): Flow<List<RouteImage>> =
-        imageDao.observeForEntry(entryId).map { images -> images.map { it.toDomain() } }
+        imageDao.observeForEntry(entryId).map { images -> images.map { it.toDomain(imageStorage.uri(it.id)) } }
 
     // Returns how many photos were added; picks beyond the per-route cap are dropped.
     suspend fun addImages(entryId: Long, uris: List<Uri>): Outcome<Int> = outcomeCatching {
