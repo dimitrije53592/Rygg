@@ -11,6 +11,7 @@ import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.RecordViewModel
 @Composable
 fun RecordWrapper(
     onRecordingStopped: () -> Unit,
+    onOpenProfile: () -> Unit,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -26,7 +27,8 @@ fun RecordWrapper(
                 viewModel.onStop()
                 onRecordingStopped()
             },
-            onAddWaypoint = viewModel::onAddWaypoint
+            onAddWaypoint = viewModel::onAddWaypoint,
+            onOpenProfile = onOpenProfile
         )
     )
 }

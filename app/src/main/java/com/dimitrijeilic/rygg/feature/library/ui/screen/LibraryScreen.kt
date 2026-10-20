@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.dimitrijeilic.rygg.R
+import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggTopAppBar
 import com.dimitrijeilic.rygg.core.ui.components.RyggTopBarAction
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
@@ -63,11 +63,7 @@ fun LibraryScreen(params: LibraryScreenParams) {
                         onClick = { showImportSheet = true }
                     )
                     Spacer(Modifier.size(RyggTheme.dimens.commonSpacing4))
-                    RyggTopBarAction(
-                        icon = Icons.Outlined.Person,
-                        contentDescription = stringResource(R.string.library_open_profile),
-                        onClick = params.onOpenProfile
-                    )
+                    RyggProfileAction(onClick = params.onOpenProfile)
                     Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
                 }
             )

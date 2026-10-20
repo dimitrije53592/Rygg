@@ -7,6 +7,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,8 +17,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
+
+@Composable
+fun RyggProfileAction(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    RyggTopBarAction(
+        icon = Icons.Outlined.Person,
+        contentDescription = stringResource(R.string.library_open_profile),
+        onClick = onClick,
+        modifier = modifier
+    )
+}
 
 @Composable
 fun RyggTopBarAction(

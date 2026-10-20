@@ -234,7 +234,8 @@ fun AppNavigation() {
                         deepLinks = listOf(navDeepLink<Record>(basePath = InternalDeepLinks.RECORD))
                     ) {
                         RecordWrapper(
-                            onRecordingStopped = { navController.navigate(RecordingPreview) }
+                            onRecordingStopped = { navController.navigate(RecordingPreview) },
+                            onOpenProfile = { navController.navigate(Profile) }
                         )
                     }
                     composable<RecordingPreview>(
@@ -246,7 +247,8 @@ fun AppNavigation() {
                         MapWrapper(
                             onStartFollow = { entryId ->
                                 navController.navigate(FollowRoute(entryId = entryId))
-                            }
+                            },
+                            onOpenProfile = { navController.navigate(Profile) }
                         )
                     }
                     composable<FollowRoute> {
