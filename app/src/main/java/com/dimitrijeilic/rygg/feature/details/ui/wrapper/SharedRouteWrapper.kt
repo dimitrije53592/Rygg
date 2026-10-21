@@ -28,7 +28,9 @@ fun SharedRouteWrapper(
             onNavigateBack = onNavigateBack,
             mode = DetailsMode.SharedPreview(
                 isSaving = uiState.isSaving,
-                onSaveCopy = { viewModel.onSaveCopy() }
+                isInLibrary = uiState.libraryEntryId != null,
+                onSaveCopy = { viewModel.onSaveCopy() },
+                onOpenInLibrary = { viewModel.onOpenInLibrary() }
             )
         )
     )

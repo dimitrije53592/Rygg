@@ -181,6 +181,8 @@
     <string name="details_recording_preview">Recording preview</string>
     <string name="details_file_name">File name</string>
     <string name="details_shared_preview">Shared route</string>
+    <string name="details_shared_in_library">This route is already in your library.</string>
+    <string name="details_open_in_library">Open in library</string>
     <string name="details_share_failed">Couldn\'t create a share link. Try again.</string>
     <string name="details_share_file_not_ready">Route file is still downloading. Try again in a moment.</string>
 

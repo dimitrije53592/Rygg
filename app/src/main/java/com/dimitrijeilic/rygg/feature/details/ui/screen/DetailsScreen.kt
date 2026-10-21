@@ -392,14 +392,27 @@ private fun BottomActionBar(
                     )
                 }
 
-                is DetailsMode.SharedPreview -> {
-                    RyggPrimaryButton(
-                        text = stringResource(R.string.details_save_to_library),
-                        onClick = mode.onSaveCopy,
-                        isLoading = mode.isSaving,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                is DetailsMode.SharedPreview ->
+                    if (mode.isInLibrary) {
+                        Text(
+                            text = stringResource(R.string.details_shared_in_library),
+                            style = RyggTheme.typography.bodyMedium,
+                            color = RyggTheme.getColor(RyggColor.TextSecondary),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        RyggPrimaryButton(
+                            text = stringResource(R.string.details_open_in_library),
+                            onClick = mode.onOpenInLibrary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        RyggPrimaryButton(
+                            text = stringResource(R.string.details_save_to_library),
+                            onClick = mode.onSaveCopy,
+                            isLoading = mode.isSaving,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
             }
         }
     }
@@ -445,9 +458,11 @@ sealed interface DetailsMode {
         val onSave: () -> Unit
     ) : DetailsMode
 
-    // A shared route opened from a link: not in the library yet, so the only action is save-a-copy.
+    // A shared route opened from a link: save a copy, or open the copy already in the library.
     data class SharedPreview(
         val isSaving: Boolean,
-        val onSaveCopy: () -> Unit
+        val isInLibrary: Boolean,
+        val onSaveCopy: () -> Unit,
+        val onOpenInLibrary: () -> Unit
     ) : DetailsMode
 }

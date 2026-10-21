@@ -183,6 +183,8 @@
     <string name="details_recording_preview">Pregled snimka</string>
     <string name="details_file_name">Naziv datoteke</string>
     <string name="details_shared_preview">Deljena ruta</string>
+    <string name="details_shared_in_library">Ova ruta je već u vašoj biblioteci.</string>
+    <string name="details_open_in_library">Otvori u biblioteci</string>
     <string name="details_share_failed">Kreiranje linka za deljenje nije uspelo. Pokušajte ponovo.</string>
     <string name="details_share_file_not_ready">Datoteka rute se još preuzima. Pokušajte ponovo za trenutak.</string>
 
