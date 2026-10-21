@@ -56,6 +56,12 @@ interface GpxFileEntryDao {
     @Query("SELECT * FROM library WHERE ownerUid = :ownerUid AND contentHash = :contentHash LIMIT 1")
     suspend fun getByContentHash(ownerUid: String, contentHash: String): GpxFileEntryEntity?
 
+    @Query("SELECT id FROM library WHERE remoteId = :remoteId AND deletedAt IS NULL LIMIT 1")
+    suspend fun getActiveIdByRemoteId(remoteId: String): Long?
+
+    @Query("SELECT id FROM library WHERE ownerUid IS :ownerUid AND contentHash = :contentHash AND deletedAt IS NULL LIMIT 1")
+    suspend fun getActiveIdByContentHash(ownerUid: String?, contentHash: String): Long?
+
     // Guest routes eligible for adoption when an account signs in.
     @Query("SELECT * FROM library WHERE ownerUid IS NULL AND deletedAt IS NULL")
     suspend fun getGuestRoutes(): List<GpxFileEntryEntity>

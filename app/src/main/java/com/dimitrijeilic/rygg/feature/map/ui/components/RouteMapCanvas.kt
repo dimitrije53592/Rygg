@@ -7,14 +7,17 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
+import org.maplibre.compose.camera.CameraMoveReason
 import org.maplibre.compose.camera.CameraState
 import org.maplibre.compose.location.BearingWithAccuracy
 import org.maplibre.compose.location.Location
@@ -28,7 +31,8 @@ import org.maplibre.compose.style.BaseStyle
 import org.maplibre.compose.util.ClickResult
 
 // The waypoint callout is UI-only state, so it lives here and works on every screen that shows a
-// map; it closes when the focused route changes, on a tap elsewhere on the map, or on back.
+// map; it closes when the focused route changes, on a tap elsewhere on the map, on a pan or zoom,
+// or on back.
 @Composable
 internal fun RouteMapCanvas(
     styleUrl: String,
@@ -43,6 +47,11 @@ internal fun RouteMapCanvas(
     var selectedWaypoint by remember(focusedRouteId) { mutableStateOf<SelectedWaypoint?>(null) }
     val waypoint = selectedWaypoint?.let { selected ->
         routes.firstOrNull { it.id == selected.routeId }?.waypoints?.getOrNull(selected.index)
+    }
+
+    LaunchedEffect(cameraState, focusedRouteId) {
+        snapshotFlow { cameraState.isCameraMoving && cameraState.moveReason == CameraMoveReason.GESTURE }
+            .collect { isGesture -> if (isGesture) selectedWaypoint = null }
     }
 
     BackHandler(enabled = waypoint != null) { selectedWaypoint = null }

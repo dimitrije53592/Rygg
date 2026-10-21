@@ -38,6 +38,11 @@ class SharedRouteViewModel @Inject constructor(
             when (val outcome = routeSyncManager.resolveSharedRoute(token)) {
                 is Outcome.Success -> {
                     shared = outcome.data
+                    val libraryEntryId = routeSyncManager.findLibraryCopy(outcome.data)
+                    if (libraryEntryId != null && routeSyncManager.isOwnShare(outcome.data)) {
+                        _uiState.update { it.copy(savedEntryId = libraryEntryId) }
+                        return@launch
+                    }
                     _uiState.update {
                         it.copy(
                             details = DetailsUiState(
@@ -45,7 +50,8 @@ class SharedRouteViewModel @Inject constructor(
                                     entry = outcome.data.route.toPreviewEntry(),
                                     elevationProfile = emptyList()
                                 )
-                            )
+                            ),
+                            libraryEntryId = libraryEntryId
                         )
                     }
                 }
@@ -76,10 +82,16 @@ class SharedRouteViewModel @Inject constructor(
             }
         }
     }
+
+    fun onOpenInLibrary() {
+        val entryId = _uiState.value.libraryEntryId ?: return
+        _uiState.update { it.copy(savedEntryId = entryId) }
+    }
 }
 
 data class SharedRouteUiState(
     val details: DetailsUiState = DetailsUiState(DetailsLoadingState.Loading),
+    val libraryEntryId: Long? = null,
     val isSaving: Boolean = false,
     val savedEntryId: Long? = null,
     val error: String? = null

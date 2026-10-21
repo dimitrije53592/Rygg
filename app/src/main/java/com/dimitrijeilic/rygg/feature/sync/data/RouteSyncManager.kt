@@ -459,7 +459,22 @@ class RouteSyncManager @Inject constructor(
         snapshot.toObject(SharedRoute::class.java) ?: throw IllegalStateException(ERR_NOT_FOUND)
     }
 
+    fun isOwnShare(shared: SharedRoute): Boolean =
+        auth.currentUser()?.uid?.let { it == shared.ownerUid } ?: false
+
+    suspend fun findLibraryCopy(shared: SharedRoute): Long? {
+        val uid = auth.currentUser()?.uid
+        val remoteId = shared.route.remoteId
+        if (uid != null && shared.ownerUid == uid && remoteId.isNotEmpty()) {
+            dao.getActiveIdByRemoteId(remoteId)?.let { return it }
+        }
+        val contentHash = shared.route.contentHash
+        if (contentHash.isEmpty()) return null
+        return dao.getActiveIdByContentHash(uid, contentHash)
+    }
+
     suspend fun saveSharedCopy(shared: SharedRoute): Outcome<Long> = outcomeCatching {
+        findLibraryCopy(shared)?.let { return@outcomeCatching it }
         val bytes = storage.reference.child(shared.sharedStoragePath).getBytes(MAX_FILE_BYTES).await()
         val file = gpxStorage.saveBytes(bytes)
         val uid = auth.currentUser()?.uid
