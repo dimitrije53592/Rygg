@@ -13,6 +13,9 @@
     <fields>;
 }
 
+# Firestore maps these by reflection (toObject / set), so their names and no-arg constructors must survive.
+-keep class com.dimitrijeilic.rygg.feature.sync.data.remote.** { *; }
+
 # Crash stack traces map back to source.
 -keepattributes SourceFile, LineNumberTable
 -renamesourcefileattribute SourceFile

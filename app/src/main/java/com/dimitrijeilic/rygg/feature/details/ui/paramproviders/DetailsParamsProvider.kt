@@ -35,7 +35,10 @@ private fun detailsParams(loadingState: DetailsLoadingState): DetailsScreenParam
             onDelete = {},
             onShareLink = {},
             onShareFile = {},
-            onSaveFile = {}
+            onSaveFile = {},
+            onAddPhotos = {},
+            onOpenPhoto = {},
+            onReorderPhotos = {}
         )
     )
 

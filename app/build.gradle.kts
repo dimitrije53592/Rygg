@@ -151,4 +151,6 @@ dependencies {
     implementation(libs.maplibre.android.opengl)
     implementation(libs.play.services.location)
     implementation(libs.aboutlibraries.core)
+    implementation(libs.coil.compose)
+    implementation(libs.reorderable)
 }

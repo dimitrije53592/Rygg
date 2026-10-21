@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Star
@@ -39,6 +42,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.ui.components.RouteCanvas
 import com.dimitrijeilic.rygg.core.ui.components.RouteCanvasScale
+import com.dimitrijeilic.rygg.core.ui.components.RyggAsyncImage
+import com.dimitrijeilic.rygg.core.ui.components.RyggPageDots
 import com.dimitrijeilic.rygg.core.ui.components.pressScale
 import com.dimitrijeilic.rygg.core.ui.components.sharedRouteCanvas
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
@@ -66,6 +71,8 @@ fun GpxFileEntryCard(
     val shape = RyggShapes.card
     val interactionSource = remember { MutableInteractionSource() }
     val scrim = RyggTheme.getColor(RyggColor.ScrimDark)
+    // Photos first, the route drawing last.
+    val pagerState = rememberPagerState(pageCount = { entry.images.size + 1 })
 
     Column(
         modifier = modifier
@@ -96,13 +103,7 @@ fun GpxFileEntryCard(
                 .fillMaxWidth()
                 .aspectRatio(CARD_ASPECT)
         ) {
-            RouteCanvas(
-                points = entry.pathPoints,
-                scale = RouteCanvasScale.Card,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .sharedRouteCanvas(entry.id)
-            )
+            CardSlides(entry = entry, pagerState = pagerState)
 
             Box(
                 modifier = Modifier
@@ -123,6 +124,13 @@ fun GpxFileEntryCard(
                 verticalAlignment = Alignment.Top
             ) {
                 DisciplineBadge(discipline = entry.discipline)
+                if (pagerState.pageCount > 1) {
+                    RyggPageDots(
+                        pageCount = pagerState.pageCount,
+                        currentPage = pagerState.currentPage,
+                        modifier = Modifier.padding(top = RyggTheme.dimens.commonContentPadding12)
+                    )
+                }
                 FavoriteStar(
                     favorite = entry.isFavorite,
                     onClick = { onFavoriteClick(entry) }
@@ -163,6 +171,48 @@ fun GpxFileEntryCard(
 
         StatStrip(entry)
     }
+}
+
+// The pager only claims horizontal drags inside the image area, so swipe-to-delete still works
+// from the stat strip; with no photos there is no pager and the whole card swipes as before.
+@Composable
+private fun CardSlides(
+    entry: GpxFileEntry,
+    pagerState: PagerState
+) {
+    if (entry.images.isEmpty()) {
+        RouteSlide(entry)
+        return
+    }
+    HorizontalPager(
+        state = pagerState,
+        key = { page -> entry.images.getOrNull(page)?.id ?: ROUTE_PAGE_KEY },
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val image = entry.images.getOrNull(page)
+        if (image == null) {
+            RouteSlide(entry)
+        } else {
+            RyggAsyncImage(
+                uri = image.uri,
+                isAvailable = image.isAvailable,
+                contentDescription = null,
+                showStatusLabel = false,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Composable
+private fun RouteSlide(entry: GpxFileEntry) {
+    RouteCanvas(
+        points = entry.pathPoints,
+        scale = RouteCanvasScale.Card,
+        modifier = Modifier
+            .fillMaxSize()
+            .sharedRouteCanvas(entry.id)
+    )
 }
 
 @Composable
@@ -328,6 +378,7 @@ private fun GpxFileEntryCardPreview(
 }
 
 private const val CARD_ASPECT = 16f / 9f
+private const val ROUTE_PAGE_KEY = "route"
 private const val SCRIM_START = 0.45f
 private const val SCRIM_ALPHA = 0.78f
 private const val GLASS_ALPHA = 0.32f

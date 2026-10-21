@@ -16,12 +16,14 @@ import com.dimitrijeilic.rygg.core.gpx.trackPaths
 import com.dimitrijeilic.rygg.core.gpx.trackSegments
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.library.data.local.GpxFileEntryDao
+import com.dimitrijeilic.rygg.feature.library.data.local.RouteImageDao
 import com.dimitrijeilic.rygg.feature.library.domain.EntrySource
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.library.domain.SyncStatus
 import com.dimitrijeilic.rygg.feature.sync.data.RouteSyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -29,6 +31,8 @@ import javax.inject.Inject
 class GpxFileEntryRepository @Inject constructor(
     private val gpxFileEntryDao: GpxFileEntryDao,
     private val gpxStorage: GpxStorage,
+    private val routeImageDao: RouteImageDao,
+    private val routeImageStorage: RouteImageStorage,
     private val gpxParser: GpxParser,
     private val gpxAnalyzer: GpxAnalyzer,
     private val gpxWriter: GpxWriter,
@@ -36,10 +40,17 @@ class GpxFileEntryRepository @Inject constructor(
     private val routeSyncManager: RouteSyncManager
 ) {
     fun observeGpxFileEntries(): Flow<List<GpxFileEntry>> =
-        gpxFileEntryDao.observeAll().map { entities -> entities.map { it.toDomain() } }
+        combine(gpxFileEntryDao.observeAll(), routeImageDao.observeAll()) { entities, images ->
+            val imagesByEntry = images.groupBy { it.entryId }
+            entities.map { entity ->
+                entity.toDomain().copy(images = imagesByEntry[entity.id].orEmpty().map { it.toDomain(routeImageStorage.uri(it.id)) })
+            }
+        }
 
     fun observeGpxFileEntry(id: Long): Flow<GpxFileEntry?> =
-        gpxFileEntryDao.observeById(id).map { entity -> entity?.toDomain() }
+        combine(gpxFileEntryDao.observeById(id), routeImageDao.observeForEntry(id)) { entity, images ->
+            entity?.toDomain()?.copy(images = images.map { it.toDomain(routeImageStorage.uri(it.id)) })
+        }
 
     // A folder exists as long as one route is in it; there is no separate folder entity to sync.
     fun observeFolders(): Flow<List<String>> = gpxFileEntryDao.observeFolders()
@@ -131,6 +142,10 @@ class GpxFileEntryRepository @Inject constructor(
         val referenced = gpxFileEntryDao.getAllFileNames().toSet()
         gpxStorage.listedStoredFiles().forEach { stored ->
             if (stored.fileName !in referenced) gpxStorage.deleteFile(stored.fileName)
+        }
+        val referencedImages = routeImageDao.getAllIds().toSet()
+        routeImageStorage.listStoredIds().forEach { id ->
+            if (id !in referencedImages) routeImageStorage.delete(id)
         }
     }
 
@@ -271,7 +286,15 @@ class GpxFileEntryRepository @Inject constructor(
                 .use { gpxParser.parse(it).gpxDocument }
             RouteFileContent(
                 paths = document.trackPaths(),
-                waypoints = document.waypoints.map { Waypoint(it.lat, it.lon, it.name.orEmpty()) }
+                waypoints = document.waypoints.map { point ->
+                    Waypoint(
+                        lat = point.lat,
+                        lon = point.lon,
+                        name = point.name.orEmpty(),
+                        ele = point.ele,
+                        description = (point.desc ?: point.cmt)?.trim()?.ifBlank { null }
+                    )
+                }
             )
         }.getOrNull()
 

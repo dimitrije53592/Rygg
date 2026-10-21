@@ -220,6 +220,7 @@
     <string name="settings_sync_title">Sinhronizacija i rezervna kopija</string>
     <string name="settings_sync_enabled">Napravi rezervnu kopiju mojih ruta</string>
     <string name="settings_sync_wifi_only">Sinhronizuj datoteke samo preko Wi-Fi-ja</string>
+    <string name="settings_sync_photos">Sinhronizuj fotografije</string>
     <string name="settings_sync_description">Čuvajte svoje rute bezbedno u oblaku i sinhronizovane između uređaja.</string>
 
     <!-- Record -->
@@ -407,4 +408,27 @@
     <string name="details_trim_failed">Skraćivanje rute nije uspelo. Zadržite duži deo i pokušajte ponovo.</string>
 
     <string name="details_share_link_preparing">Pripremanje linka…</string>
+    <string name="details_photos">Fotografije</string>
+    <string name="details_photos_add">Dodaj fotografije</string>
+    <string name="details_photos_adding">Dodavanje fotografija…</string>
+    <string name="details_photos_manage">Promeni redosled</string>
+    <string name="details_photos_limit">Najviše %1$d fotografija po ruti</string>
+    <string name="details_photos_add_failed">Dodavanje fotografija nije uspelo. Pokušajte ponovo.</string>
+    <string name="details_photo_description">Fotografija %1$d</string>
+    <string name="photo_manage_title">Promeni redosled fotografija</string>
+    <string name="photo_manage_hint">Dugo pritisnite fotografiju i prevucite je. Prva je naslovna.</string>
+    <string name="photo_cover">Naslovna</string>
+    <string name="photo_viewer_set_cover">Postavi kao naslovnu</string>
+    <string name="photo_viewer_is_cover">Naslovna fotografija</string>
+    <string name="photo_viewer_delete">Obriši fotografiju</string>
+    <string name="photo_delete_title">Obrisati ovu fotografiju?</string>
+    <string name="photo_delete_message">Biće uklonjena sa ove rute na svim vašim uređajima.</string>
+    <string name="photo_waiting_for_sync">Čeka se sinhronizacija</string>
+    <string name="map_waypoint_unnamed">Putna tačka</string>
+    <string name="map_waypoint_close">Zatvori</string>
+    <string name="map_waypoint_elevation">Nadmorska visina</string>
+    <string name="map_waypoint_from_you">Od vas</string>
+    <string name="map_waypoint_coordinates">Koordinate</string>
+    <string name="map_waypoint_copy">Kopiraj koordinate</string>
+    <string name="map_waypoint_copied">Koordinate su kopirane</string>
 </resources>

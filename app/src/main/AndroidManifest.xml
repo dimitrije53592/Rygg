@@ -73,6 +73,11 @@
         <!-- Remove WorkManager's default initializer: RyggApplication supplies an on-demand
              Configuration wired to the Hilt worker factory instead. -->
         <provider
+            android:name=".feature.library.data.RouteImageProvider"
+            android:authorities="${applicationId}.images"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+        <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"

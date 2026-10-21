@@ -26,6 +26,9 @@ object Dimensions {
     val folderRouteListMaxHeight: Dp = 360.dp
     val elevationProfileHeight: Dp = 120.dp
     val detailsSkeletonStats: Dp = 168.dp
+    val calloutMaxWidth: Dp = 280.dp
+    val calloutDescriptionMaxHeight: Dp = 120.dp
+    val calloutTailSize: Dp = 12.dp
 
     val commonSpacing2: Dp = 2.dp
     val commonSpacing4: Dp = 4.dp

@@ -218,6 +218,7 @@
     <string name="settings_sync_title">Sync &amp; backup</string>
     <string name="settings_sync_enabled">Back up my routes</string>
     <string name="settings_sync_wifi_only">Sync files on Wi-Fi only</string>
+    <string name="settings_sync_photos">Sync photos</string>
     <string name="settings_sync_description">Keep your routes safe in the cloud and in sync across your devices.</string>
 
     <!-- Record -->
@@ -411,4 +412,27 @@
     <string name="details_trim_failed">Couldn\'t trim this route. Keep a longer stretch and try again.</string>
 
     <string name="details_share_link_preparing">Preparing link…</string>
+    <string name="details_photos">Photos</string>
+    <string name="details_photos_add">Add photos</string>
+    <string name="details_photos_adding">Adding photos…</string>
+    <string name="details_photos_manage">Reorder</string>
+    <string name="details_photos_limit">Up to %1$d photos per route</string>
+    <string name="details_photos_add_failed">Couldn\'t add these photos. Try again.</string>
+    <string name="details_photo_description">Photo %1$d</string>
+    <string name="photo_manage_title">Reorder photos</string>
+    <string name="photo_manage_hint">Long-press a photo and drag it. The first one is the cover.</string>
+    <string name="photo_cover">Cover</string>
+    <string name="photo_viewer_set_cover">Set as cover</string>
+    <string name="photo_viewer_is_cover">Cover photo</string>
+    <string name="photo_viewer_delete">Delete photo</string>
+    <string name="photo_delete_title">Delete this photo?</string>
+    <string name="photo_delete_message">It will be removed from this route on all your devices.</string>
+    <string name="photo_waiting_for_sync">Waiting for sync</string>
+    <string name="map_waypoint_unnamed">Waypoint</string>
+    <string name="map_waypoint_close">Close</string>
+    <string name="map_waypoint_elevation">Elevation</string>
+    <string name="map_waypoint_from_you">From you</string>
+    <string name="map_waypoint_coordinates">Coordinates</string>
+    <string name="map_waypoint_copy">Copy coordinates</string>
+    <string name="map_waypoint_copied">Coordinates copied</string>
 </resources>

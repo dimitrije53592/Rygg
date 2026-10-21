@@ -37,12 +37,14 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggShapes
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsContentsCard
+import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsGalleryCard
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsHeroMap
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsMetaCard
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsSectionTitle
 import com.dimitrijeilic.rygg.feature.details.ui.components.DetailsStatsGrid
 import com.dimitrijeilic.rygg.feature.details.ui.components.ElevationProfile
 import com.dimitrijeilic.rygg.feature.details.ui.components.FolderPickerSheet
+import com.dimitrijeilic.rygg.feature.details.ui.components.PhotoManageSheet
 import com.dimitrijeilic.rygg.feature.details.ui.paramproviders.DetailsParamsProvider
 import com.dimitrijeilic.rygg.feature.details.ui.viewmodel.DetailsLoadingState
 import com.dimitrijeilic.rygg.feature.details.ui.viewmodel.DetailsUiState
@@ -139,6 +141,7 @@ private fun LoadedContent(
     var scrubFraction by remember { mutableStateOf<Float?>(null) }
     var trimRange by remember(entry.id) { mutableStateOf<ClosedFloatingPointRange<Float>?>(null) }
     var showFolderSheet by remember { mutableStateOf(false) }
+    var showPhotoSheet by remember { mutableStateOf(false) }
     val viewMode = mode as? DetailsMode.View
     val trimCopyName = stringResource(R.string.details_trim_copy_name, entry.name)
 
@@ -186,6 +189,18 @@ private fun LoadedContent(
                 }
 
                 DetailsStatsGrid(entry)
+
+                if (viewMode != null) {
+                    Section(title = stringResource(R.string.details_photos)) {
+                        DetailsGalleryCard(
+                            images = entry.images,
+                            isAdding = params.uiState.isAddingPhotos,
+                            onAddPhotos = viewMode.onAddPhotos,
+                            onOpenPhoto = viewMode.onOpenPhoto,
+                            onManagePhotos = { showPhotoSheet = true }
+                        )
+                    }
+                }
 
                 val range = trimRange
                 if (elevationProfile.isNotEmpty()) {
@@ -236,6 +251,14 @@ private fun LoadedContent(
         } else {
             BottomActionBar(mode = mode, entryId = entry.id, onNavigateBack = params.onNavigateBack)
         }
+    }
+
+    if (showPhotoSheet && viewMode != null) {
+        PhotoManageSheet(
+            images = entry.images,
+            onReorder = viewMode.onReorderPhotos,
+            onDismiss = { showPhotoSheet = false }
+        )
     }
 
     if (showFolderSheet && viewMode != null) {
@@ -408,7 +431,10 @@ sealed interface DetailsMode {
         val onDelete: () -> Unit,
         val onShareLink: () -> Unit,
         val onShareFile: () -> Unit,
-        val onSaveFile: () -> Unit
+        val onSaveFile: () -> Unit,
+        val onAddPhotos: () -> Unit,
+        val onOpenPhoto: (String) -> Unit,
+        val onReorderPhotos: (List<String>) -> Unit
     ) : DetailsMode
 
     // Preview of a not-yet-saved entry (import or recording). When [name] is non-null an

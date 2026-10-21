@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,6 +54,16 @@ class SyncInitializer @Inject constructor(
                         !enabled && previousEnabled == true && uid == previousUid ->
                             syncManager.pauseSync()
                     }
+                }
+        }
+        // Sign-in already starts photo transfers; this only covers "Sync photos" turned back on.
+        scope.launch {
+            settingsRepository.syncPhotos
+                .distinctUntilChanged()
+                .drop(1)
+                .collect { enabled ->
+                    val uid = currentUid
+                    if (enabled && uid != null) syncManager.pushImageTransfers(uid)
                 }
         }
     }

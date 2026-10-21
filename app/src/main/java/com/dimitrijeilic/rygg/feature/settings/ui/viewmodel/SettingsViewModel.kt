@@ -39,9 +39,10 @@ class SettingsViewModel @Inject constructor(
     private val recordingAndSync = combine(
         settingsRepository.recordingResolution,
         settingsRepository.syncEnabled,
-        settingsRepository.syncWifiOnly
-    ) { recordingResolution, syncEnabled, syncWifiOnly ->
-        RecordingAndSync(recordingResolution, syncEnabled, syncWifiOnly)
+        settingsRepository.syncWifiOnly,
+        settingsRepository.syncPhotos
+    ) { recordingResolution, syncEnabled, syncWifiOnly, syncPhotos ->
+        RecordingAndSync(recordingResolution, syncEnabled, syncWifiOnly, syncPhotos)
     }
 
     private val navigation = combine(
@@ -63,6 +64,7 @@ class SettingsViewModel @Inject constructor(
             measurementSystem = region.measurementSystem,
             syncEnabled = recording.syncEnabled,
             syncWifiOnly = recording.syncWifiOnly,
+            syncPhotos = recording.syncPhotos,
             recordingResolution = recording.recordingResolution,
             offRouteAlertsEnabled = navigation.offRouteAlertsEnabled,
             offRouteThreshold = navigation.offRouteThreshold,
@@ -97,6 +99,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.setSyncWifiOnly(wifiOnly) }
     }
 
+    fun setSyncPhotos(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setSyncPhotos(enabled) }
+    }
+
     fun setRecordingResolution(resolution: RecordingResolution) {
         viewModelScope.launch { settingsRepository.setRecordingResolution(resolution) }
     }
@@ -123,7 +129,8 @@ private data class AppearanceAndRegion(
 private data class RecordingAndSync(
     val recordingResolution: RecordingResolution,
     val syncEnabled: Boolean,
-    val syncWifiOnly: Boolean
+    val syncWifiOnly: Boolean,
+    val syncPhotos: Boolean
 )
 
 private data class Navigation(

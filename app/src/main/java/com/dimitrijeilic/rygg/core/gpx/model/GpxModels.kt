@@ -88,7 +88,9 @@ data class ElevationSample(
 data class Waypoint(
     val lat: Double,
     val lon: Double,
-    val name: String
+    val name: String,
+    val ele: Double? = null,
+    val description: String? = null
 )
 
 data class RouteFileContent(

@@ -12,10 +12,12 @@ import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
 import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_ID
 import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_NAME
+import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_WAYPOINT_INDEX
 import com.dimitrijeilic.rygg.feature.map.ui.util.routeLineFeatures
 import com.dimitrijeilic.rygg.feature.map.ui.util.routeStartFeatures
 import com.dimitrijeilic.rygg.feature.map.ui.util.routeWaypointFeatures
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import org.maplibre.compose.expressions.dsl.asString
 import org.maplibre.compose.expressions.dsl.const
@@ -36,7 +38,9 @@ internal fun RouteLayers(
     routes: List<RouteOverlay>,
     focusedRouteId: Long?,
     showPins: Boolean = true,
-    onPinClick: (Long) -> Unit = {}
+    onPinClick: (Long) -> Unit = {},
+    selectedWaypoint: SelectedWaypoint? = null,
+    onWaypointClick: (SelectedWaypoint) -> Unit = {}
 ) {
     val allLines = remember(routes) { GeoJsonData.Features(routeLineFeatures(routes)) }
     val focusedLines = remember(routes, focusedRouteId) {
@@ -59,23 +63,34 @@ internal fun RouteLayers(
     )
 
     // Waypoints of the focused route — shown on the map and while following (not gated by showPins).
-    val focusedWaypoints = remember(routes, focusedRouteId) {
-        GeoJsonData.Features(routeWaypointFeatures(routes.filter { it.id == focusedRouteId }))
+    // Labels ignore collisions so every waypoint name stays readable; long names wrap.
+    val focusedWaypoints = remember(routes, focusedRouteId, selectedWaypoint) {
+        GeoJsonData.Features(routeWaypointFeatures(routes.filter { it.id == focusedRouteId }, hidden = selectedWaypoint))
     }
     val focusedWaypointsSource = rememberGeoJsonSource(focusedWaypoints)
     SymbolLayer(
         id = "waypoints-focused",
         source = focusedWaypointsSource,
         iconImage = image(painterResource(R.drawable.ic_map_pin_waypoint)),
-        iconSize = const(0.6f),
+        iconSize = const(0.8f),
         iconAnchor = const(SymbolAnchor.Bottom),
         iconAllowOverlap = const(true),
+        iconIgnorePlacement = const(true),
         textField = format(span(feature.get(PROP_NAME).asString())),
         textColor = const(RyggTheme.getColor(RyggColor.TextPrimary)),
         textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
         textHaloWidth = const(2.dp),
         textAnchor = const(SymbolAnchor.Top),
-        textOffset = offset(0f.em, 0.5f.em)
+        textOffset = offset(0f.em, 0.5f.em),
+        textAllowOverlap = const(true),
+        textIgnorePlacement = const(true),
+        onClick = { features ->
+            val properties = features.firstOrNull()?.properties
+            val routeId = properties?.get(PROP_ID)?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+            val index = properties?.get(PROP_WAYPOINT_INDEX)?.jsonPrimitive?.intOrNull
+            if (routeId != null && index != null) onWaypointClick(SelectedWaypoint(routeId, index))
+            ClickResult.Consume
+        }
     )
 
     if (!showPins) return

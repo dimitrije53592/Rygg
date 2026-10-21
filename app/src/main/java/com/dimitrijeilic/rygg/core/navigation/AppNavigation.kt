@@ -48,6 +48,7 @@ import com.dimitrijeilic.rygg.feature.auth.ui.wrapper.LoginWrapper
 import com.dimitrijeilic.rygg.feature.auth.ui.wrapper.RegisterWrapper
 import com.dimitrijeilic.rygg.feature.details.ui.wrapper.DetailsWrapper
 import com.dimitrijeilic.rygg.feature.details.ui.wrapper.ImportPreviewWrapper
+import com.dimitrijeilic.rygg.feature.details.ui.wrapper.PhotoViewerWrapper
 import com.dimitrijeilic.rygg.feature.details.ui.wrapper.RecordingPreviewWrapper
 import com.dimitrijeilic.rygg.feature.details.ui.wrapper.SharedRouteWrapper
 import com.dimitrijeilic.rygg.feature.feedback.ui.wrapper.FeedbackWrapper
@@ -212,9 +213,15 @@ fun AppNavigation() {
                                     navController.navigate(Details(entryId = entryId)) {
                                         popUpTo<Details> { inclusive = true }
                                     }
+                                },
+                                onOpenPhoto = { entryId, imageId ->
+                                    navController.navigate(PhotoViewer(entryId = entryId, imageId = imageId))
                                 }
                             )
                         }
+                    }
+                    composable<PhotoViewer> {
+                        PhotoViewerWrapper(onNavigateBack = { navController.navigateUp() })
                     }
                     composable<SharedRoutePreview>(
                         deepLinks = listOf(navDeepLink<SharedRoutePreview>(basePath = "${RouteShareLinks.BASE}/s"))
