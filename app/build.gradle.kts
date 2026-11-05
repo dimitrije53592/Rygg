@@ -142,6 +142,7 @@ dependencies {
         exclude(group = "org.maplibre.gl", module = "android-sdk")
     }
     implementation(libs.maplibre.android.opengl)
+    implementation(libs.okhttp)
     implementation(libs.play.services.location)
     implementation(libs.aboutlibraries.core)
     implementation(libs.coil.compose)
