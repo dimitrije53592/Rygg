@@ -454,4 +454,17 @@
     <string name="unit_symbol_gb" translatable="false">GB</string>
     <string name="unit_symbol_km2" translatable="false">km²</string>
     <string name="unit_symbol_mi2" translatable="false">mi²</string>
+    <string name="offline_download_title">Download area</string>
+    <string name="offline_download_name">Name</string>
+    <string name="offline_download_default_name">Area · %1$s</string>
+    <string name="offline_download_area">Area</string>
+    <string name="offline_download_free">Free space</string>
+    <string name="offline_download_hint">Everything inside the frame, with full trail detail.</string>
+    <string name="offline_download_too_large">Area too large. Zoom in to download it.</string>
+    <string name="offline_download_no_storage">Not enough free storage on this phone.</string>
+    <string name="offline_download_offline">You\'re offline. Connect to download maps.</string>
+    <string name="offline_download_busy">Finish the current download first.</string>
+    <string name="offline_download_metered">You\'re on mobile data. Downloading a map can use a lot of it.</string>
+    <string name="offline_download_action">Download</string>
+    <string name="offline_download_error">Couldn\'t start the download. Try again.</string>
 </resources>

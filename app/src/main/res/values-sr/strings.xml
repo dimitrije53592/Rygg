@@ -446,4 +446,17 @@
     <string name="offline_unnamed">Oflajn mapa</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
+    <string name="offline_download_title">Preuzmi oblast</string>
+    <string name="offline_download_name">Naziv</string>
+    <string name="offline_download_default_name">Oblast · %1$s</string>
+    <string name="offline_download_area">Površina</string>
+    <string name="offline_download_free">Slobodno</string>
+    <string name="offline_download_hint">Sve unutar okvira, sa punim detaljima staza.</string>
+    <string name="offline_download_too_large">Oblast je prevelika. Približite mapu da biste je preuzeli.</string>
+    <string name="offline_download_no_storage">Nema dovoljno slobodnog prostora na telefonu.</string>
+    <string name="offline_download_offline">Niste povezani na internet. Povežite se da biste preuzeli mape.</string>
+    <string name="offline_download_busy">Sačekajte da se trenutno preuzimanje završi.</string>
+    <string name="offline_download_metered">Koristite mobilne podatke. Preuzimanje mape može potrošiti dosta podataka.</string>
+    <string name="offline_download_action">Preuzmi</string>
+    <string name="offline_download_error">Preuzimanje nije pokrenuto. Pokušajte ponovo.</string>
 </resources>

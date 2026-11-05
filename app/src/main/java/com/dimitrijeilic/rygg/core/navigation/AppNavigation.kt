@@ -55,6 +55,7 @@ import com.dimitrijeilic.rygg.feature.feedback.ui.wrapper.FeedbackWrapper
 import com.dimitrijeilic.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.dimitrijeilic.rygg.feature.map.ui.wrapper.MapWrapper
 import com.dimitrijeilic.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
+import com.dimitrijeilic.rygg.feature.offline.ui.wrapper.OfflineDownloadWrapper
 import com.dimitrijeilic.rygg.feature.profile.ui.wrapper.ProfileWrapper
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
 import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
@@ -261,6 +262,12 @@ fun AppNavigation() {
                     }
                     composable<FollowRoute> {
                         RouteFollowingWrapper(onExit = { navController.navigateUp() })
+                    }
+                    composable<OfflineDownload> {
+                        OfflineDownloadWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onStarted = { navController.navigateUp() }
+                        )
                     }
                     composable<Profile> {
                         ProfileWrapper(

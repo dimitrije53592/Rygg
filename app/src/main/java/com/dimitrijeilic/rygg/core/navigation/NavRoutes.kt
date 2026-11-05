@@ -39,6 +39,9 @@ data class Map(val entryId: Long? = null)
 data class FollowRoute(val entryId: Long)
 
 @Serializable
+data class OfflineDownload(val routeId: Long? = null)
+
+@Serializable
 data object Profile
 
 @Serializable
