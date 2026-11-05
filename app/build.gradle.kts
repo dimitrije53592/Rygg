@@ -12,11 +12,6 @@ plugins {
     alias(libs.plugins.aboutlibraries)
 }
 
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
-}
-
 // Release signing from keystore.properties (git-ignored). Never fall back to the debug key: a
 // debug-signed bundle would be rejected by Play or, worse, ship with the wrong certificate.
 val keystoreProperties = Properties().apply {
@@ -44,8 +39,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
-        buildConfigField("String", "MAPTILER_API_KEY", "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\"")
     }
 
     signingConfigs {

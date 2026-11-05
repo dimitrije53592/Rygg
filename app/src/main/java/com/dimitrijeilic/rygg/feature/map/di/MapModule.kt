@@ -1,6 +1,6 @@
 package com.dimitrijeilic.rygg.feature.map.di
 
-import com.dimitrijeilic.rygg.feature.map.data.MapTilerStyleSource
+import com.dimitrijeilic.rygg.feature.map.data.OpenFreeMapStyleSource
 import com.dimitrijeilic.rygg.feature.map.domain.MapStyleSource
 import dagger.Binds
 import dagger.Module
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 abstract class MapModule {
     @Binds
     @Singleton
-    abstract fun bindMapStyleSource(impl: MapTilerStyleSource): MapStyleSource
+    abstract fun bindMapStyleSource(impl: OpenFreeMapStyleSource): MapStyleSource
 }

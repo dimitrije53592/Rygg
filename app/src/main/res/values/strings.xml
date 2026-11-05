@@ -298,8 +298,10 @@
     <string name="licenses_section_libraries">Open-source libraries (%1$d)</string>
     <string name="licenses_osm_title">© OpenStreetMap contributors</string>
     <string name="licenses_osm_detail">Map data, Open Database License (ODbL)</string>
-    <string name="licenses_maptiler_title">© MapTiler</string>
-    <string name="licenses_maptiler_detail">Map tiles and styles</string>
+    <string name="licenses_openfreemap_title">© OpenFreeMap</string>
+    <string name="licenses_openfreemap_detail">Map tiles</string>
+    <string name="licenses_openmaptiles_title">© OpenMapTiles</string>
+    <string name="licenses_openmaptiles_detail">Vector tile schema and map style, CC-BY 4.0</string>
     <string name="licenses_manrope_title">Manrope</string>
     <string name="licenses_manrope_detail">SIL Open Font License 1.1</string>
 

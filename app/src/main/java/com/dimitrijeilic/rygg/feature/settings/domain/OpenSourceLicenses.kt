@@ -21,5 +21,6 @@ object LegalLinks {
     const val PRIVACY_POLICY = "${RouteShareLinks.BASE}/privacy.html"
     const val TERMS = "${RouteShareLinks.BASE}/terms.html"
     const val OPENSTREETMAP_COPYRIGHT = "https://www.openstreetmap.org/copyright"
-    const val MAPTILER_COPYRIGHT = "https://www.maptiler.com/copyright/"
+    const val OPENFREEMAP = "https://openfreemap.org"
+    const val OPENMAPTILES = "https://openmaptiles.org"
 }

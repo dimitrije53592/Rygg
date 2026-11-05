@@ -96,9 +96,17 @@ private fun LoadedContent(licenses: OpenSourceLicenses, params: LicensesScreenPa
         }
         item {
             LicenseRow(
-                title = stringResource(R.string.licenses_maptiler_title),
-                detail = stringResource(R.string.licenses_maptiler_detail),
-                onClick = { params.onOpenUrl(LegalLinks.MAPTILER_COPYRIGHT) },
+                title = stringResource(R.string.licenses_openfreemap_title),
+                detail = stringResource(R.string.licenses_openfreemap_detail),
+                onClick = { params.onOpenUrl(LegalLinks.OPENFREEMAP) },
+                trailing = LicenseRowTrailing.External
+            )
+        }
+        item {
+            LicenseRow(
+                title = stringResource(R.string.licenses_openmaptiles_title),
+                detail = stringResource(R.string.licenses_openmaptiles_detail),
+                onClick = { params.onOpenUrl(LegalLinks.OPENMAPTILES) },
                 trailing = LicenseRowTrailing.External
             )
         }

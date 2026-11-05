@@ -300,8 +300,10 @@
     <string name="licenses_section_libraries">Biblioteke otvorenog koda (%1$d)</string>
     <string name="licenses_osm_title">© OpenStreetMap saradnici</string>
     <string name="licenses_osm_detail">Podaci mapa, Open Database License (ODbL)</string>
-    <string name="licenses_maptiler_title">© MapTiler</string>
-    <string name="licenses_maptiler_detail">Pločice i stilovi mapa</string>
+    <string name="licenses_openfreemap_title">© OpenFreeMap</string>
+    <string name="licenses_openfreemap_detail">Pločice mapa</string>
+    <string name="licenses_openmaptiles_title">© OpenMapTiles</string>
+    <string name="licenses_openmaptiles_detail">Šema vektorskih pločica i stil mape, CC-BY 4.0</string>
     <string name="licenses_manrope_title">Manrope</string>
     <string name="licenses_manrope_detail">SIL Open Font License 1.1</string>
 
