@@ -167,6 +167,7 @@ private fun LoadedContent(
                     null
                 },
                 onMoveToFolder = viewMode?.let { { showFolderSheet = true } },
+                onDownloadMap = viewMode?.let { { it.onDownloadMap(entry.id) } },
                 onDelete = (mode as? DetailsMode.View)?.onDelete,
                 onShareLink = (mode as? DetailsMode.View)?.onShareLink,
                 onShareFile = (mode as? DetailsMode.View)?.onShareFile,
@@ -437,6 +438,7 @@ data class DetailsScreenParams(
 sealed interface DetailsMode {
     data class View(
         val onViewOnMap: (Long) -> Unit,
+        val onDownloadMap: (Long) -> Unit,
         val onToggleFavorite: () -> Unit,
         val onRename: (String) -> Unit,
         val onSetFolder: (String?) -> Unit,

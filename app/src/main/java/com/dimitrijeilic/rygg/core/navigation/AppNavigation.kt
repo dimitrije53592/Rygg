@@ -211,6 +211,9 @@ fun AppNavigation() {
                                 onViewOnMap = { entryId ->
                                     navController.navigate(Map(entryId = entryId))
                                 },
+                                onDownloadMap = { entryId ->
+                                    navController.navigate(OfflineDownload(routeId = entryId))
+                                },
                                 onOpenEntry = { entryId ->
                                     navController.navigate(Details(entryId = entryId)) {
                                         popUpTo<Details> { inclusive = true }
@@ -259,7 +262,10 @@ fun AppNavigation() {
                                 navController.navigate(FollowRoute(entryId = entryId))
                             },
                             onOpenProfile = { navController.navigate(Profile) },
-                            onOpenOfflineMaps = { navController.navigate(OfflineMaps) }
+                            onOpenOfflineMaps = { navController.navigate(OfflineMaps) },
+                            onDownloadMap = { entryId ->
+                                navController.navigate(OfflineDownload(routeId = entryId))
+                            }
                         )
                     }
                     composable<FollowRoute> {

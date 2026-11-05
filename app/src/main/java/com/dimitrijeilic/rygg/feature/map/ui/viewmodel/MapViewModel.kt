@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.dimitrijeilic.rygg.core.gpx.model.GeoPoint
 import com.dimitrijeilic.rygg.core.gpx.model.RouteFileContent
 import com.dimitrijeilic.rygg.core.gpx.model.Waypoint
+import com.dimitrijeilic.rygg.core.network.ConnectivityObserver
 import com.dimitrijeilic.rygg.feature.library.data.GpxFileEntryRepository
 import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.map.data.RouteOverviewRepository
@@ -14,11 +15,14 @@ import com.dimitrijeilic.rygg.feature.map.domain.MapStyleSource
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
 import com.dimitrijeilic.rygg.feature.offline.data.OfflineRegionRepository
 import com.dimitrijeilic.rygg.feature.offline.domain.RegionBounds
+import com.dimitrijeilic.rygg.feature.offline.domain.RegionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,7 +32,8 @@ import com.dimitrijeilic.rygg.core.navigation.Map as MapRoute
 class MapViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
     private val routeOverviewRepository: RouteOverviewRepository,
-    offlineRegionRepository: OfflineRegionRepository,
+    private val offlineRegionRepository: OfflineRegionRepository,
+    connectivityObserver: ConnectivityObserver,
     mapStyleSource: MapStyleSource,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -53,19 +58,27 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    private val completedRegionBounds = offlineRegionRepository.observeRegions()
+        .map { regions -> regions.filter { it.status == RegionStatus.Complete }.map { it.bounds } }
+        .distinctUntilChanged()
+
     val uiState: StateFlow<MapUiState> =
         combine(
             gpxFileEntryRepository.observeGpxFileEntries(),
             detailedRouteId,
-            focusRegionBounds
-        ) { entries, detailedId, regionBounds ->
+            focusRegionBounds,
+            completedRegionBounds,
+            connectivityObserver.observeNetwork()
+        ) { entries, detailedId, regionBounds, offlineRegions, network ->
             MapUiState(
                 styleUrl = styleUrl,
                 routes = entries.map { entry ->
                     if (entry.id == detailedId) entry.toDetailedOverlay() else entry.toOverviewOverlay()
                 },
                 focusEntryId = focusEntryId,
-                focusRegionBounds = regionBounds
+                focusRegionBounds = regionBounds,
+                offlineRegions = offlineRegions,
+                isOnline = network.isOnline
             )
         }.stateIn(
             scope = viewModelScope,
@@ -133,5 +146,7 @@ data class MapUiState(
     val styleUrl: String,
     val routes: List<RouteOverlay> = emptyList(),
     val focusEntryId: Long? = null,
-    val focusRegionBounds: RegionBounds? = null
+    val focusRegionBounds: RegionBounds? = null,
+    val offlineRegions: List<RegionBounds> = emptyList(),
+    val isOnline: Boolean = true
 )

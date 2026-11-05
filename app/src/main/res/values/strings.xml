@@ -497,4 +497,12 @@
     <string name="offline_delete_title">Delete offline map?</string>
     <string name="offline_delete_message">%1$s will no longer be available without signal. This frees about %2$s.</string>
     <string name="offline_delete_confirm">Delete</string>
+    <string name="details_download_map">Download map for offline</string>
+    <string name="map_offline_covered">Offline · showing your downloaded map</string>
+    <string name="map_offline_not_covered">Offline · no map downloaded here</string>
+    <string name="map_coverage_title">Not available offline</string>
+    <string name="map_coverage_message">This route\'s area isn\'t downloaded. If you lose signal, the map may go blank. Download it first?</string>
+    <string name="map_coverage_message_offline">You\'re offline and this area isn\'t downloaded, so the map may be blank. Route guidance and recording still work.</string>
+    <string name="map_coverage_download">Download map</string>
+    <string name="map_coverage_follow_anyway">Follow anyway</string>
 </resources>

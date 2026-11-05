@@ -26,6 +26,7 @@ import com.dimitrijeilic.rygg.feature.library.domain.MAX_IMAGES_PER_ROUTE
 fun DetailsWrapper(
     onNavigateBack: () -> Unit,
     onViewOnMap: (Long) -> Unit,
+    onDownloadMap: (Long) -> Unit,
     onOpenEntry: (Long) -> Unit,
     onOpenPhoto: (entryId: Long, imageId: String) -> Unit,
     viewModel: DetailsViewModel = hiltViewModel()
@@ -88,6 +89,7 @@ fun DetailsWrapper(
             onNavigateBack = onNavigateBack,
             mode = DetailsMode.View(
                 onViewOnMap = onViewOnMap,
+                onDownloadMap = onDownloadMap,
                 onToggleFavorite = { viewModel.onToggleFavorite() },
                 onRename = { viewModel.onRename(it) },
                 onSetFolder = viewModel::onSetFolder,

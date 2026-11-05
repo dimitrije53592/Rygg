@@ -489,4 +489,12 @@
     <string name="offline_delete_title">Obrisati oflajn mapu?</string>
     <string name="offline_delete_message">%1$s više neće biti dostupna bez signala. Ovim se oslobađa oko %2$s.</string>
     <string name="offline_delete_confirm">Obriši</string>
+    <string name="details_download_map">Preuzmi mapu za oflajn</string>
+    <string name="map_offline_covered">Oflajn · prikazuje se preuzeta mapa</string>
+    <string name="map_offline_not_covered">Oflajn · ovde nema preuzete mape</string>
+    <string name="map_coverage_title">Nije dostupno oflajn</string>
+    <string name="map_coverage_message">Oblast ove rute nije preuzeta. Ako izgubite signal, mapa može ostati prazna. Preuzeti je prvo?</string>
+    <string name="map_coverage_message_offline">Niste povezani, a ova oblast nije preuzeta, pa mapa može biti prazna. Navođenje po ruti i snimanje i dalje rade.</string>
+    <string name="map_coverage_download">Preuzmi mapu</string>
+    <string name="map_coverage_follow_anyway">Prati svejedno</string>
 </resources>

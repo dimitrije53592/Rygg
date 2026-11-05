@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ContentCut
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.MoreVert
@@ -67,6 +68,7 @@ fun DetailsHeroMap(
     onRename: ((String) -> Unit)? = null,
     onTrim: (() -> Unit)? = null,
     onMoveToFolder: (() -> Unit)? = null,
+    onDownloadMap: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onShareLink: (() -> Unit)? = null,
     onShareFile: (() -> Unit)? = null,
@@ -137,6 +139,7 @@ fun DetailsHeroMap(
                         onRename = onRename,
                         onTrim = onTrim,
                         onMoveToFolder = onMoveToFolder,
+                        onDownloadMap = onDownloadMap,
                         onDelete = onDelete
                     )
                 }
@@ -229,6 +232,7 @@ private fun HeroOverflowMenu(
     onRename: (String) -> Unit,
     onTrim: (() -> Unit)?,
     onMoveToFolder: (() -> Unit)?,
+    onDownloadMap: (() -> Unit)?,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -303,6 +307,22 @@ private fun HeroOverflowMenu(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Folder,
+                            contentDescription = null,
+                            tint = RyggTheme.getColor(RyggColor.BrandGreen)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        it()
+                    }
+                )
+            }
+            onDownloadMap?.let {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.details_download_map)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Download,
                             contentDescription = null,
                             tint = RyggTheme.getColor(RyggColor.BrandGreen)
                         )

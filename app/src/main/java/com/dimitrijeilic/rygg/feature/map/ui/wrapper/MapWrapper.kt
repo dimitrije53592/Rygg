@@ -13,6 +13,7 @@ fun MapWrapper(
     onStartFollow: (Long) -> Unit,
     onOpenProfile: () -> Unit,
     onOpenOfflineMaps: () -> Unit,
+    onDownloadMap: (Long) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -23,10 +24,13 @@ fun MapWrapper(
             routes = uiState.routes,
             focusEntryId = uiState.focusEntryId,
             focusRegionBounds = uiState.focusRegionBounds,
+            offlineRegions = uiState.offlineRegions,
+            isOnline = uiState.isOnline,
             onFocusRoute = viewModel::onFocusRoute,
             onStartFollow = onStartFollow,
             onOpenProfile = onOpenProfile,
-            onOpenOfflineMaps = onOpenOfflineMaps
+            onOpenOfflineMaps = onOpenOfflineMaps,
+            onDownloadMap = onDownloadMap
         )
     )
 }
