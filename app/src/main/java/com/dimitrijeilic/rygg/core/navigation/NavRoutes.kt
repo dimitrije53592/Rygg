@@ -33,10 +33,13 @@ data class SharedRoutePreview(val token: String)
 data class ImportPreview(val uri: String, val discipline: String)
 
 @Serializable
-data class Map(val entryId: Long? = null)
+data class Map(val entryId: Long? = null, val offlineRegionId: Long? = null)
 
 @Serializable
 data class FollowRoute(val entryId: Long)
+
+@Serializable
+data object OfflineMaps
 
 @Serializable
 data class OfflineDownload(val routeId: Long? = null)

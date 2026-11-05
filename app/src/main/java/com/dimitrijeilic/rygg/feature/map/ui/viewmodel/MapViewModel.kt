@@ -12,6 +12,8 @@ import com.dimitrijeilic.rygg.feature.library.domain.GpxFileEntry
 import com.dimitrijeilic.rygg.feature.map.data.RouteOverviewRepository
 import com.dimitrijeilic.rygg.feature.map.domain.MapStyleSource
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
+import com.dimitrijeilic.rygg.feature.offline.data.OfflineRegionRepository
+import com.dimitrijeilic.rygg.feature.offline.domain.RegionBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,11 +28,14 @@ import com.dimitrijeilic.rygg.core.navigation.Map as MapRoute
 class MapViewModel @Inject constructor(
     private val gpxFileEntryRepository: GpxFileEntryRepository,
     private val routeOverviewRepository: RouteOverviewRepository,
+    offlineRegionRepository: OfflineRegionRepository,
     mapStyleSource: MapStyleSource,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val styleUrl = mapStyleSource.baseStyleUrl()
-    private val focusEntryId = savedStateHandle.toRoute<MapRoute>().entryId
+    private val route = savedStateHandle.toRoute<MapRoute>()
+    private val focusEntryId = route.entryId
+    private val focusRegionBounds = MutableStateFlow<RegionBounds?>(null)
 
     // Only the route the user is looking at gets its full .gpx parsed; the rest draw from cached
     // simplified overviews, so the map stays fast with a large library.
@@ -43,16 +48,24 @@ class MapViewModel @Inject constructor(
         focusEntryId?.let { id ->
             viewModelScope.launch { gpxFileEntryRepository.ensureRouteFileDownloaded(id) }
         }
+        route.offlineRegionId?.let { id ->
+            viewModelScope.launch { focusRegionBounds.value = offlineRegionRepository.region(id)?.bounds }
+        }
     }
 
     val uiState: StateFlow<MapUiState> =
-        combine(gpxFileEntryRepository.observeGpxFileEntries(), detailedRouteId) { entries, detailedId ->
+        combine(
+            gpxFileEntryRepository.observeGpxFileEntries(),
+            detailedRouteId,
+            focusRegionBounds
+        ) { entries, detailedId, regionBounds ->
             MapUiState(
                 styleUrl = styleUrl,
                 routes = entries.map { entry ->
                     if (entry.id == detailedId) entry.toDetailedOverlay() else entry.toOverviewOverlay()
                 },
-                focusEntryId = focusEntryId
+                focusEntryId = focusEntryId,
+                focusRegionBounds = regionBounds
             )
         }.stateIn(
             scope = viewModelScope,
@@ -119,5 +132,6 @@ private data class CachedContent(
 data class MapUiState(
     val styleUrl: String,
     val routes: List<RouteOverlay> = emptyList(),
-    val focusEntryId: Long? = null
+    val focusEntryId: Long? = null,
+    val focusRegionBounds: RegionBounds? = null
 )
