@@ -439,4 +439,19 @@
     <string name="map_waypoint_coordinates">Coordinates</string>
     <string name="map_waypoint_copy">Copy coordinates</string>
     <string name="map_waypoint_copied">Coordinates copied</string>
+
+    <!-- Offline maps -->
+    <string name="offline_channel_name">Map downloads</string>
+    <string name="offline_notification_title">Downloading %1$s</string>
+    <string name="offline_notification_progress">%1$d%% · %2$s</string>
+    <string name="offline_notification_pause">Pause</string>
+    <string name="offline_ready_title">Offline map ready</string>
+    <string name="offline_ready_message">%1$s is available without signal.</string>
+    <string name="offline_unnamed">Offline map</string>
+    <string name="unit_size_mb">%1$s MB</string>
+    <string name="unit_size_gb">%1$s GB</string>
+    <string name="unit_symbol_mb" translatable="false">MB</string>
+    <string name="unit_symbol_gb" translatable="false">GB</string>
+    <string name="unit_symbol_km2" translatable="false">km²</string>
+    <string name="unit_symbol_mi2" translatable="false">mi²</string>
 </resources>

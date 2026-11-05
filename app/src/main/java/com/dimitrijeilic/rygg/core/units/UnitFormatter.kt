@@ -45,6 +45,38 @@ class UnitFormatter(
         MeasurementSystem.IMPERIAL -> Quantity(decimal(metersPerSecond * MPS_TO_MPH), resources.getString(R.string.unit_symbol_mph))
     }
 
+    fun fileSize(bytes: Long): String {
+        val megabytes = bytes / BYTES_PER_MEGABYTE
+        return if (megabytes >= MEGABYTES_PER_GIGABYTE) {
+            resources.getString(R.string.unit_size_gb, decimal(megabytes / MEGABYTES_PER_GIGABYTE))
+        } else {
+            resources.getString(R.string.unit_size_mb, scaled(megabytes))
+        }
+    }
+
+    fun fileSizeParts(bytes: Long): Quantity {
+        val megabytes = bytes / BYTES_PER_MEGABYTE
+        return if (megabytes >= MEGABYTES_PER_GIGABYTE) {
+            Quantity(decimal(megabytes / MEGABYTES_PER_GIGABYTE), resources.getString(R.string.unit_symbol_gb))
+        } else {
+            Quantity(scaled(megabytes), resources.getString(R.string.unit_symbol_mb))
+        }
+    }
+
+    fun areaParts(squareMeters: Double): Quantity {
+        val value = when (system) {
+            MeasurementSystem.METRIC -> squareMeters / SQUARE_METERS_PER_SQUARE_KM
+            MeasurementSystem.IMPERIAL -> squareMeters / SQUARE_METERS_PER_SQUARE_MILE
+        }
+        val unit = when (system) {
+            MeasurementSystem.METRIC -> R.string.unit_symbol_km2
+            MeasurementSystem.IMPERIAL -> R.string.unit_symbol_mi2
+        }
+        return Quantity(scaled(value), resources.getString(unit))
+    }
+
+    private fun scaled(value: Double): String = if (value < SMALL_QUANTITY) decimal(value) else whole(value)
+
     private fun decimal(value: Double): String = String.format(Locale.getDefault(), "%.1f", value)
 
     private fun whole(value: Double): String = String.format(Locale.getDefault(), "%,d", value.roundToInt())

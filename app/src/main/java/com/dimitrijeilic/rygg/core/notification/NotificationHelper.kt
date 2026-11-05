@@ -90,6 +90,12 @@ class NotificationHelper @Inject constructor(
                         .build()
                 )
             }
+
+            RyggChannel.DOWNLOADS -> NotificationChannel(
+                channel.id,
+                context.getString(R.string.offline_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            )
         }
         manager.createNotificationChannel(notificationChannel)
     }
@@ -105,12 +111,15 @@ class NotificationHelper @Inject constructor(
 
 enum class RyggChannel(val id: String) {
     GENERAL(CHANNEL_ID),
-    OFF_ROUTE("off_route")
+    OFF_ROUTE("off_route"),
+    DOWNLOADS("downloads")
 }
 
 const val CHANNEL_ID = "general"
 const val DEFAULT_NOTIFICATION_ID = 1001
 const val FOLLOW_NOTIFICATION_ID = 1002
 const val OFF_ROUTE_NOTIFICATION_ID = 1003
+const val OFFLINE_DOWNLOAD_NOTIFICATION_ID = 1004
+const val OFFLINE_READY_NOTIFICATION_ID = 1005
 
 val OFF_ROUTE_VIBRATION_PATTERN = longArrayOf(0, 400, 200, 400, 200, 400)

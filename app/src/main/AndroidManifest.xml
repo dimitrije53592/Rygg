@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -59,6 +60,11 @@
             android:name=".feature.map.service.RouteFollowingService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <service
+            android:name=".feature.offline.service.OfflineDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <!-- Grants temporary read access to stored .gpx files for ACTION_SEND sharing. -->
         <provider

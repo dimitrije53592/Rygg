@@ -435,4 +435,15 @@
     <string name="map_waypoint_coordinates">Koordinate</string>
     <string name="map_waypoint_copy">Kopiraj koordinate</string>
     <string name="map_waypoint_copied">Koordinate su kopirane</string>
+
+    <!-- Offline maps -->
+    <string name="offline_channel_name">Preuzimanje mapa</string>
+    <string name="offline_notification_title">Preuzimanje: %1$s</string>
+    <string name="offline_notification_progress">%1$d%% · %2$s</string>
+    <string name="offline_notification_pause">Pauziraj</string>
+    <string name="offline_ready_title">Oflajn mapa je spremna</string>
+    <string name="offline_ready_message">%1$s je dostupna bez signala.</string>
+    <string name="offline_unnamed">Oflajn mapa</string>
+    <string name="unit_size_mb">%1$s MB</string>
+    <string name="unit_size_gb">%1$s GB</string>
 </resources>
