@@ -28,6 +28,7 @@ private fun detailsParams(loadingState: DetailsLoadingState): DetailsScreenParam
         onNavigateBack = {},
         mode = DetailsMode.View(
             onViewOnMap = {},
+            onDownloadMap = {},
             onToggleFavorite = {},
             onRename = {},
             onSetFolder = {},

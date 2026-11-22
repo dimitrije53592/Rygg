@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -21,9 +23,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +36,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.dimitrijeilic.rygg.R
+import com.dimitrijeilic.rygg.core.gpx.model.GeoPoint
 import com.dimitrijeilic.rygg.core.location.LocationPurpose
 import com.dimitrijeilic.rygg.core.ui.components.LocationGatePrompt
 import com.dimitrijeilic.rygg.core.ui.components.RyggProfileAction
 import com.dimitrijeilic.rygg.core.ui.components.RyggTopAppBar
+import com.dimitrijeilic.rygg.core.ui.components.RyggTopBarAction
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.core.ui.utils.formatPointCount
@@ -44,11 +50,15 @@ import com.dimitrijeilic.rygg.core.units.UnitFormatter
 import com.dimitrijeilic.rygg.core.units.rememberUnitFormatter
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
 import com.dimitrijeilic.rygg.feature.map.ui.components.MapToolbar
+import com.dimitrijeilic.rygg.feature.map.ui.components.OfflineCoverageDialog
+import com.dimitrijeilic.rygg.feature.map.ui.components.OfflineStatusChip
 import com.dimitrijeilic.rygg.feature.map.ui.components.RouteMapCanvas
 import com.dimitrijeilic.rygg.feature.map.ui.components.ScaleBar
 import com.dimitrijeilic.rygg.feature.map.ui.util.toPuckLocation
+import com.dimitrijeilic.rygg.feature.offline.domain.RegionBounds
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
+import org.maplibre.spatialk.geojson.BoundingBox
 import org.maplibre.spatialk.geojson.Position
 
 @Composable
@@ -60,6 +70,7 @@ fun MapScreen(params: MapScreenParams) {
     var pendingRebearing by remember { mutableStateOf(false) }
     var focusedRouteId by remember { mutableStateOf(params.focusEntryId) }
     var trackingRouteId by remember { mutableStateOf(params.focusEntryId) }
+    var coveragePromptRouteId by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(locationGate.location, pendingRecenter) {
         val location = locationGate.location
@@ -88,6 +99,16 @@ fun MapScreen(params: MapScreenParams) {
         }
     }
 
+    val regionPadding = RyggTheme.dimens.commonContentPadding24
+    LaunchedEffect(params.focusRegionBounds) {
+        val bounds = params.focusRegionBounds ?: return@LaunchedEffect
+        centerOnFirstFix = false
+        cameraState.animateTo(
+            boundingBox = BoundingBox(west = bounds.west, south = bounds.south, east = bounds.east, north = bounds.north),
+            padding = PaddingValues(regionPadding)
+        )
+    }
+
     LaunchedEffect(focusedRouteId, params.routes) {
         val start = params.routes.firstOrNull { it.id == focusedRouteId }?.start ?: return@LaunchedEffect
         cameraState.animateTo(
@@ -97,12 +118,25 @@ fun MapScreen(params: MapScreenParams) {
 
     val currentLocation = locationGate.location
     val puckLocation = remember(currentLocation) { currentLocation?.toPuckLocation() }
+    val offlineRegions by rememberUpdatedState(params.offlineRegions)
+    val isCameraInOfflineRegion by remember {
+        derivedStateOf {
+            val target = cameraState.position.target
+            offlineRegions.any { it.contains(GeoPoint(lat = target.latitude, lon = target.longitude)) }
+        }
+    }
 
     Scaffold(
         topBar = {
             RyggTopAppBar(
                 title = stringResource(R.string.nav_map),
                 actions = {
+                    RyggTopBarAction(
+                        icon = Icons.Outlined.Download,
+                        contentDescription = stringResource(R.string.map_open_offline_maps),
+                        onClick = params.onOpenOfflineMaps
+                    )
+                    Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
                     RyggProfileAction(onClick = params.onOpenProfile)
                     Spacer(Modifier.size(RyggTheme.dimens.commonSpacing8))
                 }
@@ -135,6 +169,15 @@ fun MapScreen(params: MapScreenParams) {
                     .padding(RyggTheme.dimens.commonContentPadding12)
             )
 
+            if (!params.isOnline) {
+                OfflineStatusChip(
+                    isCovered = isCameraInOfflineRegion,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(RyggTheme.dimens.commonContentPadding12)
+                )
+            }
+
             MapToolbar(
                 isLocationLoading = pendingRecenter,
                 modifier = Modifier
@@ -154,7 +197,11 @@ fun MapScreen(params: MapScreenParams) {
                     route = trackingRoute,
                     onStart = {
                         locationGate.requestAccess(LocationPurpose.FOLLOW_ROUTE) {
-                            params.onStartFollow(trackingRoute.id)
+                            if (trackingRoute.isAvailableOffline(params.offlineRegions)) {
+                                params.onStartFollow(trackingRoute.id)
+                            } else {
+                                coveragePromptRouteId = trackingRoute.id
+                            }
                         }
                     },
                     onClose = { trackingRouteId = null },
@@ -167,6 +214,26 @@ fun MapScreen(params: MapScreenParams) {
     }
 
     LocationGatePrompt(gate = locationGate)
+
+    coveragePromptRouteId?.let { routeId ->
+        OfflineCoverageDialog(
+            isOnline = params.isOnline,
+            onDownload = {
+                coveragePromptRouteId = null
+                params.onDownloadMap(routeId)
+            },
+            onFollowAnyway = {
+                coveragePromptRouteId = null
+                params.onStartFollow(routeId)
+            },
+            onDismiss = { coveragePromptRouteId = null }
+        )
+    }
+}
+
+private fun RouteOverlay.isAvailableOffline(regions: List<RegionBounds>): Boolean {
+    val bounds = RegionBounds.of(paths.flatten()) ?: return true
+    return regions.any { it.contains(bounds) }
 }
 
 @Composable
@@ -254,7 +321,12 @@ data class MapScreenParams(
     val styleUrl: String,
     val routes: List<RouteOverlay>,
     val focusEntryId: Long?,
+    val focusRegionBounds: RegionBounds?,
+    val offlineRegions: List<RegionBounds>,
+    val isOnline: Boolean,
     val onFocusRoute: (Long) -> Unit,
     val onStartFollow: (Long) -> Unit,
-    val onOpenProfile: () -> Unit
+    val onOpenProfile: () -> Unit,
+    val onOpenOfflineMaps: () -> Unit,
+    val onDownloadMap: (Long) -> Unit
 )

@@ -29,6 +29,7 @@ import org.maplibre.compose.map.OrnamentOptions
 import org.maplibre.compose.map.RenderOptions
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.compose.util.ClickResult
+import org.maplibre.compose.util.MaplibreComposable
 
 // The waypoint callout is UI-only state, so it lives here and works on every screen that shows a
 // map; it closes when the focused route changes, on a tap elsewhere on the map, on a pan or zoom,
@@ -42,7 +43,8 @@ internal fun RouteMapCanvas(
     cameraState: CameraState,
     modifier: Modifier = Modifier,
     showPins: Boolean = true,
-    onPinClick: (Long) -> Unit = {}
+    onPinClick: (Long) -> Unit = {},
+    layers: @Composable @MaplibreComposable () -> Unit = {}
 ) {
     var selectedWaypoint by remember(focusedRouteId) { mutableStateOf<SelectedWaypoint?>(null) }
     val waypoint = selectedWaypoint?.let { selected ->
@@ -73,6 +75,7 @@ internal fun RouteMapCanvas(
             },
             modifier = Modifier.fillMaxSize()
         ) {
+            layers()
             RouteLayers(
                 routes = routes,
                 focusedRouteId = focusedRouteId,

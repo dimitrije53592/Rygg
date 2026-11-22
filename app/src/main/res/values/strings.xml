@@ -298,8 +298,10 @@
     <string name="licenses_section_libraries">Open-source libraries (%1$d)</string>
     <string name="licenses_osm_title">© OpenStreetMap contributors</string>
     <string name="licenses_osm_detail">Map data, Open Database License (ODbL)</string>
-    <string name="licenses_maptiler_title">© MapTiler</string>
-    <string name="licenses_maptiler_detail">Map tiles and styles</string>
+    <string name="licenses_openfreemap_title">© OpenFreeMap</string>
+    <string name="licenses_openfreemap_detail">Map tiles</string>
+    <string name="licenses_openmaptiles_title">© OpenMapTiles</string>
+    <string name="licenses_openmaptiles_detail">Vector tile schema and map style, CC-BY 4.0</string>
     <string name="licenses_manrope_title">Manrope</string>
     <string name="licenses_manrope_detail">SIL Open Font License 1.1</string>
 
@@ -437,4 +439,70 @@
     <string name="map_waypoint_coordinates">Coordinates</string>
     <string name="map_waypoint_copy">Copy coordinates</string>
     <string name="map_waypoint_copied">Coordinates copied</string>
+
+    <!-- Offline maps -->
+    <string name="offline_channel_name">Map downloads</string>
+    <string name="offline_notification_title">Downloading %1$s</string>
+    <string name="offline_notification_progress">%1$d%% · %2$s</string>
+    <string name="offline_notification_pause">Pause</string>
+    <string name="offline_ready_title">Offline map ready</string>
+    <string name="offline_ready_message">%1$s is available without signal.</string>
+    <string name="offline_unnamed">Offline map</string>
+    <string name="unit_size_mb">%1$s MB</string>
+    <string name="unit_size_gb">%1$s GB</string>
+    <string name="unit_symbol_mb" translatable="false">MB</string>
+    <string name="unit_symbol_gb" translatable="false">GB</string>
+    <string name="unit_symbol_km2" translatable="false">km²</string>
+    <string name="unit_symbol_mi2" translatable="false">mi²</string>
+    <string name="offline_download_title">Download area</string>
+    <string name="offline_download_name">Name</string>
+    <string name="offline_download_default_name">Area · %1$s</string>
+    <string name="offline_download_area">Area</string>
+    <string name="offline_download_free">Free space</string>
+    <string name="offline_download_hint">Everything inside the frame, with full trail detail.</string>
+    <string name="offline_download_too_large">Area too large. Zoom in to download it.</string>
+    <string name="offline_download_no_storage">Not enough free storage on this phone.</string>
+    <string name="offline_download_offline">You\'re offline. Connect to download maps.</string>
+    <string name="offline_download_busy">Finish the current download first.</string>
+    <string name="offline_download_metered">You\'re on mobile data. Downloading a map can use a lot of it.</string>
+    <string name="offline_download_action">Download</string>
+    <string name="offline_download_error">Couldn\'t start the download. Try again.</string>
+    <string name="map_open_offline_maps">Offline maps</string>
+    <string name="offline_maps_title">Offline maps</string>
+    <string name="offline_maps_loading">Loading offline maps…</string>
+    <string name="offline_maps_error">Couldn\'t load your offline maps.</string>
+    <string name="offline_maps_empty_title">No offline maps yet</string>
+    <string name="offline_maps_empty_body">Download the areas you\'ll hike before you lose signal.</string>
+    <string name="offline_maps_download_new">Download new area</string>
+    <string name="offline_maps_used">Offline maps</string>
+    <string name="offline_maps_free">Free on device</string>
+    <string name="offline_action_error">Something went wrong. Try again.</string>
+    <string name="offline_region_downloaded">Downloaded %1$s</string>
+    <string name="offline_region_updated">Updated %1$s</string>
+    <string name="offline_region_downloading">Downloading · %1$d%%</string>
+    <string name="offline_region_paused">Paused · %1$d%%</string>
+    <string name="offline_region_failed">Download stopped · %1$d%%</string>
+    <string name="offline_region_size">Size</string>
+    <string name="offline_region_area">Area</string>
+    <string name="offline_region_resume">Resume download</string>
+    <string name="offline_region_retry">Try again</string>
+    <string name="offline_region_more">More actions</string>
+    <string name="offline_region_pause">Pause</string>
+    <string name="offline_region_update">Update</string>
+    <string name="offline_region_rename">Rename</string>
+    <string name="offline_region_delete">Delete</string>
+    <string name="offline_rename_title">Rename offline map</string>
+    <string name="offline_rename_save">Save</string>
+    <string name="offline_cancel">Cancel</string>
+    <string name="offline_delete_title">Delete offline map?</string>
+    <string name="offline_delete_message">%1$s will no longer be available without signal. This frees about %2$s.</string>
+    <string name="offline_delete_confirm">Delete</string>
+    <string name="details_download_map">Download map for offline</string>
+    <string name="map_offline_covered">Offline · showing your downloaded map</string>
+    <string name="map_offline_not_covered">Offline · no map downloaded here</string>
+    <string name="map_coverage_title">Not available offline</string>
+    <string name="map_coverage_message">This route\'s area isn\'t downloaded. If you lose signal, the map may go blank. Download it first?</string>
+    <string name="map_coverage_message_offline">You\'re offline and this area isn\'t downloaded, so the map may be blank. Route guidance and recording still work.</string>
+    <string name="map_coverage_download">Download map</string>
+    <string name="map_coverage_follow_anyway">Follow anyway</string>
 </resources>

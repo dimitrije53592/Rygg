@@ -55,6 +55,8 @@ import com.dimitrijeilic.rygg.feature.feedback.ui.wrapper.FeedbackWrapper
 import com.dimitrijeilic.rygg.feature.library.ui.wrapper.LibraryWrapper
 import com.dimitrijeilic.rygg.feature.map.ui.wrapper.MapWrapper
 import com.dimitrijeilic.rygg.feature.map.ui.wrapper.RouteFollowingWrapper
+import com.dimitrijeilic.rygg.feature.offline.ui.wrapper.OfflineDownloadWrapper
+import com.dimitrijeilic.rygg.feature.offline.ui.wrapper.OfflineMapsWrapper
 import com.dimitrijeilic.rygg.feature.profile.ui.wrapper.ProfileWrapper
 import com.dimitrijeilic.rygg.feature.record.service.RecordingService
 import com.dimitrijeilic.rygg.feature.record.ui.viewmodel.LiveRecordingViewModel
@@ -209,6 +211,9 @@ fun AppNavigation() {
                                 onViewOnMap = { entryId ->
                                     navController.navigate(Map(entryId = entryId))
                                 },
+                                onDownloadMap = { entryId ->
+                                    navController.navigate(OfflineDownload(routeId = entryId))
+                                },
                                 onOpenEntry = { entryId ->
                                     navController.navigate(Details(entryId = entryId)) {
                                         popUpTo<Details> { inclusive = true }
@@ -256,11 +261,30 @@ fun AppNavigation() {
                             onStartFollow = { entryId ->
                                 navController.navigate(FollowRoute(entryId = entryId))
                             },
-                            onOpenProfile = { navController.navigate(Profile) }
+                            onOpenProfile = { navController.navigate(Profile) },
+                            onOpenOfflineMaps = { navController.navigate(OfflineMaps) },
+                            onDownloadMap = { entryId ->
+                                navController.navigate(OfflineDownload(routeId = entryId))
+                            }
                         )
                     }
                     composable<FollowRoute> {
                         RouteFollowingWrapper(onExit = { navController.navigateUp() })
+                    }
+                    composable<OfflineMaps> {
+                        OfflineMapsWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onDownloadNewArea = { navController.navigate(OfflineDownload()) },
+                            onOpenRegion = { regionId ->
+                                navController.navigate(Map(offlineRegionId = regionId))
+                            }
+                        )
+                    }
+                    composable<OfflineDownload> {
+                        OfflineDownloadWrapper(
+                            onNavigateBack = { navController.navigateUp() },
+                            onStarted = { navController.navigateUp() }
+                        )
                     }
                     composable<Profile> {
                         ProfileWrapper(

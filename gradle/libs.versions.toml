@@ -28,6 +28,7 @@ coreSplashscreen = "1.0.1"
 graphicsShapes = "1.0.1"
 maplibreCompose = "0.13.1"
 maplibreOpengl = "13.0.2"
+okhttp = "4.12.0" # must match the version MapLibre ships with
 aboutLibraries = "15.3.0"
 coil = "3.3.0"
 reorderable = "2.4.3"
@@ -76,6 +77,7 @@ aboutlibraries-core = { group = "com.mikepenz", name = "aboutlibraries-core", ve
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 maplibre-android-opengl = { group = "org.maplibre.gl", name = "android-sdk-opengl", version.ref = "maplibreOpengl" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 
 [plugins]
 # No kotlin-android plugin: AGP 9 provides built-in Kotlin.
