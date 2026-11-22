@@ -24,12 +24,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.util.Consumer
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -84,11 +86,30 @@ fun AppNavigation() {
         }
     }
 
-    LaunchedEffect(Unit) { handleDeepLinkSideEffects(activity.intent) }
+    var pendingImportUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var launchIntentHandled by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        handleDeepLinkSideEffects(activity.intent)
+        if (!launchIntentHandled) {
+            launchIntentHandled = true
+            activity.intent.incomingGpxUri()?.let { pendingImportUri = it }
+        }
+    }
 
     // A singleTop activity gets later deep links via onNewIntent, which NavHost does not observe.
     DisposableEffect(navController) {
         val listener = Consumer<Intent> { intent ->
+            val incomingGpx = intent.incomingGpxUri()
+            if (incomingGpx != null) {
+                pendingImportUri = incomingGpx
+                val destination = navController.currentDestination
+                val onAuth = destination?.hasRoute<Login>() == true ||
+                    destination?.hasRoute<Register>() == true ||
+                    destination?.hasRoute<ForgotPassword>() == true
+                if (!onAuth) navController.navigateToTab(Library)
+                return@Consumer
+            }
             handleDeepLinkSideEffects(intent)
             navController.handleDeepLink(intent)
         }
@@ -200,7 +221,9 @@ fun AppNavigation() {
                                         ImportPreview(uri = Uri.encode(uri.toString()), discipline = discipline.name)
                                     )
                                 },
-                                onOpenProfile = { navController.navigate(Profile) }
+                                onOpenProfile = { navController.navigate(Profile) },
+                                pendingImportUri = pendingImportUri,
+                                onPendingImportConsumed = { pendingImportUri = null },
                             )
                         }
                     }

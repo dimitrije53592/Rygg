@@ -15,6 +15,8 @@ fun LibraryWrapper(
     onEntryClick: (Long) -> Unit,
     onImport: (Uri, Discipline) -> Unit,
     onOpenProfile: () -> Unit,
+    pendingImportUri: Uri?,
+    onPendingImportConsumed: () -> Unit,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -40,7 +42,9 @@ fun LibraryWrapper(
             onToggleSort = { viewModel.onToggleSort() },
             onToggleFavoritesFilter = { viewModel.onToggleFavoritesFilter() },
             onCycleSourceFilter = { viewModel.onCycleSource() },
-            onOpenProfile = onOpenProfile
+            onOpenProfile = onOpenProfile,
+            pendingImportUri = pendingImportUri,
+            onPendingImportConsumed = onPendingImportConsumed,
         )
     )
 }

@@ -178,6 +178,7 @@
     <string name="details_discard">Odbaci</string>
     <string name="details_save_error">Čuvanje nije uspelo. Pokušajte ponovo.</string>
     <string name="details_import_preview">Pregled uvoza</string>
+    <string name="import_invalid_gpx">Ovaj fajl nije moguće otvoriti kao GPX rutu</string>
     <string name="details_source_imported">Uvezeno</string>
     <string name="details_source_recorded">Snimljeno</string>
     <string name="details_recording_preview">Pregled snimka</string>
