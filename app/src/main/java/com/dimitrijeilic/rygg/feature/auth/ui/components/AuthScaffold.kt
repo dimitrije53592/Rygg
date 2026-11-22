@@ -95,7 +95,7 @@ fun AuthScaffold(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_logo),
+                painter = painterResource(R.drawable.ic_logo_full),
                 tint = Color.Unspecified,
                 contentDescription = null,
                 modifier = Modifier.size(RyggTheme.dimens.iconSize80)

@@ -3,4 +3,6 @@
     <!-- Painted by the window before Compose draws. Must match SurfaceDim or a cold start flashes. -->
     <color name="window_background">#F2F3F2</color>
     <color name="splash_background">#F2F3F2</color>
+    <color name="logo_contour">#2A3138</color>
+    <color name="logo_green">#3ACE9F</color>
 </resources>
