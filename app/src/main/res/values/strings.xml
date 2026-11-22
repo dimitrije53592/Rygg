@@ -176,6 +176,7 @@
     <string name="details_discard">Discard</string>
     <string name="details_save_error">Couldn\'t save. Please try again.</string>
     <string name="details_import_preview">Import preview</string>
+    <string name="import_invalid_gpx">This file couldn\'t be opened as a GPX route</string>
     <string name="details_source_imported">Imported</string>
     <string name="details_source_recorded">Recorded</string>
     <string name="details_recording_preview">Recording preview</string>

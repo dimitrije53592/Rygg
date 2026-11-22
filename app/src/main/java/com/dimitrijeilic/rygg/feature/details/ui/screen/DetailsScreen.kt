@@ -64,7 +64,9 @@ fun DetailsScreen(params: DetailsScreenParams) {
             is DetailsLoadingState.Error ->
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = state.message ?: stringResource(R.string.details_not_found),
+                        text = state.messageRes?.let { stringResource(it) }
+                            ?: state.message
+                            ?: stringResource(R.string.details_not_found),
                         style = RyggTheme.typography.titleMedium,
                         color = RyggTheme.getColor(RyggColor.TextPrimary),
                         modifier = Modifier.padding(RyggTheme.dimens.commonContentPadding16)

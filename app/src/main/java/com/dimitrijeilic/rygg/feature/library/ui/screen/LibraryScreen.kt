@@ -192,7 +192,16 @@ fun LibraryScreen(params: LibraryScreenParams) {
         )
     }
 
-    if (showImportSheet) {
+    val externalImportUri = params.pendingImportUri
+    if (externalImportUri != null) {
+        ImportDisciplineSheet(
+            onDisciplinePicked = { discipline ->
+                params.onPendingImportConsumed()
+                params.onImport(externalImportUri, discipline)
+            },
+            onDismiss = params.onPendingImportConsumed
+        )
+    } else if (showImportSheet) {
         ImportDisciplineSheet(
             onDisciplinePicked = { discipline ->
                 pendingDiscipline = discipline
@@ -285,5 +294,7 @@ data class LibraryScreenParams(
     val onToggleSort: () -> Unit,
     val onToggleFavoritesFilter: () -> Unit,
     val onCycleSourceFilter: () -> Unit,
-    val onOpenProfile: () -> Unit
+    val onOpenProfile: () -> Unit,
+    val pendingImportUri: Uri? = null,
+    val onPendingImportConsumed: () -> Unit = {},
 )

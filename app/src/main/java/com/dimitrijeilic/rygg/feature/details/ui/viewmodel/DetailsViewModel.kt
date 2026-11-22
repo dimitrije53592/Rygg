@@ -1,6 +1,7 @@
 package com.dimitrijeilic.rygg.feature.details.ui.viewmodel
 
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -259,7 +260,10 @@ sealed interface DetailsLoadingState {
         val elevationProfile: List<ElevationSample>
     ) : DetailsLoadingState
 
-    data class Error(val message: String?) : DetailsLoadingState
+    data class Error(
+        val message: String?,
+        @StringRes val messageRes: Int? = null,
+    ) : DetailsLoadingState
 
     // A finished recording that captured too little movement to build a route (< 2 points).
     data object Empty : DetailsLoadingState

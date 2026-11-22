@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.dimitrijeilic.rygg.R
 import com.dimitrijeilic.rygg.core.common.Outcome
 import com.dimitrijeilic.rygg.core.navigation.ImportPreview
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
@@ -54,7 +55,12 @@ class ImportPreviewViewModel @Inject constructor(
                     )
                 }
 
-                is Outcome.Error -> DetailsUiState(DetailsLoadingState.Error(staged.cause.message))
+                is Outcome.Error -> DetailsUiState(
+                    DetailsLoadingState.Error(
+                        message = staged.cause.message,
+                        messageRes = R.string.import_invalid_gpx,
+                    )
+                )
                 Outcome.Loading -> DetailsUiState(DetailsLoadingState.Loading)
             }
         }

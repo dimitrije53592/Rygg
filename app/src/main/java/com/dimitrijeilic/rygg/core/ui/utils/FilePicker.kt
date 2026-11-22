@@ -64,6 +64,7 @@ const val GPX_MIME_TYPE = "application/gpx+xml"
 
 private val SUPPORTED_FILE_TYPES = arrayOf(
     GPX_MIME_TYPE,
+    "application/gpx",
     "application/xml",
     "text/xml",
     "application/octet-stream"
