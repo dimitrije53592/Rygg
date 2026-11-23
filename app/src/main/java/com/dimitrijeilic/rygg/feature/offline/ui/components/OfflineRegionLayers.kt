@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
+import com.dimitrijeilic.rygg.feature.map.ui.util.MapLabelFont
 import com.dimitrijeilic.rygg.feature.offline.domain.OfflineRegion
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -46,6 +47,7 @@ internal fun OfflineRegionLayers(regions: List<OfflineRegion>) {
         id = "offline-regions-label",
         source = source,
         textField = format(span(feature.get(PROP_NAME).asString())),
+        textFont = MapLabelFont,
         textColor = const(green),
         textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
         textHaloWidth = const(RyggTheme.dimens.border1)
