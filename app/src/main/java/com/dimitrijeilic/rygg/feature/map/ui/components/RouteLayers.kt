@@ -10,6 +10,7 @@ import com.dimitrijeilic.rygg.core.ui.theme.RyggColor
 import com.dimitrijeilic.rygg.core.ui.theme.RyggTheme
 import com.dimitrijeilic.rygg.feature.auth.domain.Discipline
 import com.dimitrijeilic.rygg.feature.map.domain.RouteOverlay
+import com.dimitrijeilic.rygg.feature.map.ui.util.MapLabelFont
 import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_ID
 import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_NAME
 import com.dimitrijeilic.rygg.feature.map.ui.util.PROP_WAYPOINT_INDEX
@@ -77,6 +78,7 @@ internal fun RouteLayers(
         iconAllowOverlap = const(true),
         iconIgnorePlacement = const(true),
         textField = format(span(feature.get(PROP_NAME).asString())),
+        textFont = MapLabelFont,
         textColor = const(RyggTheme.getColor(RyggColor.TextPrimary)),
         textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
         textHaloWidth = const(2.dp),
@@ -108,6 +110,7 @@ internal fun RouteLayers(
             iconAnchor = const(SymbolAnchor.Bottom),
             iconAllowOverlap = const(true),
             textField = format(span(feature.get(PROP_NAME).asString())),
+            textFont = MapLabelFont,
             textColor = const(RyggTheme.getColor(RyggColor.TextPrimary)),
             textHaloColor = const(RyggTheme.getColor(RyggColor.SurfaceElevated)),
             textHaloWidth = const(2.dp),
